@@ -1,0 +1,159 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #181818;  /* Dark Background */
+    color: #e0e0e0;  /* Light Text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100;
+}
+
+/* Main Container */
+#appContainer {
+    display: flex;
+    flex-direction: column;
+    width: 80%; /* Make container wider */
+    height: 100%; /* Ensure full height of the viewport */
+    background-color: #242424;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* Header Section */
+#header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #242424;
+}
+
+#header-section Label {
+    font-size: 18px;
+    color: #e0e0e0;
+}
+
+#runCodeButton {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#runCodeButton:hover {
+    background-color: #0056b3;
+}
+
+/* Main Content Area (Registers Table) */
+#main-content {
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #242424;
+    --fx-border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+}
+
+#registersTable {
+    width: 100%;  /* Table takes full width */
+    border-collapse: collapse;
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+#registersTable .column-header {
+    background-color: #333;
+    color: #e0e0e0;
+    text-align: left;
+    padding: 10px;
+}
+
+#registersTable .table-cell {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #333;
+}
+
+/* Console Section */
+#console {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-top: 1px solid #333;
+    width: 100%;
+}
+
+/* Console Input TextArea */
+#consoleInput {
+    flex-grow: 1;
+    padding: 10px;
+    background-color: #242424;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #e0e0e0;
+    font-family: monospace;
+    resize: none;
+}
+
+/* Send Button */
+#sendCommandButton {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#sendCommandButton:hover {
+    background-color: #1e7e34;
+}
+
+/* Button Hover Effects */
+#runCodeButton:hover {
+    background-color: #0056b3;
+}
+
+#sendCommandButton:hover {
+    background-color: #1e7e34;
+}
+
+/* Table Styling */
+#registersTable {
+    -fx-table-cell-border-color: #333;
+    -fx-control-inner-background: #242424;
+    -fx-font-size: 14px;
+}
+
+#registersTable .column-header {
+    -fx-background-color: #333;
+    -fx-text-fill: #e0e0e0;
+}
+
+/* Console Styling */
+#consoleInput {
+    -fx-padding: 10px;
+    -fx-border-color: #333;
+    -fx-border-radius: 5px;
+}
+
+#sendCommandButton {
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
+    -fx-background-color: #28a745;
+}
