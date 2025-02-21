@@ -1,0 +1,37 @@
+/* Explanation Table */
+#explanation-table {
+    width: 100%; /* Make the table take the full width of the middle section */
+    height: 100%; /* Keep the height to fill the parent */
+    max-height: 100vh; /* Set a maximum height to fit within the viewport */
+    border-collapse: collapse; /* Ensure borders collapse for a cleaner look */
+    background-color: #333; /* Match the background color */
+    color: #ddd; /* Match the text color */
+    border-radius: 10px; /* Keep the rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); /* Keep the shadow for depth */
+    margin-right: 20px; /* Space between the explanation table and the text area */
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+}
+
+#explanation-table thead th {
+    font-size: 12px; /* Reduce header font size */
+    padding: 2px; /* Reduce padding for headers */
+    height: 2vh;
+}
+
+#explanation-table tbody td {
+    font-size: 10px; /* Reduce body text size */
+    padding: 2px; /* Reduce padding for body cells */
+}
+
+#explanation-table-command {
+    width: 40%; /* Keep width for command column */
+    height: 5.05vh;
+    text-align: left; /* Align text to the left */
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#explanation-table-description {
+    width: 70%; /* Keep width for description column */
+    font-size: 20px;
+}

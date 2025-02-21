@@ -34,7 +34,7 @@ public class RegisterApplication extends Application {
     public void start(Stage stage) throws Exception {
         Scene scene = new Scene(createLayout(), 1280, 900);
         stage.setScene(scene);
-        stage.setTitle("Registermaschine - v1.0 @TiJ");
+        stage.setTitle("JASM v1.2.0 - By @TiJ - Credits: @Steven @Michael @Janek");
         stage.setResizable(false);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png"))));
         stage.show();
@@ -43,7 +43,7 @@ public class RegisterApplication extends Application {
     private SplitPane createLayout() {
         SplitPane splitPane = new SplitPane(createCodeArea(), createRegisterView());
 
-        double dividerPosition = (1280d - 510d) / 1280d;
+        double dividerPosition = (1280d - 610d) / 1280d;
 
         splitPane.setMaxHeight(900);
         splitPane.setPrefHeight(900);
@@ -51,17 +51,15 @@ public class RegisterApplication extends Application {
         splitPane.setPrefWidth(1280);
         splitPane.setDividerPositions(dividerPosition);
         SplitPane.Divider divider = splitPane.getDividers().getFirst();
-        divider.positionProperty().addListener((o, oV, nV) -> {
+        divider.positionProperty().addListener((_, _, _) -> {
             divider.setPosition(dividerPosition);
         });
-
-        SplitPane.setResizableWithParent(splitPane, Boolean.TRUE);
 
         return splitPane;
     }
 
     private CodeArea createCodeArea() {
-        CodeArea codeArea = new CodeArea();
+        codeArea = new CodeArea();
         codeArea.setLineHighlighterOn(true);
         codeArea.setLineHighlighterFill(Color.rgb(70, 70, 70));
         codeArea.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/dark-mode.css")).toExternalForm());
@@ -81,8 +79,6 @@ public class RegisterApplication extends Application {
         codeArea.textProperty().addListener((o, oV, newValue) -> {
             CODE = newValue;
         });
-
-        this.codeArea = codeArea;
 
         return codeArea;
     }

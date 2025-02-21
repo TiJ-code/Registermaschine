@@ -5,16 +5,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=640, height=720, initial-scale=1">
   <title>Cool Table with Button Bar</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/ide.css">
+  <link rel="stylesheet" href="css/explanation.css">
+  <link rel="stylesheet" href="css/machinecode.css">
 </head>
 
 <body>
   <script src="controls.js"></script>
 
   <div id="main-container">
-
     <!-- Text Area on the Left -->
-    <div id="text-area">Machine Code</div>
+    <div id="left-section">
+      <div id="text-area">00 00</div>
+    </div>
+
+    <div id="middle-section">
+      <div id="explanation-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Befehl</th>
+              <th id="explanation-table-description">Erklärung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td id="explanation-table-command">ADD $XX</td><td>Addiere Wert an $XX auf Akkumulator.</td></tr>
+            <tr><td id="explanation-table-command">SUB $XX</td><td>Subtrahiere Wert an $XX von Akkumulator.</td></tr>
+            <tr><td id="explanation-table-command">MUL $XX</td><td>Multipliziere Wert an $XX mit Akkumulator.</td></tr>
+            <tr><td id="explanation-table-command">DIV $XX</td><td>Teile Akkumulator durch Wert von $XX.</td></tr>
+            <tr><td id="explanation-table-command">LDA $XX</td><td>Lade Wert von $XX in Akkumulator.</td></tr>
+            <tr><td id="explanation-table-command">LDK   X</td><td>Lade Wert X auf Akkumulator.</td></tr>
+            <tr><td id="explanation-table-command">STA $XX</td><td>Speichere Wert des Akkumulator an $XX.</td></tr>
+            <tr><td id="explanation-table-command">INP $XX</td><td>Lade Eingabe in Adresse $XX.</td></tr>
+            <tr><td id="explanation-table-command">OUT $XX</td><td>Gebe Wert an der Adresse $XX aus.</td></tr>
+            <tr><td id="explanation-table-command">HLT  99</td><td>Beende die Ausführung.</td></tr>
+            <tr><td id="explanation-table-command">JMP 0xXX</td><td>Springe an Programmzeile 0xXX.</td></tr>
+            <tr><td id="explanation-table-command">JEZ 0xXX</td><td>Springe an Programmzeile 0xXX, falls Akkumaltor  = 0.</td></tr>
+            <tr><td id="explanation-table-command">JNE 0xXX</td><td>Springe an Programmzeile 0xXX, falls Akkumaltor != 0.</td></tr>
+            <tr><td id="explanation-table-command">JLZ 0xXX</td><td>Springe an Programmzeile 0xXX, falls Akkumaltor  < 0.</td></tr>
+            <tr><td id="explanation-table-command">JLE 0xXX</td><td>Springe an Programmzeile 0xXX, falls Akkumaltor <= 0.</td></tr>
+            <tr><td id="explanation-table-command">JGZ 0xXX</td><td>Springe an Programmzeile 0xXX, falls Akkumaltor  > 0.</td></tr>
+            <tr><td id="explanation-table-command">JGE 0xXX</td><td>Springe an Programmzeile 0xXX, falls Akkumaltor >= 0.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
     <!-- Right Section (Everything else) -->
     <div id="right-section">
