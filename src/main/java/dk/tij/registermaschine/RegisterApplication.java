@@ -34,7 +34,7 @@ public class RegisterApplication extends Application {
     public void start(Stage stage) throws Exception {
         Scene scene = new Scene(createLayout(), 1280, 900);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.2.0 - By @TiJ - Credits: @Steven @Michael @Janek");
+        stage.setTitle("JASM v1.2.1 - By @TiJ - Credits: @Steven @Michael @Janek");
         stage.setResizable(false);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png"))));
         stage.show();
@@ -144,6 +144,12 @@ public class RegisterApplication extends Application {
     // js call
     public void sendInput(String inputValue) {
         cpu.sendInput(inputValue);
+    }
+
+    // js call
+    public void setDebugMode(boolean value) {
+        System.out.println("DBG " + value);
+        cpu.toggleDebugMode(value);
     }
 
     public static void main(String[] args) {

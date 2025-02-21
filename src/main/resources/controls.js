@@ -80,6 +80,22 @@ function send() {
     }
 }
 
+function toggleDebugMode(element) {
+    let debug = element.innerHTML === "ON";
+    if (debug) {
+        element.innerHTML = "OFF";
+        element.classList.remove("debug-enabled");
+        element.classList.add("debug-disabled");
+    } else {
+        element.innerHTML = "ON";
+        element.classList.add("debug-enabled");
+        element.classList.remove("debug-disabled");
+    }
+    if (window.java) { 
+        window.java.setDebugMode(!debug);
+    }
+}
+
 // Standard log function (neutral info)
 function log(text) {
     logColor(text, "log-info");
@@ -88,26 +104,6 @@ function log(text) {
 // Error log function (for critical issues)
 function logError(text) {
     logColor(text, "log-error");
-}
-
-// Success log (for successful operations)
-function logSuccess(text) {
-    logColor(text, "log-success");
-}
-
-// Warning log (for potential issues)
-function logWarning(text) {
-    logColor(text, "log-warning");
-}
-
-// Blinking log (for important dynamic messages)
-function logBlink(text) {
-    logColor(text, "log-blink");
-}
-
-// Core function to update status with colour
-function logColor(text, colour) {
-    displayLog(text, colour);
 }
 
 // Update log display with optional animation

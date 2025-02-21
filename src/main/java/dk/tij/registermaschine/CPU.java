@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CPU {
-    private static final int MAX_JUMP_DEPTH = 32;
+    private static final int MAX_JUMP_DEPTH = 64;
 
     private final int[] registers = new int[16];
     private final boolean[] changed = new boolean[16];
@@ -25,6 +25,7 @@ public class CPU {
     private int jumpDepth = 0;
 
     private int lastHighlightedLine = -1;
+    private boolean debugMode = false;
     private volatile boolean isRunning = false;
 
     public CPU(JSObject window, CodeArea codeArea) {
@@ -124,18 +125,6 @@ public class CPU {
                     System.out.println(opcode);
 
                     switch (opcode) {
-                        case 0x05:
-                            registers[0] = registers[arg];
-                            changed[0] = true;
-                            break;
-                        case 0x07:
-                            registers[arg] = registers[0];
-                            changed[arg] = true;
-                            break;
-                        case 0x06:
-                            registers[0] = arg;
-                            changed[0] = true;
-                            break;
                         case 0x01:
                             registers[0] += registers[arg];
                             changed[0] = true;
@@ -152,26 +141,17 @@ public class CPU {
                             registers[0] /= registers[arg];
                             changed[0] = true;
                             break;
-                        case 0x0B:
-                            if (!performJump(arg)) return null;
+                        case 0x05:
+                            registers[0] = registers[arg];
+                            changed[0] = true;
                             break;
-                        case 0x0C:
-                            if (registers[0] == 0 && !performJump(arg)) return null;
+                        case 0x06:
+                            registers[0] = arg;
+                            changed[0] = true;
                             break;
-                        case 0x0D:
-                            if (registers[0] != 0 && !performJump(arg)) return null;
-                            break;
-                        case 0x0E:
-                            if (registers[0] < 0 && !performJump(arg)) return null;
-                            break;
-                        case 0x0F:
-                            if (registers[0] <= 0 && !performJump(arg)) return null;
-                            break;
-                        case 0x10:
-                            if (registers[0] > 0 && !performJump(arg)) return null;
-                            break;
-                        case 0x11:
-                            if (registers[0] >= 0 && !performJump(arg)) return null;
+                        case 0x07:
+                            registers[arg] = registers[0];
+                            changed[arg] = true;
                             break;
                         case 0x08:
                             Platform.runLater(() ->
@@ -198,6 +178,27 @@ public class CPU {
                             });
                             endExecution();
                             return null;
+                        case 0x0B:
+                            if (!performJump(arg)) return null;
+                            break;
+                        case 0x0C:
+                            if (registers[0] == 0 && !performJump(arg)) return null;
+                            break;
+                        case 0x0D:
+                            if (registers[0] != 0 && !performJump(arg)) return null;
+                            break;
+                        case 0x0E:
+                            if (registers[0] < 0 && !performJump(arg)) return null;
+                            break;
+                        case 0x0F:
+                            if (registers[0] <= 0 && !performJump(arg)) return null;
+                            break;
+                        case 0x10:
+                            if (registers[0] > 0 && !performJump(arg)) return null;
+                            break;
+                        case 0x11:
+                            if (registers[0] >= 0 && !performJump(arg)) return null;
+                            break;
                         default:
                             Platform.runLater(() -> {
                                 window.call("logError", String.format("Unknown opcode: %d", opcode));
@@ -206,7 +207,7 @@ public class CPU {
                     }
 
                     updateRegisterUI();
-                    Thread.sleep(1000);
+                    Thread.sleep(debugMode ? 1000 : 10);
                     programCounter++;
                 }
                 endExecution();
@@ -228,6 +229,7 @@ public class CPU {
     public void endExecution() {
         isRunning = false;
         Platform.runLater(() -> {
+            updateRegisterUI();
             codeArea.setDisable(false); // Re-enable editing
             if (lastHighlightedLine != -1) {
                 codeArea.setParagraphStyle(lastHighlightedLine, Collections.emptyList());
@@ -235,5 +237,9 @@ public class CPU {
             window.eval("toggleRunCodeButton(null, false)");
             window.call("log", "Execution halted.");
         });
+    }
+
+    public void toggleDebugMode(boolean value) {
+        debugMode = value;
     }
 }

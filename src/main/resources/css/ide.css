@@ -176,20 +176,6 @@ tbody tr:hover {
     box-shadow: 0 0 8px #ff4d4d;
 }
 
-/* Success Log */
-.log-success {
-    background-color: #0b6623 !important;
-    color: #fff;
-    box-shadow: 0 0 8px #4caf50;
-}
-
-/* Warning Log */
-.log-warning {
-    background-color: #b8860b !important;
-    color: #000;
-    box-shadow: 0 0 8px #ffcc00;
-}
-
 /* Info Log */
 .log-info {
     background-color: #1a237e !important;
@@ -202,11 +188,6 @@ tbody tr:hover {
     0% { background-color: #ffff99; }
     50% { background-color: transparent; }
     100% { background-color: #ffff99; }
-}
-
-.log-blink {
-    animation: blinkFade 1s ease-in-out infinite;
-    color: #000;
 }
 
 #status-text-value {
@@ -223,7 +204,7 @@ tbody tr:hover {
     100% { background-color: #ffff99; box-shadow: 0 0 10px #ffff99; }
 }
 
-#button-bar, #input-bar, #output-bar {
+#button-bar, #input-bar, #output-bar{
     display: flex;
     width: 100%;
     gap: 10px;
@@ -249,6 +230,30 @@ tbody tr:hover {
 
 #button-bar button:hover, #input-bar button:hover {
     background-color: #5a6dd8;
+}
+
+#debug-area {
+    display: flex;
+    flex-direction: column;
+}
+
+#debug-text {
+    color: #fff;
+    margin-bottom: 5px;
+    flex: 20;
+    color: #fff;
+    background-color: #3f51b5;
+    border-radius: 5px;
+    text-align: center;
+    padding: 3px 0;
+}
+
+.debug-enabled {
+    background-color: #0b6623 !important;
+}
+
+.debug-disabled {
+    background-color: #b40920 !important;
 }
 
 .running {
