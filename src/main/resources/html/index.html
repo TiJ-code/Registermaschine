@@ -8,13 +8,16 @@
     <link rel="stylesheet" href="../css/new/register.css">
     <link rel="stylesheet" href="../css/new/ide.css">
     <link rel="stylesheet" href="../css/new/explanation.css">
-    <link rel="stylesheet" href="../css/new/table.css">
+    <link rel="stylesheet" href="../css/new/maschine-code.css">
     <link rel="stylesheet" href="../css/new/slider.css">
 </head>
 <body>
     <script src="../js/controls.js"></script>
 
     <div class="container">
+        <div class="left-container">
+            <div class="machine-code-output">00 00</div>
+        </div>
         <div class="middle-container exp">
             <div class="explanation-table-container expl">
                 <table class="explanation">
@@ -32,13 +35,13 @@
                         <tr><td>INP $xx</td><td>Waits for user input. Stores input in address $xx.</td></tr>
                         <tr><td>OUT $xx</td><td>Outputs value from address $xx.</td></tr>
                         <tr><td>HLT  99</td><td>Halts execution.</td></tr>
-                        <tr><td>JMP 0x??</td><td>Jumpts to program line 0x??.<td></tr>
-                        <tr><td>JEZ 0x??</td><td>Jumpts to program line 0x??, if accu = 0.<td></tr>
-                        <tr><td>JNE 0x??</td><td>Jumpts to program line 0x??, if accu ≠ 0.<td></tr>
-                        <tr><td>JLZ 0x??</td><td>Jumpts to program line 0x??, if accu < 0.<td></tr>
-                        <tr><td>JLE 0x??</td><td>Jumpts to program line 0x??, if accu ≤ 0.<td></tr>
-                        <tr><td>JGZ 0x??</td><td>Jumpts to program line 0x??, if accu > 0.<td></tr>
-                        <tr><td>JGE 0x??</td><td>Jumpts to program line 0x??, if accu ≥ 0.<td></tr>
+                        <tr><td>JMP 0x??</td><td>Jumpts to program line 0x??.</td></tr>
+                        <tr><td>JEZ 0x??</td><td>Jumpts to program line 0x??,<br> if accu = 0.</td></tr>
+                        <tr><td>JNE 0x??</td><td>Jumpts to program line 0x??,<br> if accu ≠ 0.</td></tr>
+                        <tr><td>JLZ 0x??</td><td>Jumpts to program line 0x??,<br> if accu < 0.</td></tr>
+                        <tr><td>JLE 0x??</td><td>Jumpts to program line 0x??,<br> if accu ≤ 0.</td></tr>
+                        <tr><td>JGZ 0x??</td><td>Jumpts to program line 0x??,<br> if accu > 0.</td></tr>
+                        <tr><td>JGE 0x??</td><td>Jumpts to program line 0x??,<br> if accu ≥ 0.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -52,8 +55,10 @@
                         <input type="checkbox">
                         <span class="slider"></span>
                     </label>
-                    <div class="ide-text">Execution Speed</div>
-                    <button class="ide-exec-speed">1.0s</button>
+                </div>
+                <div class="ide-debug-container">
+                    <div class="ide-text">Debug-Speed</div>
+                    <button class="ide-exec-speed ide-clickable">1.0s</button>
                 </div>
                 <div class="ide-output-container">
                     <div class="ide-text">Output</div>
@@ -62,7 +67,7 @@
                     </div>
                 </div>
                 <div class="ide-input-container">
-                    <div class="ide-text">Input</div>
+                    <div class="ide-text ide-clickable">Input</div>
                     <input class="ide-input-text" type="number" placeholder="input integer here">
                 </div>
             </div>

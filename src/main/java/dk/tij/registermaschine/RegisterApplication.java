@@ -34,8 +34,10 @@ public class RegisterApplication extends Application {
     public void start(Stage stage) throws Exception {
         Scene scene = new Scene(createLayout(), 1280, 900);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.2.1 - By @TiJ - Credits: @Steven @Michael @Janek");
-        stage.setResizable(false);
+        stage.setTitle("JASM v1.2.2 - By @TiJ - Credits: @Steven @Michael @Janek");
+        stage.setResizable(true);
+        stage.setMinWidth(1000d);
+        stage.setMinHeight(885d);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png"))));
         stage.show();
     }
@@ -43,17 +45,15 @@ public class RegisterApplication extends Application {
     private SplitPane createLayout() {
         SplitPane splitPane = new SplitPane(createCodeArea(), createRegisterView());
 
-        double dividerPosition = (1280d - 610d) / 1280d;
-
         splitPane.setMaxHeight(900);
         splitPane.setPrefHeight(900);
         splitPane.setMaxWidth(1280);
         splitPane.setPrefWidth(1280);
-        splitPane.setDividerPositions(dividerPosition);
-        SplitPane.Divider divider = splitPane.getDividers().getFirst();
+        splitPane.setDividerPositions(0.5);
+        /*SplitPane.Divider divider = splitPane.getDividers().getFirst();
         divider.positionProperty().addListener((_, _, _) -> {
             divider.setPosition(dividerPosition);
-        });
+        });*/
 
         return splitPane;
     }
@@ -87,7 +87,7 @@ public class RegisterApplication extends Application {
         WebView webView = new WebView();
         webEngine = webView.getEngine();
 
-        webEngine.load(Objects.requireNonNull(getClass().getResource("/index.html")).toExternalForm());
+        webEngine.load(Objects.requireNonNull(getClass().getResource("/html/index.html")).toExternalForm());
 
         webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED) {
@@ -98,8 +98,7 @@ public class RegisterApplication extends Application {
         });
 
         webView.setContextMenuEnabled(false);
-        webView.maxWidth(300);
-        webView.setPrefWidth(300);
+        webView.setMinWidth(615);
 
         return webView;
     }

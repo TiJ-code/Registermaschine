@@ -79,7 +79,8 @@
     justify-content: center; /* Center text horizontally */
 }
 
-.ide-exec-speed:hover {
+.ide-clickable:hover {
     background-color: #5a6dd8; /* Optional: Change background color on hover */
     transition: background-color 0.3s ease; /* Optional: Add transition effect */
+    cursor: pointer;
 }
