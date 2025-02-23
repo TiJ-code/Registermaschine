@@ -21,14 +21,20 @@
 #explanation-table tbody td {
     font-size: 10px; /* Reduce body text size */
     padding: 2px; /* Reduce padding for body cells */
+    height: 5.05vh;
+    text-align: left; /* Align text to the left */
+    font-size: 12px;
+    overflow: hidden;
+    width: 40%;
+}
+
+#explanation-table tbody tr :first-child  {
+    font-weight: bold;
+    font-size: 14px;
 }
 
 #explanation-table-command {
     width: 40%; /* Keep width for command column */
-    height: 5.05vh;
-    text-align: left; /* Align text to the left */
-    font-weight: bold;
-    font-size: 20px;
 }
 
 #explanation-table-description {

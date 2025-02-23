@@ -7,12 +7,15 @@ import dk.tij.registermaschine.parser.InstructionParser;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -32,29 +35,19 @@ public class RegisterApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Scene scene = new Scene(createLayout(), 1280, 900);
+        Scene scene = new Scene(createLayout(), 1080, 500);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.2.0 - By @TiJ - Credits: @Steven @Michael @Janek");
-        stage.setResizable(false);
+        stage.setTitle("JASM v1.2.4 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setResizable(true);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(970);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png"))));
         stage.show();
     }
 
     private SplitPane createLayout() {
         SplitPane splitPane = new SplitPane(createCodeArea(), createRegisterView());
-
-        double dividerPosition = (1280d - 610d) / 1280d;
-
-        splitPane.setMaxHeight(900);
-        splitPane.setPrefHeight(900);
-        splitPane.setMaxWidth(1280);
-        splitPane.setPrefWidth(1280);
-        splitPane.setDividerPositions(dividerPosition);
-        SplitPane.Divider divider = splitPane.getDividers().getFirst();
-        divider.positionProperty().addListener((_, _, _) -> {
-            divider.setPosition(dividerPosition);
-        });
-
+        splitPane.setDividerPositions(0.5);
         return splitPane;
     }
 
@@ -71,14 +64,22 @@ public class RegisterApplication extends Application {
             lineNumberText.getStyleClass().add("lineno");
             lineNumberText.setFill(Color.WHITE);
             lineNumberText.setFont(Font.font("Monospace", 16));
+            lineNumberText.setStyle("-fx-padding: 5px 0 5px 0;");
 
-            return lineNumberText;
+            // Create a VBox to center the text vertically
+            VBox vbox = new VBox(lineNumberText);
+            vbox.setAlignment(Pos.CENTER_LEFT); // Align to the left
+            vbox.setPrefHeight(30); // Set a preferred height for the VBox
+
+            return vbox;
         });
 
         SyntaxHighlighter.applyHighlighting(codeArea);
         codeArea.textProperty().addListener((o, oV, newValue) -> {
             CODE = newValue;
         });
+
+        codeArea.setMinWidth(150);
 
         return codeArea;
     }
@@ -87,9 +88,9 @@ public class RegisterApplication extends Application {
         WebView webView = new WebView();
         webEngine = webView.getEngine();
 
-        webEngine.load(Objects.requireNonNull(getClass().getResource("/index.html")).toExternalForm());
+        webEngine.load(Objects.requireNonNull(getClass().getResource("/html/index.html")).toExternalForm());
 
-        webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+        webEngine.getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED) {
                 window = (JSObject) webEngine.executeScript("window");
                 window.setMember("java", this);
@@ -98,8 +99,7 @@ public class RegisterApplication extends Application {
         });
 
         webView.setContextMenuEnabled(false);
-        webView.maxWidth(300);
-        webView.setPrefWidth(300);
+        webView.setMinWidth(880);
 
         return webView;
     }
@@ -121,7 +121,7 @@ public class RegisterApplication extends Application {
     }
 
     // js call
-    public void runCode() {
+    public void runCode(float speed) {
         List<Instruction> instructions;
         try {
             instructions = InstructionParser.parse(CODE);
@@ -133,7 +133,7 @@ public class RegisterApplication extends Application {
         displayMachineCode(instructions);
 
         codeArea.setLineHighlighterOn(false);
-        cpu.executeCode(instructions);
+        cpu.executeCode(instructions, speed);
     }
 
     // js call
@@ -144,6 +144,11 @@ public class RegisterApplication extends Application {
     // js call
     public void sendInput(String inputValue) {
         cpu.sendInput(inputValue);
+    }
+
+    // js call
+    public void setDebugMode(boolean value) {
+        cpu.toggleDebugMode(value);
     }
 
     public static void main(String[] args) {

@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class CPU {
-    private static final int MAX_JUMP_DEPTH = 32;
+    private static final int MAX_JUMP_DEPTH = 64;
 
     private final int[] registers = new int[16];
     private final boolean[] changed = new boolean[16];
@@ -25,6 +25,7 @@ public class CPU {
     private int jumpDepth = 0;
 
     private int lastHighlightedLine = -1;
+    private boolean debugMode = false;
     private volatile boolean isRunning = false;
 
     public CPU(JSObject window, CodeArea codeArea) {
@@ -80,7 +81,7 @@ public class CPU {
         });
     }
 
-    public void executeCode(List<Instruction> instructions) {
+    public void executeCode(List<Instruction> instructions, double speed) {
         if (isRunning) {
             isRunning = false; // Terminate if already running
             return;
@@ -101,7 +102,7 @@ public class CPU {
                         Platform.runLater(() -> {
                             window.call("logError", "Exceed maximum jump depth.");
                         });
-                        endExecution();
+                        endExecution(true);
                         break;
                     }
 
@@ -124,18 +125,6 @@ public class CPU {
                     System.out.println(opcode);
 
                     switch (opcode) {
-                        case 0x05:
-                            registers[0] = registers[arg];
-                            changed[0] = true;
-                            break;
-                        case 0x07:
-                            registers[arg] = registers[0];
-                            changed[arg] = true;
-                            break;
-                        case 0x06:
-                            registers[0] = arg;
-                            changed[0] = true;
-                            break;
                         case 0x01:
                             registers[0] += registers[arg];
                             changed[0] = true;
@@ -152,6 +141,42 @@ public class CPU {
                             registers[0] /= registers[arg];
                             changed[0] = true;
                             break;
+                        case 0x05:
+                            registers[0] = registers[arg];
+                            changed[0] = true;
+                            break;
+                        case 0x06:
+                            registers[0] = arg;
+                            changed[0] = true;
+                            break;
+                        case 0x07:
+                            registers[arg] = registers[0];
+                            changed[arg] = true;
+                            break;
+                        case 0x08:
+                            Platform.runLater(() ->
+                                    window.call("toggleSendButton", false)
+                            );
+                            currentInputRegister = arg;
+                            int inputValue = waitForInput();
+                            registers[currentInputRegister] = inputValue;
+                            changed[currentInputRegister] = true;
+                            Platform.runLater(() ->
+                                    window.call("toggleSendButton", true)
+                            );
+                            break;
+                        case 0x09:
+                            int outputValue = registers[arg];
+                            Platform.runLater(() -> {
+                                window.call("outputValue", outputValue);
+                            });
+                            break;
+                        case 0x0A:
+                            Platform.runLater(() -> {
+                                window.call("log", "Execution halted.");
+                            });
+                            endExecution();
+                            return null;
                         case 0x0B:
                             if (!performJump(arg)) return null;
                             break;
@@ -173,31 +198,6 @@ public class CPU {
                         case 0x11:
                             if (registers[0] >= 0 && !performJump(arg)) return null;
                             break;
-                        case 0x08:
-                            Platform.runLater(() ->
-                                    window.call("toggleSendButton", false)
-                            );
-                            currentInputRegister = arg;
-                            int inputValue = waitForInput();
-                            registers[currentInputRegister] = inputValue;
-                            changed[currentInputRegister] = true;
-                            Platform.runLater(() ->
-                                    window.call("toggleSendButton", true)
-                            );
-                            break;
-                        case 0x09:
-                            int outputValue = registers[arg];
-                            Platform.runLater(() -> {
-                                window.call("outputValue", outputValue);
-                                window.call("blinkOutput");
-                            });
-                            break;
-                        case 0x0A:
-                            Platform.runLater(() -> {
-                                window.call("log", "Execution halted.");
-                            });
-                            endExecution();
-                            return null;
                         default:
                             Platform.runLater(() -> {
                                 window.call("logError", String.format("Unknown opcode: %d", opcode));
@@ -206,10 +206,10 @@ public class CPU {
                     }
 
                     updateRegisterUI();
-                    Thread.sleep(1000);
+                    Thread.sleep(debugMode ? (long) (speed * 1000d) : 10);
                     programCounter++;
                 }
-                endExecution();
+                endExecution(true);
                 return null;
             }
         };
@@ -226,14 +226,25 @@ public class CPU {
     }
 
     public void endExecution() {
+        endExecution(false);
+    }
+
+    public void endExecution(boolean loggedError) {
         isRunning = false;
         Platform.runLater(() -> {
+            updateRegisterUI();
             codeArea.setDisable(false); // Re-enable editing
             if (lastHighlightedLine != -1) {
                 codeArea.setParagraphStyle(lastHighlightedLine, Collections.emptyList());
             }
+            codeArea.setLineHighlighterOn(true);
             window.eval("toggleRunCodeButton(null, false)");
-            window.call("log", "Execution halted.");
+            if (!loggedError)
+                window.call("log", "Execution halted.");
         });
+    }
+
+    public void toggleDebugMode(boolean value) {
+        debugMode = value;
     }
 }
