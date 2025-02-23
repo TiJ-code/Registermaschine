@@ -2,6 +2,7 @@
 .code-area {
     -fx-background-color: #222; /* Dark background */
     -fx-highlight-text-fill: #ffffff; /* Highlighted text colour */
+    -fx-font-size: 24px;
 }
 
 .executing-line {
@@ -11,7 +12,11 @@
 .paragraph-text .text {
     -fx-fill: #e0e0e0;
     -fx-font-family: "monospace";
-    -fx-font-size: 20px;
+    -fx-font-size: 24px;
+}
+
+.lineno {
+    -fx-text-alignment: center;
 }
 
 /* Syntax highlighting styles.css */

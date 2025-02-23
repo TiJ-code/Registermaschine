@@ -105,17 +105,12 @@ function logError(text) {
 }
 
 function logColour(text, colour) {
-    const statusElement = document.getElementsByClassName("ide-status-value")[0];
-
-    if (statusElement.classList.contains("log-info"))
-        statusElement.classList.remove("log-info");
-    else if (statusElement.classList.contains("log-error"))
-        statusElement.classList.remove("log-error");
-
+    const statusElement = document.getElementById("status-output");
     statusElement.innerHTML = text;
-    if (colour) {
-        statusElement.classList.add(colour);
-    }
+
+    statusElement.classList.remove("log-info");
+    statusElement.classList.remove("log-error");
+    statusElement.classList.add(colour);
 
     statusElement.classList.add('blink');
     setTimeout(() => {
@@ -124,7 +119,7 @@ function logColour(text, colour) {
 }
 
 function outputValue(value) {
-    const element = document.getElementsByClassName("ide-output-text")[0];
+    const element = document.getElementById("output-text");
     element.innerHTML = value;
     element.classList.add('blink');
 

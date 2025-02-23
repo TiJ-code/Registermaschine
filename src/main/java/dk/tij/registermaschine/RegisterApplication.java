@@ -7,12 +7,15 @@ import dk.tij.registermaschine.parser.InstructionParser;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -32,9 +35,9 @@ public class RegisterApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Scene scene = new Scene(createLayout(), 500, 500);
+        Scene scene = new Scene(createLayout(), 1080, 500);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.2.3 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.2.4 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1000);
         stage.setMinHeight(970);
@@ -61,14 +64,22 @@ public class RegisterApplication extends Application {
             lineNumberText.getStyleClass().add("lineno");
             lineNumberText.setFill(Color.WHITE);
             lineNumberText.setFont(Font.font("Monospace", 16));
+            lineNumberText.setStyle("-fx-padding: 5px 0 5px 0;");
 
-            return lineNumberText;
+            // Create a VBox to center the text vertically
+            VBox vbox = new VBox(lineNumberText);
+            vbox.setAlignment(Pos.CENTER_LEFT); // Align to the left
+            vbox.setPrefHeight(30); // Set a preferred height for the VBox
+
+            return vbox;
         });
 
         SyntaxHighlighter.applyHighlighting(codeArea);
         codeArea.textProperty().addListener((o, oV, newValue) -> {
             CODE = newValue;
         });
+
+        codeArea.setMinWidth(150);
 
         return codeArea;
     }
@@ -88,7 +99,7 @@ public class RegisterApplication extends Application {
         });
 
         webView.setContextMenuEnabled(false);
-        webView.setMinWidth(750);
+        webView.setMinWidth(880);
 
         return webView;
     }

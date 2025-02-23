@@ -102,7 +102,7 @@ public class CPU {
                         Platform.runLater(() -> {
                             window.call("logError", "Exceed maximum jump depth.");
                         });
-                        endExecution();
+                        endExecution(true);
                         break;
                     }
 
@@ -169,7 +169,6 @@ public class CPU {
                             int outputValue = registers[arg];
                             Platform.runLater(() -> {
                                 window.call("outputValue", outputValue);
-                                window.call("blinkOutput");
                             });
                             break;
                         case 0x0A:
@@ -210,7 +209,7 @@ public class CPU {
                     Thread.sleep(debugMode ? (long) (speed * 1000d) : 10);
                     programCounter++;
                 }
-                endExecution();
+                endExecution(true);
                 return null;
             }
         };
@@ -227,6 +226,10 @@ public class CPU {
     }
 
     public void endExecution() {
+        endExecution(false);
+    }
+
+    public void endExecution(boolean loggedError) {
         isRunning = false;
         Platform.runLater(() -> {
             updateRegisterUI();
@@ -234,8 +237,10 @@ public class CPU {
             if (lastHighlightedLine != -1) {
                 codeArea.setParagraphStyle(lastHighlightedLine, Collections.emptyList());
             }
+            codeArea.setLineHighlighterOn(true);
             window.eval("toggleRunCodeButton(null, false)");
-            window.call("log", "Execution halted.");
+            if (!loggedError)
+                window.call("log", "Execution halted.");
         });
     }
 
