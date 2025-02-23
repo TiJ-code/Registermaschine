@@ -32,29 +32,19 @@ public class RegisterApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Scene scene = new Scene(createLayout(), 1280, 900);
+        Scene scene = new Scene(createLayout(), 500, 500);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.2.2 - By @TiJ - Credits: @Steven @Michael @Janek");
+        stage.setTitle("JASM v1.2.3 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
-        stage.setMinWidth(1000d);
-        stage.setMinHeight(885d);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(970);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png"))));
         stage.show();
     }
 
     private SplitPane createLayout() {
         SplitPane splitPane = new SplitPane(createCodeArea(), createRegisterView());
-
-        splitPane.setMaxHeight(900);
-        splitPane.setPrefHeight(900);
-        splitPane.setMaxWidth(1280);
-        splitPane.setPrefWidth(1280);
         splitPane.setDividerPositions(0.5);
-        /*SplitPane.Divider divider = splitPane.getDividers().getFirst();
-        divider.positionProperty().addListener((_, _, _) -> {
-            divider.setPosition(dividerPosition);
-        });*/
-
         return splitPane;
     }
 
@@ -89,7 +79,7 @@ public class RegisterApplication extends Application {
 
         webEngine.load(Objects.requireNonNull(getClass().getResource("/html/index.html")).toExternalForm());
 
-        webEngine.getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+        webEngine.getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED) {
                 window = (JSObject) webEngine.executeScript("window");
                 window.setMember("java", this);
@@ -98,7 +88,7 @@ public class RegisterApplication extends Application {
         });
 
         webView.setContextMenuEnabled(false);
-        webView.setMinWidth(615);
+        webView.setMinWidth(750);
 
         return webView;
     }
@@ -120,7 +110,7 @@ public class RegisterApplication extends Application {
     }
 
     // js call
-    public void runCode() {
+    public void runCode(float speed) {
         List<Instruction> instructions;
         try {
             instructions = InstructionParser.parse(CODE);
@@ -132,7 +122,7 @@ public class RegisterApplication extends Application {
         displayMachineCode(instructions);
 
         codeArea.setLineHighlighterOn(false);
-        cpu.executeCode(instructions);
+        cpu.executeCode(instructions, speed);
     }
 
     // js call
@@ -147,7 +137,6 @@ public class RegisterApplication extends Application {
 
     // js call
     public void setDebugMode(boolean value) {
-        System.out.println("DBG " + value);
         cpu.toggleDebugMode(value);
     }
 

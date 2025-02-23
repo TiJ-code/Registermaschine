@@ -65,6 +65,19 @@
     border-radius: 10px; /* Add border radius for aesthetics */
 }
 
+.ide-input:disabled {
+    background-color: #555;
+}
+
+.ide-text-disabled {
+    background-color: #555;
+    cursor: not-allowed !important;
+}
+
+.ide-text-disabled:hover {
+    background-color: #555 !important;
+}
+
 .ide-exec-speed {
     width: 60px; /* Set the button width to match the slider */
     height: 30px; /* Match the height of the slider */
@@ -83,4 +96,33 @@
     background-color: #5a6dd8; /* Optional: Change background color on hover */
     transition: background-color 0.3s ease; /* Optional: Add transition effect */
     cursor: pointer;
+}
+
+.ide-running-code {
+    background-color: #a11e1e ;
+}
+
+.ide-running-code:hover {
+    background-color: #cf3535;
+}
+
+.ide-status-value {
+    background-color: #263691;
+    margin: 2px 0 2px 5px;
+    padding: 0 5px 0 5px;
+    height: 22px;
+    line-height: 24px;
+    border-radius: 5px;
+    border: 2px solid;
+    border-color: #1a2877;
+}
+
+.log {
+    background-color: #263691;
+    border-color: #1a2877;
+}
+
+.log-error {
+    background-color: #a11e1e;
+    border-color: #831414;
 }

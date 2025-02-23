@@ -48,17 +48,17 @@
         </div>
         <div class="right-container">
             <div class="ide-container">
-                <button class="ide-run-button">> Run <</button>
+                <button class="ide-run-button" onclick="runCode(this)">> Run <</button>
                 <div class="ide-debug-container">
-                    <div class="ide-text">Debug-Mode</div>
+                    <div class="ide-text debug-mode">Debug-Mode</div>
                     <label class="switch">
-                        <input type="checkbox">
-                        <span class="slider"></span>
+                        <input type="checkbox" class="debug-checkbox" onchange="sendDebugMode(this)">
+                        <span class="slider dbr"></span>
                     </label>
                 </div>
                 <div class="ide-debug-container">
-                    <div class="ide-text">Debug-Speed</div>
-                    <button class="ide-exec-speed ide-clickable">1.0s</button>
+                    <div class="ide-text debug-speed">Debug-Speed</div>
+                    <button class="ide-exec-speed ide-clickable" onclick="cycleDebugSpeed(this)">1.0s</button>
                 </div>
                 <div class="ide-output-container">
                     <div class="ide-text">Output</div>
@@ -67,8 +67,15 @@
                     </div>
                 </div>
                 <div class="ide-input-container">
-                    <div class="ide-text ide-clickable">Input</div>
-                    <input class="ide-input-text" type="number" placeholder="input integer here">
+                    <div class="ide-text ide-clickable ide-ip-text ide-text-disabled" onclick="send(this)">Input ⇒</div>
+                    <input class="ide-input-text ide-input" type="number" placeholder="input integer here" disabled>
+                </div>
+                <div class="ide-jump-depth ide-text">
+                    Jump-Depth: 0 / ##
+                </div>
+                <div class="ide-status-container ide-text">
+                    <div class="ide-status-text">Exec-Info:</div>
+                    <div class="ide-status-value"></div>
                 </div>
             </div>
             <div class="register-table-container reg">

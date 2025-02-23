@@ -63,3 +63,19 @@ button:hover {
     background-color: #5a6dd8;
     transition: background-color 0.3s ease;
 }
+
+.blink {
+    animation: blink-animation 500ms ease forwards;
+}
+
+@keyframes blink-animation {
+    0% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(255, 255, 0, 0.8);
+    } 
+    100% {
+        background-color: transparent;
+    }
+}

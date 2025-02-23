@@ -81,7 +81,7 @@ public class CPU {
         });
     }
 
-    public void executeCode(List<Instruction> instructions) {
+    public void executeCode(List<Instruction> instructions, double speed) {
         if (isRunning) {
             isRunning = false; // Terminate if already running
             return;
@@ -207,7 +207,7 @@ public class CPU {
                     }
 
                     updateRegisterUI();
-                    Thread.sleep(debugMode ? 1000 : 10);
+                    Thread.sleep(debugMode ? (long) (speed * 1000d) : 10);
                     programCounter++;
                 }
                 endExecution();
