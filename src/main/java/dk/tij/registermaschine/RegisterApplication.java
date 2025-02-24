@@ -37,7 +37,7 @@ public class RegisterApplication extends Application {
     public void start(Stage stage) throws Exception {
         Scene scene = new Scene(createLayout(), 1080, 500);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.2.4 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.3.1 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1000);
         stage.setMinHeight(970);
