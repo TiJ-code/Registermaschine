@@ -35,11 +35,11 @@ public class RegisterApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Scene scene = new Scene(createLayout(), 1080, 500);
+        Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.3.1 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.3.2 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
-        stage.setMinWidth(1000);
+        stage.setMinWidth(1100);
         stage.setMinHeight(970);
         stage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icon.png"))));
         stage.show();
@@ -79,7 +79,7 @@ public class RegisterApplication extends Application {
             CODE = newValue;
         });
 
-        codeArea.setMinWidth(150);
+        codeArea.setMinWidth(200);
 
         return codeArea;
     }
@@ -116,6 +116,7 @@ public class RegisterApplication extends Application {
             stringBuilder.append("<br>");
         }
         Platform.runLater(() -> {
+            if (stringBuilder.isEmpty()) return;
             window.call("displayMachineCode", stringBuilder.toString());
         });
     }
