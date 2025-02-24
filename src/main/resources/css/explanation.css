@@ -1,43 +1,56 @@
-/* Explanation Table */
-#explanation-table {
-    width: 100%; /* Make the table take the full width of the middle section */
-    height: 100%; /* Keep the height to fill the parent */
-    max-height: 100vh; /* Set a maximum height to fit within the viewport */
-    border-collapse: collapse; /* Ensure borders collapse for a cleaner look */
-    background-color: #333; /* Match the background color */
-    color: #ddd; /* Match the text color */
-    border-radius: 10px; /* Keep the rounded corners */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); /* Keep the shadow for depth */
-    margin-right: 20px; /* Space between the explanation table and the text area */
-    overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+/* explanation.css */
+.explanation-table-container {
+    margin-top: 10px;
+    width: 100%;
 }
 
-#explanation-table thead th {
-    font-size: 12px; /* Reduce header font size */
-    padding: 2px; /* Reduce padding for headers */
-    height: 2vh;
-}
-
-#explanation-table tbody td {
-    font-size: 10px; /* Reduce body text size */
-    padding: 2px; /* Reduce padding for body cells */
-    height: 5.05vh;
-    text-align: left; /* Align text to the left */
-    font-size: 12px;
+.expl table {
+    width: 100%;
+    background-color: #333;
+    border-radius: 10px;
+    border-collapse: collapse;
+    box-shadow: 0 4px 12px rgb(0, 0, 0, 0.5);
     overflow: hidden;
-    width: 40%;
 }
 
-#explanation-table tbody tr :first-child  {
+.expl thead th {
+    background-color: #3f51b5;
+    color: #fff;
+    font-size: x-large;
+    text-align: center;
+}
+
+.expl thead th:first-child {
+    width: 35%;
+    border-right: 2px solid #aaa;
+}
+
+.expl tbody td {
+    padding: 0;
+    color: #ddd;
+    border-bottom: 1px solid #444;
+    font-size: medium;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.expl tbody td:first-child {
     font-weight: bold;
-    font-size: 14px;
+    border-right: 2px solid #aaa;
 }
 
-#explanation-table-command {
-    width: 40%; /* Keep width for command column */
+.expl tbody td:last-child {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: small;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
-#explanation-table-description {
-    width: 70%; /* Keep width for description column */
-    font-size: 20px;
+.expl tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.expl tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: background-color 0.3s ease;
 }
