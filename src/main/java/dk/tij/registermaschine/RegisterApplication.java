@@ -1,8 +1,8 @@
 package dk.tij.registermaschine;
 
 import dk.tij.registermaschine.editor.SyntaxHighlighter;
+import dk.tij.registermaschine.handler.FileHandler;
 import dk.tij.registermaschine.parser.Instruction;
-import dk.tij.registermaschine.parser.InstructionLookupTable;
 import dk.tij.registermaschine.parser.InstructionParser;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -15,29 +15,45 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import org.fxmisc.richtext.CodeArea;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public class RegisterApplication extends Application {
-    private WebEngine webEngine;
-    private CodeArea codeArea;
-    private CPU cpu;
-    private JSObject window;
-
     public static String CODE = "";
+    private static String LOADED_CODE = "";
+    private static volatile boolean loadingFile = false;
+
+    private CPU cpu;
+    private FileChooser fileChooser;
+
+    private Stage primaryStage;
+    private CodeArea codeArea;
+    private WebEngine ideWebEngine;
+    private JSObject window;
 
     @Override
     public void start(Stage stage) throws Exception {
+        primaryStage = stage;
+        fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JASM File");
+        fileChooser.setInitialDirectory(FileHandler.ROOT_PATH.toFile());
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Java ASM Files", "*.jasm")
+        );
+        FileHandler.createRegisterDirectories();
+
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.3.3 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.3 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -75,8 +91,16 @@ public class RegisterApplication extends Application {
         });
 
         SyntaxHighlighter.applyHighlighting(codeArea);
-        codeArea.textProperty().addListener((o, oV, newValue) -> {
+        codeArea.textProperty().addListener((_, _, newValue) -> {
             CODE = newValue;
+            if (loadingFile) return;
+            String functionToCall;
+            if (!CODE.equals(LOADED_CODE)) {
+                functionToCall = "markLoadedFileAsEdited";
+            } else {
+                functionToCall = "markLoadedFileAsUnedited";
+            }
+            Platform.runLater(() -> window.call(functionToCall));
         });
 
         codeArea.setMinWidth(200);
@@ -86,13 +110,13 @@ public class RegisterApplication extends Application {
 
     private WebView createRegisterView() {
         WebView webView = new WebView();
-        webEngine = webView.getEngine();
+        ideWebEngine = webView.getEngine();
 
-        webEngine.load(Objects.requireNonNull(getClass().getResource("/html/index.html")).toExternalForm());
+        ideWebEngine.load(Objects.requireNonNull(getClass().getResource("/html/ide.html")).toExternalForm());
 
-        webEngine.getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
+        ideWebEngine.getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED) {
-                window = (JSObject) webEngine.executeScript("window");
+                window = (JSObject) ideWebEngine.executeScript("window");
                 window.setMember("java", this);
                 cpu = new CPU(window, codeArea);
             }
@@ -104,23 +128,6 @@ public class RegisterApplication extends Application {
         return webView;
     }
 
-    private void displayMachineCode(List<Instruction> instructions) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Instruction instruction : instructions) {
-            stringBuilder.append(String.format("%02X ", instruction.opcode()));
-            if (instruction.opcode() == InstructionLookupTable.opcodesPerInstruction.get("HLT")) {
-                stringBuilder.append(String.format("%d", instruction.argument()));
-            } else {
-                stringBuilder.append(String.format("%02X", instruction.argument()));
-            }
-            stringBuilder.append("<br>");
-        }
-        Platform.runLater(() -> {
-            if (stringBuilder.isEmpty()) return;
-            window.call("displayMachineCode", stringBuilder.toString());
-        });
-    }
-
     // js call
     public void runCode(float speed) {
         List<Instruction> instructions;
@@ -130,8 +137,6 @@ public class RegisterApplication extends Application {
             System.err.println("Error parsing code: " + e.getMessage());
             return;
         }
-
-        displayMachineCode(instructions);
 
         codeArea.setLineHighlighterOn(false);
         cpu.executeCode(instructions, speed);
@@ -150,6 +155,43 @@ public class RegisterApplication extends Application {
     // js call
     public void setDebugMode(boolean value) {
         cpu.toggleDebugMode(value);
+    }
+
+    // js call
+    public void loadFile() {
+        File loadedFile = fileChooser.showOpenDialog(primaryStage);
+        window.call("displayLoadedFile", loadedFile.getName());
+        try {
+            loadingFile = true;
+            String newCode = FileHandler.readFile(loadedFile);
+            codeArea.replaceText(newCode);
+            codeArea.appendText("\n");
+            codeArea.replaceText(newCode);
+            loadingFile = false;
+            LOADED_CODE = CODE = newCode;
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+
+    // js call
+    public void saveFile() {
+        File savedFile;
+        if (FileHandler.currentWorkingFile != null) {
+            savedFile = FileHandler.currentWorkingFile;
+        } else {
+            savedFile = fileChooser.showSaveDialog(primaryStage);
+        }
+        try {
+            if (savedFile.createNewFile()) {
+                System.out.println("File created: " + savedFile.getAbsolutePath());
+            } else {
+                System.out.println("File already exists: " + savedFile.getAbsolutePath());
+            }
+            FileHandler.saveFile(savedFile, CODE);
+        } catch (IOException e) {
+            System.err.println("Error saving file: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {

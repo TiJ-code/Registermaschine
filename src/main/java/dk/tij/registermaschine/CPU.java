@@ -83,12 +83,12 @@ public class CPU {
 
     public void executeCode(List<Instruction> instructions, double speed) {
         if (isRunning) {
-            isRunning = false; // Terminate if already running
+            isRunning = false;
             return;
         }
         isRunning = true;
 
-        Platform.runLater(() -> codeArea.setDisable(true)); // Disable editing
+        Platform.runLater(() -> codeArea.setDisable(true));
 
         Task<Void> simulationTask = new Task<>() {
             @Override
@@ -154,27 +154,19 @@ public class CPU {
                             changed[arg] = true;
                             break;
                         case 0x08:
-                            Platform.runLater(() ->
-                                    window.call("toggleSendButton", false)
-                            );
+                            Platform.runLater(() -> window.call("toggleSendButton", false));
                             currentInputRegister = arg;
                             int inputValue = waitForInput();
                             registers[currentInputRegister] = inputValue;
                             changed[currentInputRegister] = true;
-                            Platform.runLater(() ->
-                                    window.call("toggleSendButton", true)
-                            );
+                            Platform.runLater(() -> window.call("toggleSendButton", true));
                             break;
                         case 0x09:
                             int outputValue = registers[arg];
-                            Platform.runLater(() -> {
-                                window.call("outputValue", outputValue);
-                            });
+                            Platform.runLater(() -> window.call("outputValue", outputValue));
                             break;
                         case 0x0A:
-                            Platform.runLater(() -> {
-                                window.call("log", "Execution halted.");
-                            });
+                            Platform.runLater(() -> window.call("log", "Execution halted."));
                             endExecution();
                             return null;
                         case 0x0B:

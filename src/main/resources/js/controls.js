@@ -128,6 +128,32 @@ function outputValue(value) {
     }, 500);
 }
 
-function displayMachineCode(text) {
-    document.getElementsByClassName("machine-code-output")[0].innerHTML = text;
+function loadFile() {
+    if (window.java) {
+        window.java.loadFile();
+    }
+}
+
+function saveFile() {
+    if (window.java) {
+        window.java.saveFile();
+    }
+}
+
+function displayLoadedFile(filename) {
+    document.getElementsByClassName("file-name")[0].innerHTML = filename;
+}
+
+function markLoadedFileAsEdited() {
+    const element = document.getElementsByClassName("file-name")[0];
+    if (!element.innerHTML.endsWith("*")) {
+        element.innerHTML = `${element.innerHTML}*`;
+    }
+}
+
+function markLoadedFileAsUnedited() {
+    const element = document.getElementsByClassName("file-name")[0];
+    if (element.innerHTML.endsWith("*")) {
+        element.innerHTML = element.innerHTML.substring(0, element.innerHTML.length - 1);
+    }
 }
