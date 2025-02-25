@@ -143,3 +143,17 @@ function saveFile() {
 function displayLoadedFile(filename) {
     document.getElementsByClassName("file-name")[0].innerHTML = filename;
 }
+
+function markLoadedFileAsEdited() {
+    const element = document.getElementsByClassName("file-name")[0];
+    if (!element.innerHTML.endsWith("*")) {
+        element.innerHTML = `${element.innerHTML}*`;
+    }
+}
+
+function markLoadedFileAsUnedited() {
+    const element = document.getElementsByClassName("file-name")[0];
+    if (element.innerHTML.endsWith("*")) {
+        element.innerHTML = element.innerHTML.substring(0, element.innerHTML.length - 1);
+    }
+}

@@ -5,6 +5,7 @@ import dk.tij.registermaschine.handler.FileHandler;
 import dk.tij.registermaschine.parser.Instruction;
 import dk.tij.registermaschine.parser.InstructionParser;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,6 +29,8 @@ import java.util.Objects;
 
 public class RegisterApplication extends Application {
     public static String CODE = "";
+    private static String LOADED_CODE = "";
+    private static volatile boolean loadingFile = false;
 
     private CPU cpu;
     private FileChooser fileChooser;
@@ -50,7 +53,7 @@ public class RegisterApplication extends Application {
 
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.4.2 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.3 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -88,8 +91,16 @@ public class RegisterApplication extends Application {
         });
 
         SyntaxHighlighter.applyHighlighting(codeArea);
-        codeArea.textProperty().addListener((o, oV, newValue) -> {
+        codeArea.textProperty().addListener((_, _, newValue) -> {
             CODE = newValue;
+            if (loadingFile) return;
+            String functionToCall;
+            if (!CODE.equals(LOADED_CODE)) {
+                functionToCall = "markLoadedFileAsEdited";
+            } else {
+                functionToCall = "markLoadedFileAsUnedited";
+            }
+            Platform.runLater(() -> window.call(functionToCall));
         });
 
         codeArea.setMinWidth(200);
@@ -151,9 +162,13 @@ public class RegisterApplication extends Application {
         File loadedFile = fileChooser.showOpenDialog(primaryStage);
         window.call("displayLoadedFile", loadedFile.getName());
         try {
+            loadingFile = true;
             String newCode = FileHandler.readFile(loadedFile);
             codeArea.replaceText(newCode);
             codeArea.appendText("\n");
+            codeArea.replaceText(newCode);
+            loadingFile = false;
+            LOADED_CODE = CODE = newCode;
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
         }
