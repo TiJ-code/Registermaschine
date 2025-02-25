@@ -35,6 +35,24 @@
     width: 100%; /* Make the input container full width */
 }
 
+.ide-input-left-section {
+    width: 50%;
+}
+
+.ide-input-right-section {
+    display: flex;
+    gap: 5px;
+    width: 50%;
+}
+
+.ide-inp-clickable {
+    height: 30px;
+    width: 50px;
+    text-align: center;
+    line-height: 130%;
+    font-size: x-large;
+}
+
 .ide-text {
     color: #fff;
     font-weight: bold;
@@ -55,6 +73,8 @@
     border: 1px solid #444;
     border-radius: 10px;
     text-align: left;
+    line-height: 15px;
+    height: 15px;
     white-space: nowrap; /* Prevent text from wrapping */
 }
 
@@ -63,6 +83,10 @@
     padding: 5px; /* Add padding for aesthetics */
     border: 1px solid #444; /* Add border for visibility */
     border-radius: 10px; /* Add border radius for aesthetics */
+}
+
+.ide-input {
+    width: 100%;
 }
 
 .ide-input:disabled {
@@ -113,8 +137,7 @@
     height: 22px;
     line-height: 24px;
     border-radius: 5px;
-    border: 2px solid;
-    border-color: #1a2877;
+    border: 2px solid #1a2877;
 }
 
 .log {

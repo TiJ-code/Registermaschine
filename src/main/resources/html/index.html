@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registermaschine</title>
-    <link rel="stylesheet" href="../css/new/styles.css">
-    <link rel="stylesheet" href="../css/new/register.css">
-    <link rel="stylesheet" href="../css/new/ide.css">
-    <link rel="stylesheet" href="../css/new/explanation.css">
-    <link rel="stylesheet" href="../css/new/maschine-code.css">
-    <link rel="stylesheet" href="../css/new/slider.css">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/register.css">
+    <link rel="stylesheet" href="../css/ide.css">
+    <link rel="stylesheet" href="../css/explanation.css">
+    <link rel="stylesheet" href="../css/maschine-code.css">
+    <link rel="stylesheet" href="../css/slider.css">
 </head>
 <body>
     <script src="../js/controls.js"></script>
 
     <div class="container">
         <div class="left-container">
-            <div class="machine-code-output">00 00</div>
+            <div class="machine-code-output"></div>
         </div>
         <div class="middle-container exp">
             <div class="explanation-table-container expl">
@@ -62,13 +62,18 @@
                 </div>
                 <div class="ide-output-container">
                     <div class="ide-text">Output</div>
-                    <div id="output-text"class="ide-output-text">
-                        0
+                    <div id="output-text" class="ide-output-text">
+
                     </div>
                 </div>
                 <div class="ide-input-container">
-                    <div class="ide-text ide-clickable ide-ip-text ide-text-disabled" onclick="send(this)">Input ⇒</div>
-                    <input class="ide-input-text ide-input" type="number" placeholder="input integer here" disabled>
+                    <div class="ide-input-left-section">
+                        <div class="ide-text">Input</div>
+                    </div>
+                    <label class="ide-input-right-section">
+                        <button class="ide-inp-clickable ide-ip-text ide-text-disabled" onclick="send(this)">▶</button>
+                        <input class="ide-input-text ide-input" type="number" placeholder="input integer here" disabled>
+                    </label>
                 </div>
                 <div class="ide-jump-depth ide-text">
                     Jump-Depth: 0 / ##
