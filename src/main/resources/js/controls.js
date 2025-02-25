@@ -127,3 +127,19 @@ function outputValue(value) {
         element.classList.remove('blink');
     }, 500);
 }
+
+function loadFile() {
+    if (window.java) {
+        window.java.loadFile();
+    }
+}
+
+function saveFile() {
+    if (window.java) {
+        window.java.saveFile();
+    }
+}
+
+function displayLoadedFile(filename) {
+    document.getElementsByClassName("file-name")[0].innerHTML = filename;
+}

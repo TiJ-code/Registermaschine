@@ -3,17 +3,13 @@ package dk.tij.registermaschine;
 import dk.tij.registermaschine.editor.SyntaxHighlighter;
 import dk.tij.registermaschine.handler.FileHandler;
 import dk.tij.registermaschine.parser.Instruction;
-import dk.tij.registermaschine.parser.InstructionLookupTable;
 import dk.tij.registermaschine.parser.InstructionParser;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.concurrent.Worker;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -25,27 +21,36 @@ import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import org.fxmisc.richtext.CodeArea;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public class RegisterApplication extends Application {
-    private Stage primaryStage;
-    private WebEngine ideWebEngine;
-    private WebEngine fileWebEngine;
-    private CodeArea codeArea;
-    private CPU cpu;
-    private JSObject window;
-
     public static String CODE = "";
+
+    private CPU cpu;
+    private FileChooser fileChooser;
+
+    private Stage primaryStage;
+    private CodeArea codeArea;
+    private WebEngine ideWebEngine;
+    private JSObject window;
 
     @Override
     public void start(Stage stage) throws Exception {
         primaryStage = stage;
+        fileChooser = new FileChooser();
+        fileChooser.setTitle("Open JASM File");
+        fileChooser.setInitialDirectory(FileHandler.ROOT_PATH.toFile());
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Java ASM Files", "*.jasm")
+        );
         FileHandler.createRegisterDirectories();
 
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.4.1 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.2 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -139,6 +144,39 @@ public class RegisterApplication extends Application {
     // js call
     public void setDebugMode(boolean value) {
         cpu.toggleDebugMode(value);
+    }
+
+    // js call
+    public void loadFile() {
+        File loadedFile = fileChooser.showOpenDialog(primaryStage);
+        window.call("displayLoadedFile", loadedFile.getName());
+        try {
+            String newCode = FileHandler.readFile(loadedFile);
+            codeArea.replaceText(newCode);
+            codeArea.appendText("\n");
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+
+    // js call
+    public void saveFile() {
+        File savedFile;
+        if (FileHandler.currentWorkingFile != null) {
+            savedFile = FileHandler.currentWorkingFile;
+        } else {
+            savedFile = fileChooser.showSaveDialog(primaryStage);
+        }
+        try {
+            if (savedFile.createNewFile()) {
+                System.out.println("File created: " + savedFile.getAbsolutePath());
+            } else {
+                System.out.println("File already exists: " + savedFile.getAbsolutePath());
+            }
+            FileHandler.saveFile(savedFile, CODE);
+        } catch (IOException e) {
+            System.err.println("Error saving file: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
