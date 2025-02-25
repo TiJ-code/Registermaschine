@@ -127,7 +127,3 @@ function outputValue(value) {
         element.classList.remove('blink');
     }, 500);
 }
-
-function displayMachineCode(text) {
-    document.getElementsByClassName("machine-code-output")[0].innerHTML = text;
-}

@@ -6,7 +6,7 @@
 
     <groupId>dk.tij</groupId>
     <artifactId>Registermaschine</artifactId>
-    <version>1.4.0</version>
+    <version>1.4.1</version>
     <name>Registermaschine</name>
 
     <properties>

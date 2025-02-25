@@ -45,7 +45,7 @@ public class RegisterApplication extends Application {
 
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.4.0 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.1 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -112,23 +112,6 @@ public class RegisterApplication extends Application {
         return webView;
     }
 
-    private void displayMachineCode(List<Instruction> instructions) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Instruction instruction : instructions) {
-            stringBuilder.append(String.format("%02X ", instruction.opcode()));
-            if (instruction.opcode() == InstructionLookupTable.opcodesPerInstruction.get("HLT")) {
-                stringBuilder.append(String.format("%d", instruction.argument()));
-            } else {
-                stringBuilder.append(String.format("%02X", instruction.argument()));
-            }
-            stringBuilder.append("<br>");
-        }
-        Platform.runLater(() -> {
-            if (stringBuilder.isEmpty()) return;
-            window.call("displayMachineCode", stringBuilder.toString());
-        });
-    }
-
     // js call
     public void runCode(float speed) {
         List<Instruction> instructions;
@@ -138,8 +121,6 @@ public class RegisterApplication extends Application {
             System.err.println("Error parsing code: " + e.getMessage());
             return;
         }
-
-        displayMachineCode(instructions);
 
         codeArea.setLineHighlighterOn(false);
         cpu.executeCode(instructions, speed);
