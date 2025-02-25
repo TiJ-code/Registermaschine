@@ -1,23 +1,26 @@
 package dk.tij.registermaschine;
 
 import dk.tij.registermaschine.editor.SyntaxHighlighter;
+import dk.tij.registermaschine.handler.FileHandler;
 import dk.tij.registermaschine.parser.Instruction;
 import dk.tij.registermaschine.parser.InstructionLookupTable;
 import dk.tij.registermaschine.parser.InstructionParser;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 import org.fxmisc.richtext.CodeArea;
@@ -26,7 +29,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class RegisterApplication extends Application {
-    private WebEngine webEngine;
+    private Stage primaryStage;
+    private WebEngine ideWebEngine;
+    private WebEngine fileWebEngine;
     private CodeArea codeArea;
     private CPU cpu;
     private JSObject window;
@@ -35,9 +40,12 @@ public class RegisterApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
+        primaryStage = stage;
+        FileHandler.createRegisterDirectories();
+
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.3.3 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.0 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -86,13 +94,13 @@ public class RegisterApplication extends Application {
 
     private WebView createRegisterView() {
         WebView webView = new WebView();
-        webEngine = webView.getEngine();
+        ideWebEngine = webView.getEngine();
 
-        webEngine.load(Objects.requireNonNull(getClass().getResource("/html/index.html")).toExternalForm());
+        ideWebEngine.load(Objects.requireNonNull(getClass().getResource("/html/ide.html")).toExternalForm());
 
-        webEngine.getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
+        ideWebEngine.getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED) {
-                window = (JSObject) webEngine.executeScript("window");
+                window = (JSObject) ideWebEngine.executeScript("window");
                 window.setMember("java", this);
                 cpu = new CPU(window, codeArea);
             }
