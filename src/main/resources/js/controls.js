@@ -140,6 +140,12 @@ function saveFile() {
     }
 }
 
+function saveAsFile() {
+    if (window.java) {
+        window.java.saveAsFile();
+    }
+}
+
 function displayLoadedFile(filename) {
     document.getElementsByClassName("file-name")[0].innerHTML = filename;
 }

@@ -53,7 +53,7 @@ public class RegisterApplication extends Application {
 
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.4.3 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.4 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -159,8 +159,11 @@ public class RegisterApplication extends Application {
 
     // js call
     public void loadFile() {
-        File loadedFile = fileChooser.showOpenDialog(primaryStage);
-        window.call("displayLoadedFile", loadedFile.getName());
+        loadFile(fileChooser.showOpenDialog(primaryStage));
+    }
+
+    private void loadFile(File loadedFile) {
+        Platform.runLater(() -> window.call("displayLoadedFile", loadedFile.getName()));
         try {
             loadingFile = true;
             String newCode = FileHandler.readFile(loadedFile);
@@ -182,13 +185,18 @@ public class RegisterApplication extends Application {
         } else {
             savedFile = fileChooser.showSaveDialog(primaryStage);
         }
+        storeFile(savedFile);
+    }
+
+    // js call
+    public void saveAsFile() {
+        storeFile(fileChooser.showSaveDialog(primaryStage));
+    }
+
+    private void storeFile(File savedFile) {
         try {
-            if (savedFile.createNewFile()) {
-                System.out.println("File created: " + savedFile.getAbsolutePath());
-            } else {
-                System.out.println("File already exists: " + savedFile.getAbsolutePath());
-            }
             FileHandler.saveFile(savedFile, CODE);
+            loadFile(savedFile);
         } catch (IOException e) {
             System.err.println("Error saving file: " + e.getMessage());
         }
