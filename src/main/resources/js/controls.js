@@ -146,6 +146,12 @@ function saveAsFile() {
     }
 }
 
+function newDocument() {
+    if (window.java) {
+        window.java.newDocument();
+    }
+}
+
 function displayLoadedFile(filename) {
     document.getElementsByClassName("file-name")[0].innerHTML = filename;
 }
