@@ -9,6 +9,9 @@ import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
@@ -26,11 +29,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class RegisterApplication extends Application {
     public static String CODE = "";
     private static String LOADED_CODE;
     private static volatile boolean loadingFile = false;
+    private static volatile boolean unsaved = false;
 
     private CPU cpu;
     private FileChooser fileChooser;
@@ -53,7 +58,7 @@ public class RegisterApplication extends Application {
 
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.4.5 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.6 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -93,12 +98,14 @@ public class RegisterApplication extends Application {
         SyntaxHighlighter.applyHighlighting(codeArea);
         codeArea.textProperty().addListener((_, _, newValue) -> {
             CODE = newValue;
-            if (loadingFile || LOADED_CODE == null) return;
+            if (loadingFile) return;
             String functionToCall;
             if (!CODE.equals(LOADED_CODE)) {
                 functionToCall = "markLoadedFileAsEdited";
+                unsaved = true;
             } else {
                 functionToCall = "markLoadedFileAsUnedited";
+                unsaved = false;
             }
             Platform.runLater(() -> window.call(functionToCall));
         });
@@ -194,7 +201,36 @@ public class RegisterApplication extends Application {
     }
 
     public void newDocument() {
-        LOADED_CODE = null;
+        if (unsaved) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("New Document");
+            alert.setHeaderText("You have unsaved changes!");
+            alert.setContentText("Do you want to save this file?\nYes = Saves file and creates new document\nNo = Does not save the current file and creates new document\nCancel = Aborts the creation of a new document.");
+
+            ButtonType saveFileButton = new ButtonType("Yes");
+            ButtonType doNotSaveButton = new ButtonType("No");
+            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+            alert.getButtonTypes().setAll(saveFileButton, doNotSaveButton, cancelButton);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isEmpty()) {
+                System.err.println("No button pressed but still continued /shrug");
+                return;
+            }
+            if (result.get() == saveFileButton) {
+                saveFile();
+                performCreationOfNewDocument();
+            } else if (result.get() == cancelButton) {
+                return;
+            }
+
+            performCreationOfNewDocument();
+        }
+    }
+
+    private void performCreationOfNewDocument() {
+        LOADED_CODE = ".";
         CODE = "";
         codeArea.replaceText(CODE);
         Platform.runLater(() -> window.call("displayLoadedFile", "unsaved_file.jasm"));
@@ -204,6 +240,7 @@ public class RegisterApplication extends Application {
         try {
             FileHandler.saveFile(savedFile, CODE);
             loadFile(savedFile);
+            unsaved = false;
         } catch (IOException e) {
             System.err.println("Error saving file: " + e.getMessage());
         }
