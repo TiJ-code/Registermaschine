@@ -29,7 +29,7 @@ import java.util.Objects;
 
 public class RegisterApplication extends Application {
     public static String CODE = "";
-    private static String LOADED_CODE = "";
+    private static String LOADED_CODE;
     private static volatile boolean loadingFile = false;
 
     private CPU cpu;
@@ -53,7 +53,7 @@ public class RegisterApplication extends Application {
 
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.4.4 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.5 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -93,7 +93,7 @@ public class RegisterApplication extends Application {
         SyntaxHighlighter.applyHighlighting(codeArea);
         codeArea.textProperty().addListener((_, _, newValue) -> {
             CODE = newValue;
-            if (loadingFile) return;
+            if (loadingFile || LOADED_CODE == null) return;
             String functionToCall;
             if (!CODE.equals(LOADED_CODE)) {
                 functionToCall = "markLoadedFileAsEdited";
@@ -191,6 +191,13 @@ public class RegisterApplication extends Application {
     // js call
     public void saveAsFile() {
         storeFile(fileChooser.showSaveDialog(primaryStage));
+    }
+
+    public void newDocument() {
+        LOADED_CODE = null;
+        CODE = "";
+        codeArea.replaceText(CODE);
+        Platform.runLater(() -> window.call("displayLoadedFile", "unsaved_file.jasm"));
     }
 
     private void storeFile(File savedFile) {
