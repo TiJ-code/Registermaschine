@@ -58,7 +58,7 @@ public class RegisterApplication extends Application {
 
         Scene scene = new Scene(createLayout(), 1100, 970);
         stage.setScene(scene);
-        stage.setTitle("JASM v1.4.6 - By @TiJ - Special Thanks: @Michael @Janek @Steven");
+        stage.setTitle("JASM v1.4.8 - By @TiJ --- Special Thanks: @Michael @Janek @Steven --- [Java 11]");
         stage.setResizable(true);
         stage.setMinWidth(1100);
         stage.setMinHeight(970);
@@ -96,7 +96,7 @@ public class RegisterApplication extends Application {
         });
 
         SyntaxHighlighter.applyHighlighting(codeArea);
-        codeArea.textProperty().addListener((_, _, newValue) -> {
+        codeArea.textProperty().addListener((obs, oldValue, newValue) -> {
             CODE = newValue;
             if (loadingFile) return;
             String functionToCall;
@@ -121,7 +121,7 @@ public class RegisterApplication extends Application {
 
         ideWebEngine.load(Objects.requireNonNull(getClass().getResource("/html/ide.html")).toExternalForm());
 
-        ideWebEngine.getLoadWorker().stateProperty().addListener((_, _, newValue) -> {
+        ideWebEngine.getLoadWorker().stateProperty().addListener((obs, oldValue, newValue) -> {
             if (newValue == Worker.State.SUCCEEDED) {
                 window = (JSObject) ideWebEngine.executeScript("window");
                 window.setMember("java", this);
