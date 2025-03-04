@@ -60,7 +60,7 @@ jobs:
         run: ./mvnw clean package -DskipTests
 
       - name: Install jpackage dependencies
-        run: sudo apt-get install -y default-jdk jpackage
+        run: sudo apt-get install -y default-jdk
 
       - name: Create JDK runtime image
         run: jlink --module-path $JAVA_HOME/jmods --add-modules java.base,java.logging --output ${{ github.workspace }}/runtime-image
