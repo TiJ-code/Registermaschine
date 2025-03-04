@@ -23,9 +23,6 @@ jobs:
       - name: Install Maven
         run: choco install maven --no-progress
 
-      - name: Set JAR using Maven
-        run: chmod +x ./mvnw
-
       - name: Build JAR using Maven
         run: .\mvnw clean package -DskipTests
 
@@ -55,6 +52,9 @@ jobs:
 
       - name: Install Maven
         run: sudo apt-get install -y maven
+        
+      - name: Set JAR using Maven
+        run: chmod +x ./mvnw
 
       - name: Build JAR using Maven
         run: ./mvnw clean package -DskipTests
