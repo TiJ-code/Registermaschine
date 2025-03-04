@@ -20,11 +20,8 @@ jobs:
           distribution: temurin
           java-version: '17'
   
-      - name: Set up Maven
-        uses: actions/setup-java@v3
-        with:
-          distribution: maven
-          java-version: '17'
+      - name: Install Maven
+        run: choco install maven --no-progress
   
       - name: Build JAR using Maven
         run: .\mvnw clean package -DskipTests
