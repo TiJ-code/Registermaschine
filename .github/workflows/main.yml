@@ -52,18 +52,18 @@ jobs:
 
       - name: Install Maven
         run: sudo apt-get install -y maven
-        
-      - name: Set executable permission for mvnw
-        run: chmod +x ./mvnw
 
       - name: Build JAR using Maven
         run: ./mvnw clean package -DskipTests
 
       - name: Install jpackage dependencies
-        run: sudo apt-get install -y default-jdk 
+        run: sudo apt-get install -y default-jdk jpackage
+
+      - name: Create JDK runtime image
+        run: jlink --module-path $JAVA_HOME/jmods --add-modules java.base,java.logging --output ${{ github.workspace }}/runtime-image
 
       - name: Create Linux Installer with jpackage
-        run: jpackage --input out/artifacts/Registermaschine_jar --name Registermaschine --main-jar Registermaschine.jar --main-class dk.tij.registermaschine.RegistermaschineLauncher  --type app-image --dest ${{ github.workspace }}/dist/linux --jlink-options --bind-services --verbose
+        run: jpackage --input out/artifacts/Registermaschine_jar --name Registermaschine --main-jar Registermaschine.jar --main-class dk.tij.registermaschine.RegistermaschineLauncher --type app-image --dest ${{ github.workspace }}/dist/linux --runtime-image ${{ github.workspace }}/runtime-image --jlink-options --bind-services --verbose
 
       - name: Upload Linux executable as artifact
         uses: actions/upload-artifact@v4
