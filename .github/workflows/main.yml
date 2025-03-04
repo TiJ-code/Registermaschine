@@ -1,0 +1,22 @@
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build your JAR (adjust command as needed)
+        run: gradlew build
+
+      - name: Install WiX Toolset
+        run: choco install wix-toolset --no-progress
+
+      - name: Create Windows Installer with jpackage
+        run: |
+          jpackage --input out/artifacts/Registermaschine_jar --name Registermaschine --main-jar Registermaschine.jar --main-class dk.tij.registermaschine.RegistermaschineLauncher --type exe --dest dist\windows
