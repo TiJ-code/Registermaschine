@@ -30,7 +30,7 @@ jobs:
         run: choco install wixtoolset --no-progress
   
       - name: Create Windows Installer with jpackage
-        run: jpackage --input out/artifacts/Registermaschine_jar --name Registermaschine --main-jar Registermaschine.jar --main-class dk.tij.registermaschine.RegistermaschineLauncher --type exe --dest ${{ github.workspace }}/dist/windows
+        run: jpackage --input out/artifacts/Registermaschine_jar --name Registermaschine --main-jar Registermaschine.jar --main-class dk.tij.registermaschine.RegistermaschineLauncher  --type app-image --dest ${{ github.workspace }}/dist/windows
       
       - name: Upload Windows executable as artifact
         uses: actions/upload-artifact@v4
