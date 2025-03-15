@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registermaschine</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/register.css">
+    <link rel="stylesheet" href="../css/ide.css">
+    <link rel="stylesheet" href="../css/explanation.css">
+    <link rel="stylesheet" href="../css/file.css">
+    <link rel="stylesheet" href="../css/slider.css">
+</head>
+<body>
+    <script src="../js/controls.js"></script>
+
+    <div class="container">
+        <div class="middle-container exp">
+            <div>
+                <div class="file-handling">
+                    <button class="file-button" onclick="newDocument()">New 📄</button>
+                    <button class="file-button" onclick="loadFile()">Load 📂</button>
+                    <button class="file-button" onclick="saveFile()">Save 💾</button>
+                    <button class="file-button" onclick="saveAsFile()">Save As 💾</button>
+                </div>
+                <div class="file-name">unsaved_file.jasm</div>
+            </div>
+            <div class="explanation-table-container expl">
+                <table class="explanation">
+                    <thead>
+                        <tr><th>Command</th><th>Description</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>ADD $xx</td><td>Adds value from register $xx to accumulator.</td></tr>
+                        <tr><td>SUB $xx</td><td>Subtracts value at register $xx from accumulator.</td></tr>
+                        <tr><td>MUL $xx</td><td>Multiplies value at register $xx with accumulator.</td></tr>
+                        <tr><td>DIV $xx</td><td>Divides accumulator by value from $xx.</td></tr>
+                        <tr><td>LDA $xx</td><td>Load value at address $xx to accumulator.</td></tr>
+                        <tr><td>LDK   x</td><td>Loads constant to accumulator.</td></tr>
+                        <tr><td>STA $xx</td><td>Stores value from accumulator in register $xx.</td></tr>
+                        <tr><td>INP $xx</td><td>Waits for user input. Stores input in address $xx.</td></tr>
+                        <tr><td>OUT $xx</td><td>Outputs value from address $xx.</td></tr>
+                        <tr><td>HLT  99</td><td>Halts execution.</td></tr>
+                        <tr><td>JMP 0x??</td><td>Jumpts to program line 0x??.</td></tr>
+                        <tr><td>JEZ 0x??</td><td>Jumpts to program line 0x??,<br> if accu = 0.</td></tr>
+                        <tr><td>JNE 0x??</td><td>Jumpts to program line 0x??,<br> if accu ≠ 0.</td></tr>
+                        <tr><td>JLZ 0x??</td><td>Jumpts to program line 0x??,<br> if accu < 0.</td></tr>
+                        <tr><td>JLE 0x??</td><td>Jumpts to program line 0x??,<br> if accu ≤ 0.</td></tr>
+                        <tr><td>JGZ 0x??</td><td>Jumpts to program line 0x??,<br> if accu > 0.</td></tr>
+                        <tr><td>JGE 0x??</td><td>Jumpts to program line 0x??,<br> if accu ≥ 0.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="right-container">
+            <div class="ide-container">
+                <button class="ide-run-button" onclick="runCode(this)">> Run <</button>
+                <div class="ide-debug-container">
+                    <div class="ide-text debug-mode">Debug-Mode</div>
+                    <label class="switch">
+                        <input type="checkbox" class="debug-checkbox" onchange="sendDebugMode(this)">
+                        <span class="slider dbr"></span>
+                    </label>
+                </div>
+                <div class="ide-debug-container">
+                    <div class="ide-text debug-speed">Debug-Speed</div>
+                    <button class="ide-exec-speed ide-clickable" onclick="cycleDebugSpeed(this)">1.0s</button>
+                </div>
+                <div class="ide-output-container">
+                    <div class="ide-text">Output</div>
+                    <div id="output-text" class="ide-output-text">
+
+                    </div>
+                </div>
+                <div class="ide-input-container">
+                    <div class="ide-input-left-section">
+                        <div class="ide-text">Input</div>
+                    </div>
+                    <label class="ide-input-right-section">
+                        <button class="ide-inp-clickable ide-ip-text ide-text-disabled" onclick="send(this)">▶</button>
+                        <input class="ide-input-text ide-input" type="number" placeholder="input integer here" disabled>
+                    </label>
+                </div>
+                <div class="ide-jump-depth ide-text">
+                    Jump-Depth: 0 / ##
+                </div>
+                <div class="ide-status-container ide-text">
+                    <div class="ide-status-text">Exec-Info:</div>
+                    <div id="status-output" class="ide-status-value"></div>
+                </div>
+            </div>
+            <div class="register-table-container reg">
+                <table class="register-table">
+                    <thead>
+                        <tr>
+                            <th>Register</th><th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Accumulator</td><td id="accu"></td></tr>
+                        <tr><td>$01</td><td id="r01"></td></tr>
+                        <tr><td>$02</td><td id="r02"></td></tr>
+                        <tr><td>$03</td><td id="r03"></td></tr>
+                        <tr><td>$04</td><td id="r04"></td></tr>
+                        <tr><td>$05</td><td id="r05"></td></tr>
+                        <tr><td>$06</td><td id="r06"></td></tr>
+                        <tr><td>$07</td><td id="r07"></td></tr>
+                        <tr><td>$08</td><td id="r08"></td></tr>
+                        <tr><td>$09</td><td id="r09"></td></tr>
+                        <tr><td>$0A</td><td id="r0A"></td></tr>
+                        <tr><td>$0B</td><td id="r0B"></td></tr>
+                        <tr><td>$0C</td><td id="r0C"></td></tr>
+                        <tr><td>$0D</td><td id="r0D"></td></tr>
+                        <tr><td>$0E</td><td id="r0E"></td></tr>
+                        <tr><td>$0F</td><td id="r0F"></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

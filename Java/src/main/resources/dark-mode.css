@@ -1,0 +1,48 @@
+/* Base dark theme styles.css */
+.code-area {
+    -fx-background-color: #222; /* Dark background */
+    -fx-highlight-text-fill: #ffffff; /* Highlighted text colour */
+    -fx-font-size: 24px;
+}
+
+.executing-line {
+    -fx-background-color: #5bfff1;
+}
+
+.paragraph-text .text {
+    -fx-fill: #e0e0e0;
+    -fx-font-family: "monospace";
+    -fx-font-size: 24px;
+}
+
+.lineno {
+    -fx-text-alignment: center;
+}
+
+/* Syntax highlighting styles.css */
+.opcode {
+    -fx-fill: #007bff !important;
+    -fx-font-weight: bold;
+}
+
+.register {
+    -fx-fill: #28a745 !important;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+}
+
+.jmp {
+    -fx-fill: #ab52fa !important;
+    -fx-font-weight: bold;
+}
+
+.util {
+    -fx-fill: #dc7200 !important;
+    -fx-font-weight: bold;
+}
+
+.codeline {
+    -fx-fill: #e3185e !important;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+}
