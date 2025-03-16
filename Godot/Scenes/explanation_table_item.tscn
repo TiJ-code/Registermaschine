@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://bd0r3nbmk6q10"]
+
+[node name="explanation_table_item" type="Panel"]
+custom_minimum_size = Vector2(0, 55)
+
+[node name="container" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "add $--"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Adds value at register $--
+ to the accumulator."
+horizontal_alignment = 1
+vertical_alignment = 1

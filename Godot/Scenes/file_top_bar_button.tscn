@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cn780x4bdf6i2"]
+
+[node name="top_bar_button" type="Button"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Test"

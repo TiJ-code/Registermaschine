@@ -1,0 +1,698 @@
+[gd_scene load_steps=4 format=3 uid="uid://cwfxs1gvpv4ij"]
+
+[ext_resource type="PackedScene" uid="uid://cn780x4bdf6i2" path="res://Scenes/file_top_bar_button.tscn" id="1_j6dmo"]
+[ext_resource type="LabelSettings" uid="uid://ba1qal1j0ixdv" path="res://explanation_label_name_settings.tres" id="3_d7sxu"]
+[ext_resource type="LabelSettings" uid="uid://dn0emw8ojkgts" path="res://explanation_label_settings.tres" id="3_i4801"]
+
+[node name="UI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.165656, 0.165656, 0.165656, 1)
+
+[node name="container" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+split_offset = 640
+
+[node name="left_container" type="VSplitContainer" parent="container"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+split_offset = 70
+dragging_enabled = false
+dragger_visibility = 2
+
+[node name="top_bar_container" type="GridContainer" parent="container/left_container"]
+layout_mode = 2
+
+[node name="file_top_bar" type="GridContainer" parent="container/left_container/top_bar_container"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+columns = 4
+
+[node name="top_bar_button" parent="container/left_container/top_bar_container/file_top_bar" instance=ExtResource("1_j6dmo")]
+layout_mode = 2
+text = "New"
+
+[node name="top_bar_button2" parent="container/left_container/top_bar_container/file_top_bar" instance=ExtResource("1_j6dmo")]
+layout_mode = 2
+text = "Load"
+
+[node name="top_bar_button3" parent="container/left_container/top_bar_container/file_top_bar" instance=ExtResource("1_j6dmo")]
+layout_mode = 2
+text = "Save"
+
+[node name="top_bar_button4" parent="container/left_container/top_bar_container/file_top_bar" instance=ExtResource("1_j6dmo")]
+layout_mode = 2
+text = "Save As"
+
+[node name="file_name_container" type="MarginContainer" parent="container/left_container/top_bar_container"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = -5
+
+[node name="background" type="Panel" parent="container/left_container/top_bar_container/file_name_container"]
+layout_mode = 2
+
+[node name="file_name_margin" type="MarginContainer" parent="container/left_container/top_bar_container/file_name_container"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_right = 10
+
+[node name="file_name_label" type="Label" parent="container/left_container/top_bar_container/file_name_container/file_name_margin"]
+layout_mode = 2
+text = "file_name.jasm"
+
+[node name="code_editor" type="CodeEdit" parent="container/left_container"]
+layout_mode = 2
+theme_override_colors/background_color = Color(0.12549, 0.12549, 0.12549, 1)
+placeholder_text = "Assembly here"
+scroll_smooth = true
+scroll_v_scroll_speed = 20.0
+scroll_fit_content_height = true
+scroll_fit_content_width = true
+highlight_current_line = true
+draw_tabs = true
+gutters_draw_executing_lines = true
+gutters_draw_line_numbers = true
+
+[node name="right_container" type="VSplitContainer" parent="container"]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 2
+split_offset = 35
+dragging_enabled = false
+dragger_visibility = 2
+drag_area_highlight_in_editor = true
+
+[node name="ide_top_bar" type="GridContainer" parent="container/right_container"]
+layout_direction = 3
+layout_mode = 2
+columns = 3
+
+[node name="debug_speed_container" type="HBoxContainer" parent="container/right_container/ide_top_bar"]
+layout_mode = 2
+
+[node name="debug_speed_button" type="OptionButton" parent="container/right_container/ide_top_bar/debug_speed_container"]
+layout_mode = 2
+selected = 0
+item_count = 4
+popup/item_0/text = "1.0"
+popup/item_0/id = 0
+popup/item_1/text = "0.5"
+popup/item_1/id = 1
+popup/item_2/text = "0.2"
+popup/item_2/id = 3
+popup/item_3/text = "0.1"
+popup/item_3/id = 2
+
+[node name="Panel" type="Panel" parent="container/right_container/ide_top_bar/debug_speed_container"]
+custom_minimum_size = Vector2(125, 0)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="container/right_container/ide_top_bar/debug_speed_container/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Debug-Speed"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="debug_button" type="Button" parent="container/right_container/ide_top_bar"]
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Debug Mode
+"
+
+[node name="run_button" type="Button" parent="container/right_container/ide_top_bar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Run"
+
+[node name="ide_container" type="GridContainer" parent="container/right_container"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="register_container" type="GridContainer" parent="container/right_container/ide_container"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 2
+
+[node name="explanation_cont" type="Panel" parent="container/right_container/ide_container"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="explanation_margin" type="MarginContainer" parent="container/right_container/ide_container/explanation_cont"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="VBoxContainer" type="VBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin"]
+layout_mode = 2
+
+[node name="header" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer"]
+custom_minimum_size = Vector2(450, 30)
+layout_mode = 2
+size_flags_vertical = 0
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/header"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/header/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Instruction"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/header/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Description"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="instruction_container" type="ScrollContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer"]
+custom_minimum_size = Vector2(450, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="explanations" type="VBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container"]
+custom_minimum_size = Vector2(450, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="exp_add" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_add"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_add/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "add $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_add/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Adds value at register $-- to the accumulator."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_sub" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_sub"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_sub/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "sub $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_sub/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Subtracts value at register $-- from accumulator."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_mul" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_mul"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_mul/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "mul $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_mul/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Multiplies accumulator with value at  $--."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_div" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_div"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_div/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "div $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_div/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Divides accumulator by value at $--."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_lda" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_lda"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_lda/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "lda $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_lda/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Loads value at $-- into accumulator."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_ldk" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_ldk"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_ldk/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "ldk ℕ"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_ldk/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Loads constant ℕ into accumulator."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_sta" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_sta"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_sta/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "sta $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_sta/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Stores accumulator value in register $--."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_inp" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_inp"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_inp/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "inp $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_inp/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Awaits user input. Stores input in register $--."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_out" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_out"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_out/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "out $--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_out/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Outputs value from register $--."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_hlt" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_hlt"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_hlt/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "hlt 99"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_hlt/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Halts the execution."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_jmp" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jmp"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jmp/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "jmp 0x--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jmp/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jumps to program line 0x--."
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_jez" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jez"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jez/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "jez 0x--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jez/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jumps to program line 0x--, if accumulator = 0"
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_jne" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jne"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jne/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "jne 0x--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jne/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jumps to program line 0x--, if accumulator ≠ 0"
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_jlz" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jlz"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jlz/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "jlz 0x--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jlz/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jumps to program line 0x--, if accumulator < 0"
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_jle" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jle"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jle/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "jle 0x--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jle/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jumps to program line 0x--, if accumulator ≤ 0"
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_jgz" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jgz"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jgz/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "jgz 0x--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jgz/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jumps to program line 0x--, if accumulator > 0"
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
+
+[node name="exp_jge" type="Panel" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations"]
+custom_minimum_size = Vector2(450, 20)
+layout_mode = 2
+metadata/_edit_lock_ = true
+
+[node name="container" type="HBoxContainer" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jge"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="name" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jge/container"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "jge 0x--"
+label_settings = ExtResource("3_d7sxu")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="value" type="Label" parent="container/right_container/ide_container/explanation_cont/explanation_margin/VBoxContainer/instruction_container/explanations/exp_jge/container"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Jumps to program line 0x--, if accumulator ≥ 0"
+label_settings = ExtResource("3_i4801")
+vertical_alignment = 1
