@@ -33,60 +33,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // normalize innerHTML to plain-lines reliably (handles <div>, <br>, nested tags)
     function getEditorLinesArray() {
-        // Grab HTML and convert block tags to \n, then strip tags and split
-        let html = codeEditor.innerHTML || '';
+        // Get the text content directly to avoid HTML parsing issues
+        let text = codeEditor.textContent || '';
 
-        // Replace CRLF
-        html = html.replace(/\r\n/g, '\n');
+        // Normalize line endings and split into lines
+        let lines = text.replace(/\r\n?/g, '\n').split('\n');
 
-        // Replace <div> and <p> boundaries with a single marker newline
-        // Many browsers create <div><br></div> for empty lines — handle those too.
-        html = html.replace(/<div[^>]*>/gi, '\n');
-        html = html.replace(/<\/div>/gi, '');
-        html = html.replace(/<p[^>]*>/gi, '\n');
-        html = html.replace(/<\/p>/gi, '');
+        // Ensure we have at least one line
+        if (lines.length === 0) return [''];
 
-        // Replace <br> with newline
-        html = html.replace(/<br\s*\/?>/gi, '\n');
-
-        // Remove remaining tags but keep their text content (strip tags)
-        // Create a temporary element to leverage browser's decoding of entities
-        const tmp = document.createElement('div');
-        tmp.innerHTML = html;
-        let text = tmp.textContent || tmp.innerText || '';
-
-        // Normalize different newline counts and trim only trailing extra newline that browsers sometimes add
-        // But keep intentional empty lines
-        // Remove leading single newline inserted by replacement if present and editor was empty
-        if (text.startsWith('\n') && codeEditor.textContent.trim().length === 0) {
-            text = text.replace(/^\n/, '');
+        // Cap at MAX_LINES
+        if (lines.length > MAX_LINES) {
+            lines.length = MAX_LINES;
         }
 
-        // Split into lines (even empty ones preserved)
-        const arr = text.split('\n');
-
-        // If the editor ends with a line break, text.split will create trailing empty string which is a valid blank line.
-        // Cap array length at MAX_LINES
-        if (arr.length > MAX_LINES) {
-            arr.length = MAX_LINES;
-        }
-
-        // Guarantee at least one line
-        if (arr.length === 0) return [''];
-
-        return arr;
+        return lines;
     }
 
     // Rebuild the visible line numbers and gutter (clamped to MAX_LINES)
     function updateLineNumbers() {
         const linesArr = getEditorLinesArray();
-        const lines = Math.max(1, Math.min(linesArr.length, MAX_LINES));
+        // Show one more line than the current content, but at least 1 line
+        const lines = Math.min(Math.max(1, linesArr.length + 1), MAX_LINES);
 
         // Build line numbers HTML
         let html = '';
         for (let i = 0; i < lines; i++) {
             const label = "0x" + i.toString(16).toUpperCase().padStart(2, '0');
-            html += `<div class="line-number" data-line="${i}">${label}</div>`;
+            const isEmptyLine = i >= linesArr.length || linesArr[i].trim() === '';
+            const lineClass = isEmptyLine ? 'line-number empty-line' : 'line-number';
+            html += `<div class="${lineClass}" data-line="${i}">${label}</div>`;
         }
         lineNumbers.innerHTML = html;
 

@@ -119,11 +119,11 @@ body {
     background: var(--bg-secondary);
     color: var(--text-secondary);
     text-align: right;
-    padding: 10px 6px 10px 0;
+    padding: 0 6px 0 0;
     user-select: none;
     white-space: pre;
     line-height: 1.4rem;
-    min-height: calc(1.4rem * 256);
+    min-height: 1.4rem;
     overflow: hidden;
 }
 .line-number {
@@ -134,7 +134,8 @@ body {
 /* Editable Code Area */
 .code-editor {
     flex: 1;
-    padding: 10px;
+    margin: 0;
+    padding: 0 10px;
     color: var(--text-primary);
     font-family: "JetBrains Mono", monospace;
     font-size: 14px;
