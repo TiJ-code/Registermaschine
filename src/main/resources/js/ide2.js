@@ -131,7 +131,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Update when typing/pasting/mutations occur
-    codeEditor.addEventListener('input', () => requestAnimationFrame(updateLineNumbers));
+    codeEditor.addEventListener('input', () => {
+        requestAnimationFrame(() => {
+            updateLineNumbers();
+            // Check if we're at the end of the content
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const cursorIsAtEnd = range.endOffset === range.endContainer.length &&
+                    range.endOffset === range.startOffset;
+
+                if (cursorIsAtEnd) {
+                    codeEditor.scrollTop = codeEditor.scrollHeight;
+                }
+            }
+        });
+    });
     codeEditor.addEventListener('keyup', (e) => {
         if (['Backspace', 'Delete'].includes(e.key)) requestAnimationFrame(updateLineNumbers);
     });
