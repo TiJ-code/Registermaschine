@@ -1,0 +1,20 @@
+:root {
+    /* Colors */
+    --bg-primary: #1e1e1e;
+    --bg-secondary: #252526;
+    --bg-tertiary: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent: #007acc;
+    --error: #ff5f5f;
+    --success: #6ce26c;
+    --warning: #e2c46c;
+    
+    /* Sizes */
+    --font-size-base: 14px;
+    --line-height-base: 1.4rem;
+    --border-radius: 4px;
+    --spacing-sm: 5px;
+    --spacing-md: 10px;
+    --spacing-lg: 15px;
+}

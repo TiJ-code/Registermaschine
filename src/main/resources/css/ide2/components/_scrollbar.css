@@ -1,0 +1,41 @@
+@import '_variables.css';
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 5px;
+    border: 2px solid var(--bg-tertiary);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* Handle when being dragged */
+::-webkit-scrollbar-thumb:active {
+    background: #777;
+}
+
+/* Corner */
+::-webkit-scrollbar-corner {
+    background: var(--bg-tertiary);
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #555 var(--bg-tertiary);
+}

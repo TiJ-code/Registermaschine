@@ -1,0 +1,138 @@
+@import '_variables.css';
+
+/* Code Editor Section */
+.editor-container {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+    overflow: hidden;
+}
+
+.editor-tabs {
+    background: var(--bg-secondary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    display: flex;
+}
+
+.tab.active {
+    background: var(--bg-tertiary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+}
+
+/* Editor Wrapper and Columns */
+.editor-wrapper {
+    display: flex;
+    flex: 1;
+    font-family: "JetBrains Mono", monospace;
+    overflow: hidden;
+}
+
+.gutter {
+    flex: 0 0 16px;
+    background: var(--bg-secondary);
+    padding: 0;
+    user-select: none;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.breakpoint {
+    width: 10px;
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.breakpoint::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: var(--error);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.breakpoint.active::before {
+    opacity: 1;
+}
+
+.breakpoint:hover {
+    transform: scale(1.1);
+}
+
+.breakpoint.active {
+    border-color: #ff8a8a;
+}
+
+/* Line Numbers */
+.line-numbers {
+    flex: 0 0 60px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    text-align: right;
+    padding: 0;
+    user-select: none;
+    white-space: pre;
+    line-height: var(--line-height-base);
+    font-size: var(--font-size-base);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.line-number {
+    height: var(--line-height-base);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    box-sizing: border-box;
+}
+
+/* Editable Code Area */
+.code-editor {
+    flex: 1;
+    margin: 0;
+    padding: 0 var(--spacing-md);
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-base);
+    white-space: pre;
+    overflow-y: auto;
+    outline: none;
+    caret-color: var(--accent);
+    background: var(--bg-primary);
+    box-sizing: border-box;
+}
+
+.code-editor > div {
+    min-height: var(--line-height-base);
+    line-height: var(--line-height-base);
+    display: flex;
+    align-items: center;
+}
+
+/* Sync scrolling sections */
+.line-numbers,
+.gutter {
+    overflow-y: hidden;
+}
+
+.code-editor > div,
+.line-number,
+.breakpoint {
+    min-height: var(--line-height-base);
+    line-height: var(--line-height-base);
+}
