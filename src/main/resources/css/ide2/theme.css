@@ -95,40 +95,72 @@ body {
 }
 
 .gutter {
-    flex: 0 0 12px;
+    flex: 0 0 16px;
     background: var(--bg-secondary);
-    padding-top: 10px;
+    padding: 0;
     user-select: none;
     overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .breakpoint {
-    width: 8px;
-    height: 8px;
-    margin: 4px auto;
+    width: 10px;
     border-radius: 50%;
     background: transparent;
-    transition: background 0.2s;
-}
-.breakpoint.active {
-    background: var(--error);
+    transition: all 0.2s;
+
+    flex-shrink: 0;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.breakpoint::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: var(--error);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.breakpoint.active::before {
+    opacity: 1;
+}
+
+.breakpoint:hover {
+    transform: scale(1.1);
+}
+
+.breakpoint.active {
+    border-color: #ff8a8a;
+}
 /* Line Numbers */
 .line-numbers {
     flex: 0 0 60px;
     background: var(--bg-secondary);
     color: var(--text-secondary);
     text-align: right;
-    padding: 0 6px 0 0;
+    padding: 0;
     user-select: none;
     white-space: pre;
     line-height: 1.4rem;
-    min-height: 1.4rem;
+    font-size: 14px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 .line-number {
     height: 1.4rem;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    box-sizing: border-box;
 }
 
 /* Editable Code Area */
@@ -145,12 +177,26 @@ body {
     outline: none;
     caret-color: var(--accent);
     background: var(--bg-primary);
+    box-sizing: border-box;
+}
+.code-editor > div {
+    min-height: 1.4rem;
+    line-height: 1.4rem;
+    display: flex;
+    align-items: center;
 }
 
 /* Sync scrolling sections */
 .line-numbers,
 .gutter {
     overflow-y: hidden;
+}
+
+.code-editor > div,
+.line-number,
+.breakpoint {
+    min-height: 1.4rem;
+    line-height: 1.4rem;
 }
 
 /* Registers */
