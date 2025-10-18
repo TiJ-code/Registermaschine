@@ -15,7 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_LINES = 256;
 
     const toHex = val => "0x" + val.toString(16).toUpperCase().padStart(4, '0');
-    const toBin = val => val.toString(2).padStart(16, '0');
+    const toBin = val => {
+        const binary = val.toString(2).padStart(16, '0');
+        return binary.replace(/(\d{4})(?=\d)/g, '$1 ');
+    };
 
     function updateRegistersDisplay() {
         const accVal = document.querySelector('#accumulator .register-value');
