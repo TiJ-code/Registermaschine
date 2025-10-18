@@ -33,8 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // normalize innerHTML to plain-lines reliably (handles <div>, <br>, nested tags)
     function getEditorLinesArray() {
-        // Get the text content directly to avoid HTML parsing issues
-        let text = codeEditor.textContent || '';
+        // Create a temporary div to parse the HTML structure
+        const temp = document.createElement('div');
+        temp.innerHTML = codeEditor.innerHTML;
+
+        // Replace <br> elements with newlines and get text content
+        const text = temp.innerText || '';
 
         // Normalize line endings and split into lines
         let lines = text.replace(/\r\n?/g, '\n').split('\n');
@@ -52,16 +56,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Rebuild the visible line numbers and gutter (clamped to MAX_LINES)
     function updateLineNumbers() {
-        const linesArr = getEditorLinesArray();
-        // Show one more line than the current content, but at least 1 line
-        const lines = Math.min(Math.max(1, linesArr.length + 1), MAX_LINES);
+        // Get all text nodes and br elements to count lines
+        const walker = document.createTreeWalker(
+            codeEditor,
+            NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,
+            {
+                acceptNode: function(node) {
+                    // Accept text nodes and br elements
+                    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== '') {
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                    if (node.nodeName === 'BR') {
+                        return NodeFilter.FILTER_ACCEPT;
+                    }
+                    return NodeFilter.FILTER_SKIP;
+                }
+            }
+        );
+
+        let lineCount = 1; // Start with 1 line (empty editor has 1 line)
+        while (walker.nextNode()) {
+            if (walker.currentNode.nodeName === 'BR') {
+                lineCount++;
+            }
+        }
+
+        // Ensure we have at least one line and cap at MAX_LINES
+        const lines = Math.min(Math.max(1, lineCount), MAX_LINES);
 
         // Build line numbers HTML
         let html = '';
         for (let i = 0; i < lines; i++) {
             const label = "0x" + i.toString(16).toUpperCase().padStart(2, '0');
-            const isEmptyLine = i >= linesArr.length || linesArr[i].trim() === '';
-            const lineClass = isEmptyLine ? 'line-number empty-line' : 'line-number';
+            const lineClass = 'line-number' + (i >= lineCount - 1 ? ' empty-line' : '');
             html += `<div class="${lineClass}" data-line="${i}">${label}</div>`;
         }
         lineNumbers.innerHTML = html;
@@ -73,31 +100,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Make Enter insert a simple newline character rather than <div>.. to avoid structural branching
-    codeEditor.addEventListener('keypress', (e) => {
+    codeEditor.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
-            // Use insertText if available to avoid execCommand deprecation issues
-            const inserted = '\n';
-            if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
-                document.execCommand('insertText', false, inserted);
-            } else if (navigator.clipboard === undefined) {
-                // fallback
-                document.execCommand('insertHTML', false, '\n');
-            } else {
-                // insert using range
-                const sel = window.getSelection();
-                if (!sel.rangeCount) return;
-                const range = sel.getRangeAt(0);
-                range.deleteContents();
-                const textNode = document.createTextNode(inserted);
-                range.insertNode(textNode);
-                // move caret after inserted node
-                range.setStartAfter(textNode);
-                range.collapse(true);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
             e.preventDefault();
-            requestAnimationFrame(updateLineNumbers);
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            const br = document.createElement('br');
+            const textNode = document.createTextNode('\u00A0'); // Non-breaking space to ensure line height
+
+            // Insert new line
+            range.deleteContents();
+            range.insertNode(br);
+            range.setStartAfter(br);
+            range.insertNode(textNode);
+            range.setStart(textNode, 0)
+            range.collapse(true);
+
+            // Update selection
+            selection.removeAllRanges();
+            selection.addRange(range);
         }
     });
 
@@ -110,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update when typing/pasting/mutations occur
     codeEditor.addEventListener('input', () => requestAnimationFrame(updateLineNumbers));
     codeEditor.addEventListener('keyup', (e) => {
-        if (['Enter', 'Backspace', 'Delete'].includes(e.key)) requestAnimationFrame(updateLineNumbers);
+        if (['Backspace', 'Delete'].includes(e.key)) requestAnimationFrame(updateLineNumbers);
     });
     codeEditor.addEventListener('paste', () => requestAnimationFrame(updateLineNumbers));
 
@@ -163,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initialize editor content and UI
-    codeEditor.textContent = "; Sample program\nLDK 10\nSTA $01\nADD $01\nOUT $00\nHLT";
+    codeEditor.textContent = "";
     updateRegistersDisplay();
     updateLineNumbers();
 });
