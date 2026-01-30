@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <tokentypes>
+        <tokentype id="register"/>
+        <tokentype id="instruction"/>
+        <tokentype id="literal"/>
+        <tokentype id="comment"/>
+    </tokentypes>
+    <colours>
+        <colour id="register">#123456</colour>
+        <colour id="instruction">#456789</colour>
+        <colour id="literal">#0055FF</colour>
+        <colour id="comment">#333333</colour>
+    </colours>
+    <tokentype2colours>
+        <tokentype2colour tokentype="register" colourId="register"/>
+        <tokentype2colour tokentype="instruction" colourId="instruction"/>
+        <tokentype2colour tokentype="literal" colourId="literal"/>
+        <tokentype2colour tokentype="comment" colourId="comment"/>
+    </tokentype2colours>
+    <keywords>
+        <keyword name="#" tokentype="literal" prefix="true"/>
+        <keyword name="0x" tokentype="literal" case-sensitive="true" prefix="true"/>
+        <keyword name=";" tokentype="comment" prefix="true"/>
+        <keyword name="add" tokentype="instruction"/>
+        <keyword name="sub" tokentype="instruction"/>
+        <keyword name="mul" tokentype="instruction"/>
+        <keyword name="div" tokentype="instruction"/>
+        <keyword name="lda" tokentype="instruction"/>
+        <keyword name="ldk" tokentype="instruction"/>
+        <keyword name="sta" tokentype="instruction"/>
+        <keyword name="inp" tokentype="instruction"/>
+        <keyword name="out" tokentype="instruction"/>
+        <keyword name="hlt" tokentype="instruction"/>
+        <keyword name="jmp" tokentype="instruction"/>
+        <keyword name="jez" tokentype="instruction"/>
+        <keyword name="jne" tokentype="instruction"/>
+        <keyword name="jlz" tokentype="instruction"/>
+        <keyword name="jle" tokentype="instruction"/>
+        <keyword name="jgz" tokentype="instruction"/>
+        <keyword name="jge" tokentype="instruction"/>
+    </keywords>
+    <symbols>
+        <symbol type="text" regex="[A-Za-z]*"/>
+        <symbol type="numbers" regex="[0-9]*"/>
+    </symbols>
+    <symbols2tokentypes>
+        <symbol2tokentype symbolType="text" tokentype="instruction"/>
+        <symbol2tokentype symbolType="numbers" tokentype="literal"/>
+    </symbols2tokentypes>
+    <operands>
+        <operand id="register"/>
+        <operand id="literal"/>
+    </operands>
+    <instructions>
+        <instruction
+                id="add"
+                opcode="0x01"
+                operands="2"
+                description="Adds register B to A"
+                handler="core.instructions.AdditionInstruction"/>
+        <instruction
+                id="sub"
+                opcode="0x02"
+                operands="2"
+                description="Subtracts register B from A"
+                handler="core.instructions.SubtractionInstruction"/>
+        <instruction
+                id="mul"
+                opcode="0x03"
+                operands="2"
+                description="Multiplies register A by B"
+                handler="core.instructions.MultiplicationInstruction"/>
+        <instruction
+                id="div"
+                opcode="0x04"
+                operands="2"
+                description="Divides register A by B"
+                handler="core.instructions.DivisionInstruction"/>
+        <instruction
+                id="lda"
+                opcode="0x06"
+                operands="1"
+                description="Loads value from register A into accumulator"
+                handler="core.instructions.LoadFromAddressInstruction"/>
+        <instruction
+                id="ldk"
+                opcode="0x07"
+                operands="1"
+                description="Loads constant value into accumulator"
+                handler="core.instructions.LoadConstantValueInstruction"/>
+        <instruction
+                id="sta"
+                opcode="0x08"
+                operands="1"
+                description="Stores value of accumulator into register A"
+                handler="core.instructions.StoreToAddressInstruction"/>
+        <instruction
+                id="inp"
+                opcode="0x09"
+                operands="1"
+                description="Awaits input to store in register A"
+                handler="core.instructions.InputInstruction"/>
+        <instruction
+                id="out"
+                opcode="0x0A"
+                operands="0"
+                description="Outputs content from accumulator onto display"
+                handler="core.instructions.OutputInstruction"/>
+        <instruction
+                id="jmp"
+                opcode="0x0B"
+                operands="1"
+                description="Jumps to program line"
+                handler="core.instructions.JumpInstruction"/>
+        <instruction
+                id="jez"
+                opcode="0x0C"
+                operands="1"
+                description="Jumps to program line, if accumulator is zero"
+                handler="core.instructions.JumpInstruction"
+                condition="core.conditions.EqualsZeroCondition"/>
+        <instruction
+                id="jne"
+                opcode="0x0D"
+                operands="1"
+                description="Jumps to program line, if accumulator is not zero"
+                handler="core.instructions.JumpInstruction"
+                condition="!core.conditions.EqualsZeroCondition"/>
+        <instruction
+                id="jlz"
+                opcode="0x0E"
+                operands="1"
+                description="Jumps to program line, if accumulator is less than zero"
+                handler="core.instructions.JumpInstruction"
+                condition="core.conditions.LessThanZeroCondition"/>
+        <instruction
+                id="jle"
+                opcode="0x0F"
+                operands="1"
+                description="Jumps to program line, if accumulator is less than or equal to zero"
+                handler="core.instructions.JumpInstruction"
+                condition="core.conditions.EqualsZeroCondition,core.conditions.LessThanZeroCondition"/>
+        <instruction
+                id="jgz"
+                opcode="0x10"
+                operands="1"
+                description="Jumps to program line, if accumulator is greater than zero"
+                handler="core.instructions.JumpInstruction"
+                condition="core.conditions.GreaterThanZeroCondition"/>
+        <instruction
+                id="jge"
+                opcode="0x11"
+                operands="1"
+                description="Jumps to program line, if accumulator is greater than or equal to zero"
+                handler="core.instructions.JumpInstruction"
+                condition="core.conditions.EqualsZeroCondition,core.conditions.GreaterThanZeroCondition"/>
+    </instructions>
+</configuration>

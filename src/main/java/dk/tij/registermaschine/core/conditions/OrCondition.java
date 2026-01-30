@@ -1,0 +1,27 @@
+package dk.tij.registermaschine.core.conditions;
+
+import dk.tij.registermaschine.core.ExecutionContext;
+
+import java.util.List;
+
+public final class OrCondition implements Condition {
+    private final Condition[] conditions;
+
+    public OrCondition(List<Condition> conditions) {
+        this.conditions = conditions.toArray(new Condition[0]);
+    }
+
+    public OrCondition(Condition... conditions) {
+        this.conditions = conditions;
+    }
+
+    @Override
+    public boolean test(ExecutionContext context) {
+        boolean result = false;
+
+        for (Condition c : conditions)
+            result |= c.test(context);
+
+        return result;
+    }
+}
