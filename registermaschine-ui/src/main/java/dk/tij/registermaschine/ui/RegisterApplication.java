@@ -246,7 +246,7 @@ public class RegisterApplication extends Application {
         }
     }
 
-    public static void main(String[] args) {
+    public static void externalLaunch(String[] args) {
         launch(args);
     }
 }

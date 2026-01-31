@@ -1,5 +1,7 @@
 package dk.tij.registermaschine.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class CPU implements ExecutionContext {
@@ -7,6 +9,8 @@ public class CPU implements ExecutionContext {
                               FLAG_ZERO     = 0b0010,
                               FLAG_NEGATIVE = 0b0100,
                               FLAG_OVERFLOW = 0b1000;
+    
+    private final List<ExecutionContextListener> listeners = new ArrayList<>();
 
     private final int[] registers = new int[8];
     private int programmeCounter = 0;
@@ -14,7 +18,15 @@ public class CPU implements ExecutionContext {
     private byte exitCode;
     private byte flags = 0;
 
-    private final Scanner scanner = new Scanner(System.in);
+    @Override
+    public void addListener(ExecutionContextListener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(ExecutionContextListener listener) {
+        listeners.remove(listener);
+    }
 
     @Override
     public int getRegisterCount() {
@@ -29,6 +41,7 @@ public class CPU implements ExecutionContext {
     @Override
     public void setRegister(int index, int value) {
         registers[index] = value;
+        listeners.forEach(l -> l.onRegisterChanged(index, value));
     }
 
     @Override
@@ -39,16 +52,19 @@ public class CPU implements ExecutionContext {
     @Override
     public void setProgrammeCounter(int pc) {
         programmeCounter = pc;
+        listeners.forEach(l -> l.onProgrammeCounterChanged(pc));
     }
 
     @Override
     public void startExecution() {
         flags |= FLAG_RUNNING;
+        listeners.forEach(ExecutionContextListener::onExecutionStarted);
     }
 
     @Override
     public void stopExecution() {
         flags &= ~FLAG_RUNNING;
+        listeners.forEach(ExecutionContextListener::onExecutionStopped);
     }
 
     @Override
@@ -82,20 +98,27 @@ public class CPU implements ExecutionContext {
         flags |= negative ? FLAG_NEGATIVE : 0;
         flags |= zero ? FLAG_ZERO : 0;
         flags |= overflow ? FLAG_OVERFLOW : 0;
+        listeners.forEach(l -> l.onFlagChanged(negative, zero, overflow));
     }
 
     @Override
     public void setExitCode(byte code) {
         this.exitCode = code;
+        listeners.forEach(l -> l.onExitCodeChanged(code));
     }
 
     @Override
     public void output(int value) {
-        System.out.println(value);
+        listeners.forEach(l -> l.onOutput(value));
     }
 
     @Override
     public int input() {
-        return Integer.parseInt(scanner.nextLine());
+        for (ExecutionContextListener l : listeners) {
+            Integer value = l.onInputRequested();
+            if (value != null)
+                return value;
+        }
+        throw new UnsupportedOperationException("Input cannot not be provided by listeners");
     }
 }

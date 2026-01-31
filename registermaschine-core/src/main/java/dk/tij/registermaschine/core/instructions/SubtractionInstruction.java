@@ -12,10 +12,13 @@ public final class SubtractionInstruction extends AbstractInstruction {
     public void executeInstruction(ExecutionContext context, int[] operands) {
         super.executeInstruction(context, operands);
 
-        int result = context.getAccumulator() - operands[0];
+        int op1 = context.getAccumulator();
+        int op2 = context.getRegister(operands[0]);
+
+        int result = op1 - op2;
 
         boolean negative = result < 0;
-        boolean overFlow = ((context.getAccumulator() ^ operands[0]) & (context.getAccumulator() ^ result)) < 0;
+        boolean overFlow = ((op1 ^ op2) & (op1 ^ result)) < 0;
 
         context.setFlags(negative, result == 0, overFlow);
 

@@ -38,7 +38,9 @@ public class ConsoleApplication {
 
         if (args[0].equalsIgnoreCase("--r") && args.length >= 2) {
             loadBinary(args[1], program);
-            new Executor(new CPU(), registry, program).run();
+            CPU cpu = new CPU();
+            cpu.addListener(new MachineListener(null));
+            new Executor(cpu, registry, program).run();
             return;
         }
 
@@ -68,7 +70,9 @@ public class ConsoleApplication {
         }
 
         if (hasFlag(args, "--r")) {
-            new Executor(new CPU(), registry, program).run();
+            CPU cpu = new CPU();
+            cpu.addListener(new MachineListener());
+            new Executor(cpu, registry, program).run();
         }
     }
 
@@ -76,6 +80,7 @@ public class ConsoleApplication {
         Scanner scanner = new Scanner(System.in);
 
         CPU cpu = new CPU();
+        cpu.addListener(new MachineListener(scanner));
         Executor exec = new Executor(cpu, registry);
 
         System.out.println("Interactive Editor");
@@ -96,15 +101,6 @@ public class ConsoleApplication {
                 exec.setProgram(singleStep);
                 cpu.setProgrammeCounter(0);
                 exec.run();
-
-                StringBuilder topLine = new StringBuilder();
-                StringBuilder endLine = new StringBuilder();
-                for (int i = 0; i < cpu.getRegisterCount(); i++) {
-                    topLine.append(String.format("%4s", i == 0 ? "ACCU" : ("r" + i))).append(" ");
-                    endLine.append(String.format("%4s", cpu.getRegister(i))).append(" ");
-                }
-                System.out.println(topLine);
-                System.out.println(endLine);
 
                 if (cpu.isHalted()) {
                     System.out.println("CPU is halted. Terminating...");

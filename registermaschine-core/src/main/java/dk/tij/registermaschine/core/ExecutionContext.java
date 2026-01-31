@@ -1,6 +1,9 @@
 package dk.tij.registermaschine.core;
 
 public interface ExecutionContext {
+    void addListener(ExecutionContextListener listener);
+    void removeListener(ExecutionContextListener listener);
+
     int getRegisterCount();
     int getRegister(int index);
     void setRegister(int index, int value);
