@@ -18,6 +18,9 @@ public interface ExecutionContext {
     boolean getZeroFlag();
     boolean getOverflowFlag();
 
+    void updateFlags(int[] operands, int operandCount, Integer result);
+    void setFlags(boolean negative, boolean zero, boolean overflow);
+
     void output(int value);
     int input();
 }

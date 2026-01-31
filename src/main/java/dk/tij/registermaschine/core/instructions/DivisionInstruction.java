@@ -11,6 +11,15 @@ public final class DivisionInstruction extends AbstractInstruction {
     @Override
     public void executeInstruction(ExecutionContext context, int[] operands) {
         super.executeInstruction(context, operands);
-        context.setAccumulator(context.getAccumulator() / operands[0]);
+
+        Integer result;
+        try {
+            result = context.getAccumulator() / operands[0];
+        } catch (ArithmeticException e) {
+            System.err.println("Error!");
+            result = null;
+        }
+        context.updateFlags(operands, operandCount, result);
+        context.setAccumulator(Integer.MIN_VALUE);
     }
 }

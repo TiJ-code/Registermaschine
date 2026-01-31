@@ -1,80 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <tokentypes>
-        <tokentype id="register"/>
-        <tokentype id="instruction"/>
-        <tokentype id="literal"/>
-        <tokentype id="comment"/>
-    </tokentypes>
+    <tokens>
+        <token id="register"/>
+        <token id="instruction"/>
+        <token id="literal"/>
+        <token id="comment"/>
+    </tokens>
     <colours>
-        <colour id="register">#123456</colour>
-        <colour id="instruction">#456789</colour>
-        <colour id="literal">#0055FF</colour>
-        <colour id="comment">#333333</colour>
+        <colour tokenId="register">#123456</colour>
+        <colour tokenId="instruction">#456789</colour>
+        <colour tokenId="literal">#0055FF</colour>
+        <colour tokenId="comment">#333333</colour>
     </colours>
-    <tokentype2colours>
-        <tokentype2colour tokentype="register" colourId="register"/>
-        <tokentype2colour tokentype="instruction" colourId="instruction"/>
-        <tokentype2colour tokentype="literal" colourId="literal"/>
-        <tokentype2colour tokentype="comment" colourId="comment"/>
-    </tokentype2colours>
-    <keywords>
+    <customKeywords>
         <keyword name="#" tokentype="literal" prefix="true"/>
         <keyword name="0x" tokentype="literal" case-sensitive="true" prefix="true"/>
         <keyword name=";" tokentype="comment" prefix="true"/>
-        <keyword name="add" tokentype="instruction"/>
-        <keyword name="sub" tokentype="instruction"/>
-        <keyword name="mul" tokentype="instruction"/>
-        <keyword name="div" tokentype="instruction"/>
-        <keyword name="lda" tokentype="instruction"/>
-        <keyword name="ldk" tokentype="instruction"/>
-        <keyword name="sta" tokentype="instruction"/>
-        <keyword name="inp" tokentype="instruction"/>
-        <keyword name="out" tokentype="instruction"/>
-        <keyword name="hlt" tokentype="instruction"/>
-        <keyword name="jmp" tokentype="instruction"/>
-        <keyword name="jez" tokentype="instruction"/>
-        <keyword name="jne" tokentype="instruction"/>
-        <keyword name="jlz" tokentype="instruction"/>
-        <keyword name="jle" tokentype="instruction"/>
-        <keyword name="jgz" tokentype="instruction"/>
-        <keyword name="jge" tokentype="instruction"/>
-    </keywords>
+    </customKeywords>
     <symbols>
-        <symbol type="text" regex="[A-Za-z]*"/>
-        <symbol type="numbers" regex="[0-9]*"/>
+        <symbol tokenId="register" regex="r[A-Za-z]"/>
+        <symbol tokenId="text" regex="[A-Za-z]*"/>
+        <symbol tokenId="numbers" regex="[0-9]*"/>
     </symbols>
-    <symbols2tokentypes>
-        <symbol2tokentype symbolType="text" tokentype="instruction"/>
-        <symbol2tokentype symbolType="numbers" tokentype="literal"/>
-    </symbols2tokentypes>
-    <operands>
-        <operand id="register"/>
-        <operand id="literal"/>
-    </operands>
     <instructions>
         <instruction
                 id="add"
                 opcode="0x01"
-                operands="2"
+                operands="1"
                 description="Adds register B to A"
                 handler="core.instructions.AdditionInstruction"/>
         <instruction
                 id="sub"
                 opcode="0x02"
-                operands="2"
+                operands="1"
                 description="Subtracts register B from A"
                 handler="core.instructions.SubtractionInstruction"/>
         <instruction
                 id="mul"
                 opcode="0x03"
-                operands="2"
+                operands="1"
                 description="Multiplies register A by B"
                 handler="core.instructions.MultiplicationInstruction"/>
         <instruction
                 id="div"
                 opcode="0x04"
-                operands="2"
+                operands="1"
                 description="Divides register A by B"
                 handler="core.instructions.DivisionInstruction"/>
         <instruction

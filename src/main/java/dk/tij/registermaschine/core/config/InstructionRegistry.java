@@ -6,19 +6,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class InstructionRegistry {
-    private final Map<Byte, AbstractInstruction> opcodeMap = new HashMap<>();
+    private final Map<String, Byte> byName = new HashMap<>();
+    private final Map<Byte, AbstractInstruction> byOpcode = new HashMap<>();
 
-    public void registerInstruction(byte opcode, AbstractInstruction handler) {
-        if (opcodeMap.containsKey(opcode))
+    public void registerInstruction(String name, byte opcode, AbstractInstruction handler) {
+        if (byOpcode.containsKey(opcode))
             throw new IllegalArgumentException("Opcode " + opcode + " is already registered!");
-        opcodeMap.put(opcode, handler);
+        byName.put(name.toLowerCase(), opcode);
+        byOpcode.put(opcode, handler);
     }
 
     public AbstractInstruction getHandler(byte opcode) {
-        return opcodeMap.get(opcode);
+        return byOpcode.get(opcode);
     }
 
-    public Map<Byte, AbstractInstruction> Map() {
-        return opcodeMap;
+    public byte getOpcode(String name) {
+        Byte op = byName.get(name.toLowerCase());
+        if (op == null)
+            throw new IllegalArgumentException("Unknown instruction: "+ name);
+        return op;
     }
 }

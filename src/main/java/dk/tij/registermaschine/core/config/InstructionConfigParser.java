@@ -14,6 +14,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 
 public class InstructionConfigParser {
+    private static final String CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
+
     private final InstructionRegistry registry;
 
     public InstructionConfigParser(InstructionRegistry registry) {
@@ -40,12 +42,11 @@ public class InstructionConfigParser {
 
             if (id.startsWith("j")) {
                 JumpInstruction jump = new JumpInstruction(opcode, condition);
-                registry.registerInstruction(opcode, jump);
+                registry.registerInstruction(id, opcode, jump);
             } else {
-                Class<? extends AbstractInstruction> cls = parseHandler(handlerStr);
-                AbstractInstruction instruction = cls.getDeclaredConstructor(byte.class, int.class, Condition.class)
-                                .newInstance(opcode, operands, condition);
-                registry.registerInstruction(opcode, instruction);
+                registry.registerInstruction(id, opcode,
+                                             createInstruction(parseHandler(handlerStr),
+                                                               opcode, operands, condition));
             }
         }
     }
@@ -61,7 +62,7 @@ public class InstructionConfigParser {
             boolean negate = part.startsWith("!");
             String className = negate ? part.substring(1) : part;
 
-            Class<?> cls = Class.forName("dk.tij.registermaschine." + className);
+            Class<?> cls = Class.forName(CLASS_PATH_PREFIX + className);
             Condition cond = (Condition) cls.getDeclaredConstructor().newInstance();
 
             if (negate) cond = new NotCondition(cond);
@@ -76,15 +77,13 @@ public class InstructionConfigParser {
     private Class<? extends AbstractInstruction> parseHandler(String handlerStr) throws Exception {
         if (handlerStr == null || handlerStr.isEmpty()) return null;
 
-        return Class.forName("dk.tij.registermaschine." + handlerStr.trim())
+        return Class.forName(CLASS_PATH_PREFIX + handlerStr.trim())
                 .asSubclass(AbstractInstruction.class);
     }
 
-    private AbstractInstruction createInstruction(String className, int opcode, int operands, Condition condition) throws Exception {
-        Class<?> cls = Class.forName(className);
-
-        return (AbstractInstruction) cls
-                .getDeclaredConstructor(int.class, Condition.class)
-                .newInstance(opcode, condition);
+    private AbstractInstruction createInstruction(Class<? extends AbstractInstruction> clazz, byte opcode, int operands, Condition condition) throws Exception {
+        return clazz
+                .getDeclaredConstructor(byte.class, int.class, Condition.class)
+                .newInstance(opcode, operands, condition);
     }
 }

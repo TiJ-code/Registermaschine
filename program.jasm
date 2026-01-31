@@ -1,0 +1,5 @@
+LDK #1
+STA r1
+ADD r1
+ADD r1
+STA r2
