@@ -3,7 +3,7 @@ package dk.tij.registermaschine.core.instructions;
 import dk.tij.registermaschine.core.ExecutionContext;
 import dk.tij.registermaschine.core.conditions.Condition;
 
-public abstract class AbstractInstruction {
+public abstract class AbstractInstruction implements InstructionHandler {
     public final byte OpCode;
     protected final int operandCount;
     protected final Condition condition;
@@ -14,9 +14,19 @@ public abstract class AbstractInstruction {
         this.condition = condition;
     }
 
-    public void executeInstruction(ExecutionContext context, int[] operands) {
+    public void validate(int[] operands) {
         if (operands == null || operands.length < operandCount)
-            throw new IllegalArgumentException("Insufficient operands!");
+            throw new RuntimeException("Instruction " + this.getClass().getSimpleName() + " expects " + operandCount + " operands.");
+    }
+
+    public boolean shouldExecute(ExecutionContext context) {
+        if (condition == null) return true;
+        return condition.test(context);
+    }
+
+    @Override
+    public void executeInstruction(ExecutionContext context, int[] operands) {
+        if (!shouldExecute(context)) context.setProgrammeCounter(context.getProgrammeCounter() + 1);
     }
 
     @Override

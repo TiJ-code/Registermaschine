@@ -7,6 +7,13 @@
     </symbols>
     <instructions>
         <instruction
+                id="troll"
+                opcode="0x1F"
+                operands="1"
+                description="Trolling"
+                condition="core.conditions.EqualsZeroCondition"
+                handler="core.instructions.AdditionInstruction"/>
+        <instruction
                 id="hlt"
                 opcode="0x00"
                 operands="1"

@@ -11,6 +11,6 @@ public final class InputInstruction extends AbstractInstruction {
     @Override
     public void executeInstruction(ExecutionContext context, int[] operands) {
         super.executeInstruction(context, operands);
-        context.setAccumulator( context.input() );
+        context.setRegister( operands[0], context.input() );
     }
 }

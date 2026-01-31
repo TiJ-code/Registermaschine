@@ -12,8 +12,11 @@ public final class MultiplicationInstruction extends AbstractInstruction {
     public void executeInstruction(ExecutionContext context, int[] operands) {
         super.executeInstruction(context, operands);
 
-        int result = context.getAccumulator() * operands[0];
-        context.updateFlags(operands, operandCount, result);
-        context.setAccumulator(result);
+        long result = (long)context.getAccumulator() * (long)operands[0];
+
+        boolean overFlow = result > Integer.MAX_VALUE || result < Integer.MIN_VALUE;
+
+        context.setFlags(result < 0, (int)result == 0, overFlow);
+        context.setAccumulator((int)result);
     }
 }

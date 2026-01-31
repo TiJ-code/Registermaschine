@@ -1,6 +1,7 @@
 package dk.tij.registermaschine.core;
 
 import dk.tij.registermaschine.core.config.InstructionRegistry;
+import dk.tij.registermaschine.core.instructions.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.CompiledInstruction;
 
 import java.util.List;
@@ -28,15 +29,19 @@ public class Executor {
         if (running) return;
 
         running = true;
-        while (context.getProgrammeCounter() < program.size()) {
+        context.startExecution();
+
+        while (!context.isHalted() && context.getProgrammeCounter() < program.size()) {
             int pc = context.getProgrammeCounter();
             CompiledInstruction instr = program.get(pc);
 
             context.setProgrammeCounter( pc + 1 );
 
-            registry.getHandler(instr.opcode())
-                    .executeInstruction(context, instr.operands());
+            AbstractInstruction handler = registry.getHandler(instr.opcode());
+            if (handler.shouldExecute(context))
+                handler.executeInstruction(context, instr.operands());
         }
+
         running = false;
     }
 

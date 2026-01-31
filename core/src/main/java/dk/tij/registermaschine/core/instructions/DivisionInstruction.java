@@ -11,15 +11,26 @@ public final class DivisionInstruction extends AbstractInstruction {
     @Override
     public void executeInstruction(ExecutionContext context, int[] operands) {
         super.executeInstruction(context, operands);
+        int dividend = context.getAccumulator();
+        int divisor = operands[0];
 
-        Integer result;
-        try {
-            result = context.getAccumulator() / operands[0];
-        } catch (ArithmeticException e) {
-            System.err.println("Error!");
-            result = null;
+        if (divisor == 0) {
+            context.setExitCode((byte) 1);
+            context.stopExecution();
+            System.err.println("Runtime Error: Division by zero!");
+            return;
         }
-        context.updateFlags(operands, operandCount, result);
+
+        boolean overflow = (dividend == Integer.MAX_VALUE && divisor == -1);
+
+        int result;
+        if (overflow)
+            result = Integer.MIN_VALUE;
+        else
+            result = dividend / divisor;
+
+        context.setFlags(result < 0, result == 0, overflow);
+
         context.setAccumulator(Integer.MIN_VALUE);
     }
 }

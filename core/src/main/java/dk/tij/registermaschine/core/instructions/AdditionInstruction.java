@@ -11,9 +11,17 @@ public final class AdditionInstruction extends AbstractInstruction {
     @Override
     public void executeInstruction(ExecutionContext context, int[] operands) {
         super.executeInstruction(context, operands);
+        int op1 = context.getAccumulator();
+        int op2 = context.getRegister(operands[0]);
 
-        int result = context.getAccumulator() + operands[0];
-        context.updateFlags(operands, operandCount, result);
-        context.setAccumulator(result);
+        long result = (long)op1 + (long)op2;
+
+        boolean negative = result < 0;
+        boolean overFlow = (result > Integer.MAX_VALUE) ||
+                           (result < Integer.MIN_VALUE);
+
+        context.setFlags(negative, result == 0, overFlow);
+
+        context.setAccumulator((int)result);
     }
 }

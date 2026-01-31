@@ -1,6 +1,7 @@
 package dk.tij.registermaschine.core;
 
 import dk.tij.registermaschine.core.config.InstructionRegistry;
+import dk.tij.registermaschine.core.instructions.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.CompiledInstruction;
 import dk.tij.registermaschine.core.parser.ast.ASTNode;
 import dk.tij.registermaschine.core.parser.ast.InstructionNode;
@@ -23,6 +24,10 @@ public class Compiler {
             if (node instanceof InstructionNode instr) {
                 byte opcode = registry.getOpcode(instr.instruction);
                 int[] operands = compileOperands(instr.operands);
+
+                AbstractInstruction handler = registry.getHandler(opcode);
+                handler.validate(operands);
+
                 program.add(new CompiledInstruction(opcode, operands));
             }
         }

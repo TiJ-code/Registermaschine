@@ -1,6 +1,5 @@
 package dk.tij.registermaschine.core;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class CPU implements ExecutionContext {
@@ -16,6 +15,11 @@ public class CPU implements ExecutionContext {
     private byte flags = 0;
 
     private final Scanner scanner = new Scanner(System.in);
+
+    @Override
+    public int getRegisterCount() {
+        return registers.length;
+    }
 
     @Override
     public int getRegister(int index) {
@@ -35,6 +39,11 @@ public class CPU implements ExecutionContext {
     @Override
     public void setProgrammeCounter(int pc) {
         programmeCounter = pc;
+    }
+
+    @Override
+    public void startExecution() {
+        flags |= FLAG_RUNNING;
     }
 
     @Override
@@ -65,28 +74,6 @@ public class CPU implements ExecutionContext {
     @Override
     public byte getExitCode() {
         return exitCode;
-    }
-
-    @Override
-    public void updateFlags(int[] operands, int operandCount, Integer result) {
-        if (operands == null || operands.length == 0 || operandCount == 0) {
-            setFlags(false, false, false);
-            return;
-        }
-
-        if (result == null) {
-            setFlags(false, false, false);
-            return;
-        }
-
-        boolean negative = result < 0;
-        boolean overFlow = false;
-        if (operandCount >= 2) {
-            overFlow = (operands[0] > 0 && operands[1] > 0 && negative) ||
-                       (operands[0] < 0 && operands[1] < 0 && !negative);
-        }
-
-        setFlags(negative, result == 0, overFlow);
     }
 
     @Override

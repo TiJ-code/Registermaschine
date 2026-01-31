@@ -75,7 +75,6 @@ public class CoreApplication {
 
         CPU cpu = new CPU();
         Executor exec = new Executor(cpu, registry);
-        Compiler compiler = new Compiler(registry);
 
         System.out.println("Interactive Editor");
         System.out.println("Type your jassembly code. Type /quit to end");
@@ -90,19 +89,20 @@ public class CoreApplication {
             try {
                 var tokens = runLexer(line, false);
                 var ast = runParser(tokens, false);
-
-                if (ast.isEmpty()) continue;
-
-                var singleStep = compiler.compile(ast);
+                var singleStep = new Compiler(registry).compile(ast);
 
                 exec.setProgram(singleStep);
                 cpu.setProgrammeCounter(0);
                 exec.run();
 
-                if (cpu.isHalted()) {
-                    System.out.println("Halted ExecutionContext. Terminating...");
-                    break;
+                StringBuilder topLine = new StringBuilder();
+                StringBuilder endLine = new StringBuilder();
+                for (int i = 0; i < cpu.getRegisterCount(); i++) {
+                    topLine.append(String.format("%4s", i == 0 ? "ACCU" : ("r" + i))).append(" ");
+                    endLine.append(String.format("%4s", cpu.getRegister(i))).append(" ");
                 }
+                System.out.println(topLine);
+                System.out.println(endLine);
             } catch (Exception e) {
                 System.err.println("Syntax Error: " + e.getMessage());
             }
