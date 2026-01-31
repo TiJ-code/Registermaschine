@@ -1,28 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <tokens>
-        <token id="register"/>
-        <token id="instruction"/>
-        <token id="literal"/>
-        <token id="comment"/>
-    </tokens>
-    <colours>
-        <colour tokenId="register">#123456</colour>
-        <colour tokenId="instruction">#456789</colour>
-        <colour tokenId="literal">#0055FF</colour>
-        <colour tokenId="comment">#333333</colour>
-    </colours>
-    <customKeywords>
-        <keyword name="#" tokentype="literal" prefix="true"/>
-        <keyword name="0x" tokentype="literal" case-sensitive="true" prefix="true"/>
-        <keyword name=";" tokentype="comment" prefix="true"/>
-    </customKeywords>
     <symbols>
         <symbol tokenId="register" regex="r[A-Za-z]"/>
         <symbol tokenId="text" regex="[A-Za-z]*"/>
         <symbol tokenId="numbers" regex="[0-9]*"/>
     </symbols>
     <instructions>
+        <instruction
+                id="hlt"
+                opcode="0x00"
+                operands="1"
+                description="End instruction to stop execution"
+                handler="core.instructions.HaltInstruction"/>
         <instruction
                 id="add"
                 opcode="0x01"

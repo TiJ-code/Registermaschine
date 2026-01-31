@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class CoreApplication {
     static void main(String[] args) throws Exception {
@@ -27,6 +28,11 @@ public class CoreApplication {
 
         InstructionRegistry registry = initRegistry("configuration.xml");
         List<CompiledInstruction> program = new ArrayList<>();
+
+        if (args[0].equalsIgnoreCase("--i") && args.length == 1) {
+            runInteractiveMode(registry);
+            return;
+        }
 
         if (args[0].equalsIgnoreCase("--r") && args.length >= 2) {
             loadBinary(args[1], program);
@@ -64,6 +70,45 @@ public class CoreApplication {
         }
     }
 
+    static void runInteractiveMode(InstructionRegistry registry) {
+        Scanner scanner = new Scanner(System.in);
+
+        CPU cpu = new CPU();
+        Executor exec = new Executor(cpu, registry);
+        Compiler compiler = new Compiler(registry);
+
+        System.out.println("Interactive Editor");
+        System.out.println("Type your jassembly code. Type /quit to end");
+
+        while (true) {
+            System.out.print("> ");
+            String line = scanner.nextLine();
+
+            if (line.isEmpty()) continue;
+            if (line.equalsIgnoreCase("/quit")) break;
+
+            try {
+                var tokens = runLexer(line, false);
+                var ast = runParser(tokens, false);
+
+                if (ast.isEmpty()) continue;
+
+                var singleStep = compiler.compile(ast);
+
+                exec.setProgram(singleStep);
+                cpu.setProgrammeCounter(0);
+                exec.run();
+
+                if (cpu.isHalted()) {
+                    System.out.println("Halted ExecutionContext. Terminating...");
+                    break;
+                }
+            } catch (Exception e) {
+                System.err.println("Syntax Error: " + e.getMessage());
+            }
+        }
+    }
+
     static String getArgAfter(String[] args, String flag) {
         for (int i = 0; i < args.length; i++) {
             if (args[i].equalsIgnoreCase(flag) &&  i + 1 < args.length) {
@@ -82,11 +127,12 @@ public class CoreApplication {
 
     static void printUsage() {
         System.out.println("Usage:");
-        System.out.println("  <src.jasm> --o <out.o>\t\t\t: Compile source to binary");
-        System.out.println("  <src.jasm> --o <out.o> --r\t\t\t: Compile and run");
-        System.out.println("  --r <out.o>\t\t\t\t\t\t: Run binary file");
+        System.out.println("  <src.jasm> --o <out.o>\t\t: Compile source to binary");
+        System.out.println("  <src.jasm> --o <out.o> --r\t: Compile and run");
+        System.out.println("  --r <out.o>\t\t\t\t\t: Run binary file");
         System.out.println("  <src.jasm> --t <out.txt>\t\t: Dump tokens");
         System.out.println("  <src.jasm> --a <out.txt>\t\t: Dump Abstract Syntax Tree");
+        System.out.println("  --i\t\t\t\t\t\t\t: Run as console text program");
     }
 
     static void loadBinary(String fileName, List<CompiledInstruction> program) throws Exception {

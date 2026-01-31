@@ -14,12 +14,17 @@ public interface ExecutionContext {
     int getProgrammeCounter();
     void setProgrammeCounter(int pc);
 
+    void stopExecution();
+
+    boolean isHalted();
     boolean getNegativeFlag();
     boolean getZeroFlag();
     boolean getOverflowFlag();
+    byte getExitCode();
 
     void updateFlags(int[] operands, int operandCount, Integer result);
     void setFlags(boolean negative, boolean zero, boolean overflow);
+    void setExitCode(byte code);
 
     void output(int value);
     int input();

@@ -1,15 +1,18 @@
 package dk.tij.registermaschine.core;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class CPU implements ExecutionContext {
-    private static final byte FLAG_ZERO = 0b0001,
-                              FLAG_NEGATIVE = 0b0010,
-                              FLAG_OVERFLOW = 0b0100;
+    private static final byte FLAG_RUNNING  = 0b0001,
+                              FLAG_ZERO     = 0b0010,
+                              FLAG_NEGATIVE = 0b0100,
+                              FLAG_OVERFLOW = 0b1000;
 
     private final int[] registers = new int[8];
     private int programmeCounter = 0;
 
+    private byte exitCode;
     private byte flags = 0;
 
     private final Scanner scanner = new Scanner(System.in);
@@ -35,6 +38,16 @@ public class CPU implements ExecutionContext {
     }
 
     @Override
+    public void stopExecution() {
+        flags &= ~FLAG_RUNNING;
+    }
+
+    @Override
+    public boolean isHalted() {
+        return (flags & FLAG_RUNNING) == 0;
+    }
+
+    @Override
     public boolean getNegativeFlag() {
         return (flags & FLAG_NEGATIVE) > 0;
     }
@@ -47,6 +60,11 @@ public class CPU implements ExecutionContext {
     @Override
     public boolean getOverflowFlag() {
         return (flags & FLAG_OVERFLOW) > 0;
+    }
+
+    @Override
+    public byte getExitCode() {
+        return exitCode;
     }
 
     @Override
@@ -73,10 +91,15 @@ public class CPU implements ExecutionContext {
 
     @Override
     public void setFlags(boolean negative, boolean zero, boolean overflow) {
-        flags = 0;
+        flags &= FLAG_RUNNING;
         flags |= negative ? FLAG_NEGATIVE : 0;
-        flags |= zero ? FLAG_ZERO     : 0;
+        flags |= zero ? FLAG_ZERO : 0;
         flags |= overflow ? FLAG_OVERFLOW : 0;
+    }
+
+    @Override
+    public void setExitCode(byte code) {
+        this.exitCode = code;
     }
 
     @Override

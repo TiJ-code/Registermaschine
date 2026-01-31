@@ -9,15 +9,25 @@ public class Executor {
 
     private final ExecutionContext context;
     private final InstructionRegistry registry;
-    private final List<CompiledInstruction> program;
+    private List<CompiledInstruction> program;
 
-    public Executor(ExecutionContext context, InstructionRegistry registry, List<CompiledInstruction> program) {
+    private boolean running;
+
+    public Executor(ExecutionContext context, InstructionRegistry registry) {
         this.context = context;
         this.registry = registry;
+        this.running = false;
+    }
+
+    public Executor(ExecutionContext context, InstructionRegistry registry, List<CompiledInstruction> program) {
+        this(context, registry);
         this.program = program;
     }
 
     public void run() {
+        if (running) return;
+
+        running = true;
         while (context.getProgrammeCounter() < program.size()) {
             int pc = context.getProgrammeCounter();
             CompiledInstruction instr = program.get(pc);
@@ -27,5 +37,11 @@ public class Executor {
             registry.getHandler(instr.opcode())
                     .executeInstruction(context, instr.operands());
         }
+        running = false;
+    }
+
+    public void setProgram(List<CompiledInstruction> program) {
+        if (running) return;
+        this.program = program;
     }
 }
