@@ -38,14 +38,17 @@ public class InstructionConfigParser {
             int operands = Integer.parseInt(element.getAttribute("operands"));
             String conditionStr = element.getAttribute("condition");
             String handlerStr = element.getAttribute("handler");
+            String description = element.getAttribute("description");
+
+            InstructionDescriptor descriptor = new InstructionDescriptor(id.toUpperCase(), description);
 
             Condition condition = parseCondition(conditionStr);
 
             if (id.startsWith("j")) {
                 JumpInstruction jump = new JumpInstruction(opcode, condition);
-                registry.registerInstruction(id, opcode, jump);
+                registry.registerInstruction(id, opcode, descriptor, jump);
             } else {
-                registry.registerInstruction(id, opcode,
+                registry.registerInstruction(id, opcode, descriptor,
                                              createInstruction(parseHandler(handlerStr),
                                                                opcode, operands, condition));
             }

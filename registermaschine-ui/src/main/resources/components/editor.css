@@ -1,0 +1,48 @@
+.editor-section {
+    flex: 1;
+    display: flex;
+    overflow-y: auto;
+    background: var(--bg-dark);
+}
+
+.line-numbers {
+    width: 45px;
+    padding: 10px 5px;
+    background: var(--bg-dark);
+    color: #858585;
+    text-align: right;
+    border-right: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.5;
+    user-select: none;
+}
+
+#code-editor {
+    flex: 1;
+    padding: 10px;
+    outline: none;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    white-space: pre;
+    line-height: 1.5;
+    tab-size: 4;
+
+    /* Alternative: Simple active line style */
+    caret-color: var(--accent);
+}
+
+/* Syntax Highlighting based on Java Token Types */
+.token-mnemonic { color: #569cd6; font-weight: bold; }
+.token-register { color: #9cdcfe; }
+.token-number   { color: #b5cea8; }
+.token-label    { color: #dcdcaa; }
+.token-comment  { color: #6a9955; font-style: italic; }
+.token-operator { color: #d4d4d4; }
+
+/* The Line Highlight for PC */
+.executing-line {
+    background: rgba(255, 255, 0, 0.1);
+    box-shadow: inset 4px 0 0 #f1c40f;
+    display: block;
+}

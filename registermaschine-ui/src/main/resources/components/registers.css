@@ -1,0 +1,33 @@
+.register-grid {
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.reg-card {
+    background: #2d2d2d;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    border-left: 3px solid transparent;
+}
+
+/* The Accumulator Highlight */
+.reg-card.accumulator {
+    border-left-color: var(--accu-glow);
+    background: #2d3139;
+}
+
+.reg-name { color: #888; font-size: 11px; text-transform: uppercase; }
+.reg-value { font-family: var(--font-mono); font-weight: bold; color: #ce9178; }
+
+.reg-card.updated {
+    animation: flash 0.6s ease-out;
+}
+
+@keyframes flash {
+    0% { background: #3e3e42; }
+    100% { background: #2d2d2d; }
+}

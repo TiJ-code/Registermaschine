@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JASM IDE v1.5</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="components/editor.css">
+  <link rel="stylesheet" href="components/registers.css">
+  <link rel="stylesheet" href="components/instructions.css">
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar">
+    <header>
+      <div class="status-dot" id="status-indicator"></div>
+      <h1>Registers</h1>
+    </header>
+    <div id="register-list" class="register-grid">
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <nav class="toolbar">
+      <button class="btn btn-run" onclick="java.runCode()">▶ Run</button>
+      <button class="btn" onclick="java.stepCode()">↷ Step</button>
+      <button class="btn" onclick="java.stopCode()">⏹ Stop</button>
+      <div class="spacer"></div>
+      <button class="btn btn-outline" onclick="java.saveFile()">Save</button>
+    </nav>
+
+    <div class="editor-section">
+      <div id="active-line-highlight" class="active-line-bg"></div>
+      <div class="line-numbers" id="line-numbers">1</div>
+      <div id="code-editor"
+           contenteditable="true"
+           spellcheck="false"
+           oninput="onCodeInput()"></div>
+    </div>
+
+    <section class="docs-panel" id="docs-panel">
+      <div class="docs-header" onclick="toggleDocs()">
+        <span>Instruction Set</span>
+        <span id="docs-arrow">▼</span>
+      </div>
+      <div id="instruction-list" class="docs-content hidden">
+      </div>
+    </section>
+  </main>
+</div>
+<script src="bridge.js"></script>
+</body>
+</html>
