@@ -1,8 +1,10 @@
 package dk.tij.registermaschine.ui;
 
 import dk.tij.registermaschine.core.CPU;
+import dk.tij.registermaschine.core.config.Config;
 import dk.tij.registermaschine.core.config.InstructionConfigParser;
 import dk.tij.registermaschine.core.config.InstructionRegistry;
+import dk.tij.registermaschine.ui.config.ConfigParser;
 import javafx.application.Application;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
@@ -12,8 +14,6 @@ import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class UiApplication extends Application {
@@ -25,12 +25,12 @@ public class UiApplication extends Application {
     private final CPU cpu;
     
     public UiApplication() {
-        this.cpu = new CPU();
         this.registry = new InstructionRegistry();
         try (InputStream is = UiApplication.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
             if (is != null)
-                new InstructionConfigParser(registry).parseConfig(is);
-        } catch (Exception e) {}
+                new InstructionConfigParser(registry, new ConfigParser()).parseConfig(is);
+        } catch (Exception _) {}
+        this.cpu = new CPU();
     }
 
     public static void externalLaunch(String[] args) {
@@ -83,5 +83,7 @@ public class UiApplication extends Application {
                 .toArray();
 
         window.call("initializeDocs", (Object) docs);
+
+        window.call("initializeRegisters", Config.REGISTERS);
     }
 }

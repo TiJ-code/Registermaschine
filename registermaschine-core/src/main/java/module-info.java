@@ -5,4 +5,5 @@ module dk.tij.registermaschine.core {
     exports dk.tij.registermaschine.core.config;
 
     requires java.xml;
+    requires java.desktop;
 }

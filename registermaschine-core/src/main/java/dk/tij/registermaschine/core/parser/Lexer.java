@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.core.parser;
 
-import dk.tij.registermaschine.core.config.ConfigRegistry;
+import dk.tij.registermaschine.core.config.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +107,7 @@ public class Lexer {
         }
 
         String text = sb.toString().toLowerCase();
-        if (text.matches(ConfigRegistry.TOKEN_REGEX.get(REGISTER))) {
+        if (text.matches(Config.TOKEN_REGEX.get(REGISTER))) {
             tokens.add(new Token(REGISTER, text, line, startCol));
         } else {
             tokens.add(new Token(INSTRUCTION, text.toLowerCase(), line, startCol));

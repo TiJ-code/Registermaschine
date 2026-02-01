@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <symbols>
-        <symbol tokenId="register" regex="r[A-Za-z]"/>
-        <symbol tokenId="text" regex="[A-Za-z]*"/>
-        <symbol tokenId="numbers" regex="[0-9]*"/>
-    </symbols>
+    <registers>80</registers>
+    <colours>
+        <colour tokenId="register">#123456</colour>
+        <colour tokenId="instruction">#123456</colour>
+        <colour tokenId="number">#123456</colour>
+        <colour tokenId="comment">#123456</colour>
+    </colours>
     <instructions>
         <instruction
                 id="hlt"

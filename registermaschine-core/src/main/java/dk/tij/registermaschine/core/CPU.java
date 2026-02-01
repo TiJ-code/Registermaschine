@@ -1,5 +1,7 @@
 package dk.tij.registermaschine.core;
 
+import dk.tij.registermaschine.core.config.Config;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -10,13 +12,22 @@ public class CPU implements ExecutionContext {
                               FLAG_NEGATIVE = 0b0100,
                               FLAG_OVERFLOW = 0b1000;
     
-    private final List<ExecutionContextListener> listeners = new ArrayList<>();
+    private final List<ExecutionContextListener> listeners;
 
-    private final int[] registers = new int[8];
-    private int programmeCounter = 0;
+    private final int[] registers;
+    private int programmeCounter;
 
     private byte exitCode;
-    private byte flags = 0;
+    private byte flags;
+
+    public CPU() {
+        this.listeners = new ArrayList<>();
+
+        this.registers = new int[Config.REGISTERS];
+        this.programmeCounter = 0;
+        this.exitCode = 0;
+        this.flags = 0;
+    }
 
     @Override
     public void addListener(ExecutionContextListener listener) {
