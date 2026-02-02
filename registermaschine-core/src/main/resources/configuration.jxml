@@ -101,20 +101,20 @@
                 operands="1"
                 description="Jumps to program line, if accumulator is less than or equal to zero"
                 handler="core.instructions.JumpInstruction"
-                condition="core.conditions.EqualsZeroCondition,core.conditions.LessThanZeroCondition"/>
+                condition="core.conditions.EqualsZeroCondition+core.conditions.LessThanZeroCondition"/>
         <instruction
                 id="jgz"
                 opcode="0x10"
                 operands="1"
                 description="Jumps to program line, if accumulator is greater than zero"
                 handler="core.instructions.JumpInstruction"
-                condition="core.conditions.GreaterThanZeroCondition"/>
+                condition="!core.conditions.LessThanZeroCondition*!core.conditions.EqualsZeroCondition"/>
         <instruction
                 id="jge"
                 opcode="0x11"
                 operands="1"
                 description="Jumps to program line, if accumulator is greater than or equal to zero"
                 handler="core.instructions.JumpInstruction"
-                condition="core.conditions.EqualsZeroCondition,core.conditions.GreaterThanZeroCondition"/>
+                condition="!core.conditions.LessThanZeroCondition"/>
     </instructions>
 </configuration>

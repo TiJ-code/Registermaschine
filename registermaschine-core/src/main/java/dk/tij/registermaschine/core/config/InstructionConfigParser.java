@@ -1,8 +1,11 @@
 package dk.tij.registermaschine.core.config;
 
+import dk.tij.registermaschine.core.conditions.AndCondition;
 import dk.tij.registermaschine.core.conditions.Condition;
 import dk.tij.registermaschine.core.conditions.NotCondition;
 import dk.tij.registermaschine.core.conditions.OrCondition;
+import dk.tij.registermaschine.core.config.parser.*;
+import dk.tij.registermaschine.core.config.parser.nodes.*;
 import dk.tij.registermaschine.core.instructions.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.JumpInstruction;
 import dk.tij.registermaschine.core.parser.Token;
@@ -13,6 +16,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.util.List;
 
 public class InstructionConfigParser {
     private static final String CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
@@ -102,24 +106,10 @@ public class InstructionConfigParser {
     private Condition parseCondition(String condStr) throws Exception {
         if (condStr == null || condStr.isEmpty()) return null;
 
-        String[] parts = condStr.split(",");
-        Condition combined = null;
+        List<ConditionToken> tokens = ConditionLexer.tokenize(condStr);
+        ConditionNode ast = ConditionParser.parse(tokens);
 
-        for (String part : parts) {
-            part = part.trim();
-            boolean negate = part.startsWith("!");
-            String className = negate ? part.substring(1) : part;
-
-            Class<?> cls = Class.forName(CLASS_PATH_PREFIX + className);
-            Condition cond = (Condition) cls.getDeclaredConstructor().newInstance();
-
-            if (negate) cond = new NotCondition(cond);
-
-            if (combined == null) combined = cond;
-            else combined = new OrCondition(combined, cond);
-        }
-
-        return combined;
+        return buildCondition(ast);
     }
 
     private Class<? extends AbstractInstruction> parseHandler(String handlerStr) throws Exception {
@@ -133,5 +123,32 @@ public class InstructionConfigParser {
         return clazz
                 .getDeclaredConstructor(byte.class, int.class, Condition.class)
                 .newInstance(opcode, operands, condition);
+    }
+
+    private Condition buildCondition(ConditionNode node) throws Exception {
+        if (node instanceof LeafNode(String className)) {
+            Class<?> cls = Class.forName(CLASS_PATH_PREFIX + className);
+            return (Condition) cls.getDeclaredConstructor().newInstance();
+        }
+
+        if (node instanceof NotNode(ConditionNode inner)) {
+            return new NotCondition(buildCondition(inner));
+        }
+
+        if (node instanceof OrNode(ConditionNode left, ConditionNode right)) {
+            return new OrCondition(
+                    buildCondition(left),
+                    buildCondition(right)
+            );
+        }
+
+        if (node instanceof AndNode(ConditionNode left, ConditionNode right)) {
+            return new AndCondition(
+                    buildCondition(left),
+                    buildCondition(right)
+            );
+        }
+
+        throw new IllegalStateException("Unknown ConditionNow: " + node);
     }
 }
