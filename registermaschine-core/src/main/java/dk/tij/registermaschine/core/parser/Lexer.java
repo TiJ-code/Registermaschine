@@ -13,7 +13,7 @@ public class Lexer {
     private int index = 0, line = 1, column = 1;
 
     public Lexer(String source) {
-        this.source = source;
+        this.source = source.replaceAll("\r\n", "\n");
     }
 
     public List<Token> tokenize() {
