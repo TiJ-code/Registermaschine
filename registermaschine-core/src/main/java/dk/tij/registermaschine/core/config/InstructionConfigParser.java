@@ -17,15 +17,15 @@ import java.io.InputStream;
 public class InstructionConfigParser {
     private static final String CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
 
-    private final InstructionRegistry registry;
+    private final InstructionSet registry;
     private final IConfigParser customConfigParser;
 
-    public InstructionConfigParser(InstructionRegistry registry) {
+    public InstructionConfigParser(InstructionSet registry) {
         this.registry = registry;
         this.customConfigParser = null;
     }
 
-    public InstructionConfigParser(InstructionRegistry registry, IConfigParser customConfigParser) {
+    public InstructionConfigParser(InstructionSet registry, IConfigParser customConfigParser) {
         this.registry = registry;
         this.customConfigParser = customConfigParser;
     }
@@ -49,8 +49,6 @@ public class InstructionConfigParser {
         if (registerNodeList.getLength() < 1) return;
 
         Config.REGISTERS = Math.max(Integer.parseInt(registerNodeList.item(0).getTextContent()), 1);
-
-        System.out.println("Parsed Registers: " + Config.REGISTERS);
     }
 
     private void parseTokenColours(Document document) throws Exception {
@@ -71,7 +69,6 @@ public class InstructionConfigParser {
             if (type != null)
                 Config.TOKEN_COLOUR.put(type, hexString);
         }
-        System.out.println(Config.TOKEN_COLOUR);
     }
 
     private void parseInstructions(Document document) throws Exception {

@@ -10,7 +10,6 @@ public final class DivisionInstruction extends AbstractInstruction {
 
     @Override
     public void executeInstruction(ExecutionContext context, int[] operands) {
-        super.executeInstruction(context, operands);
         int dividend = context.getAccumulator();
         int divisor = operands[0];
 

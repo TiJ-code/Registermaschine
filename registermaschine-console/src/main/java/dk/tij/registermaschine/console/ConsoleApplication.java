@@ -1,10 +1,10 @@
 package dk.tij.registermaschine.console;
 
-import dk.tij.registermaschine.core.CPU;
+import dk.tij.registermaschine.core.implementation.CPU;
 import dk.tij.registermaschine.core.Compiler;
 import dk.tij.registermaschine.core.Executor;
 import dk.tij.registermaschine.core.config.InstructionConfigParser;
-import dk.tij.registermaschine.core.config.InstructionRegistry;
+import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.core.instructions.CompiledInstruction;
 import dk.tij.registermaschine.core.parser.Lexer;
 import dk.tij.registermaschine.core.parser.Parser;
@@ -28,7 +28,7 @@ public class ConsoleApplication {
             return;
         }
 
-        InstructionRegistry registry = initRegistry("configuration.jxml");
+        InstructionSet registry = initRegistry("configuration.jxml");
         List<CompiledInstruction> program = new ArrayList<>();
 
         if (args[0].equalsIgnoreCase("--i") && args.length == 1) {
@@ -61,8 +61,7 @@ public class ConsoleApplication {
             return;
         }
 
-        Compiler compiler = new Compiler(registry);
-        program = compiler.compile(ast);
+        program = Compiler.compile(ast, registry);
 
         if (hasFlag(args, "--o")) {
             String outputPath = getArgAfter(args, "--o");
@@ -76,7 +75,7 @@ public class ConsoleApplication {
         }
     }
 
-    static void runInteractiveMode(InstructionRegistry registry) {
+    static void runInteractiveMode(InstructionSet registry) {
         Scanner scanner = new Scanner(System.in);
 
         CPU cpu = new CPU();
@@ -96,7 +95,7 @@ public class ConsoleApplication {
             try {
                 var tokens = runLexer(line, false);
                 var ast = runParser(tokens, false);
-                var singleStep = new Compiler(registry).compile(ast);
+                var singleStep = Compiler.compile(ast, registry);
 
                 exec.setProgram(singleStep);
                 cpu.setProgrammeCounter(0);
@@ -186,23 +185,21 @@ public class ConsoleApplication {
     }
 
     static List<Token> runLexer(String source, boolean dump) {
-        Lexer lexer = new Lexer(source);
-        List<Token> tokens = lexer.tokenize();
+        List<Token> tokens = Lexer.tokenize(source);
         if (dump)
             tokens.forEach(System.out::println);
         return tokens;
     }
 
     static List<ASTNode> runParser(List<Token> tokens, boolean dump) {
-        Parser parser = new Parser(tokens);
-        List<ASTNode> ast = parser.parse();
+        List<ASTNode> ast = Parser.parse(tokens);
         if (dump)
             ast.forEach(System.out::println);
         return ast;
     }
 
-    static InstructionRegistry initRegistry(String path) throws Exception {
-        InstructionRegistry registry = new InstructionRegistry();
+    static InstructionSet initRegistry(String path) throws Exception {
+        InstructionSet registry = new InstructionSet();
         InstructionConfigParser configParser = new InstructionConfigParser(registry);
 
         try (InputStream is = ConsoleApplication.class.getClassLoader().getResourceAsStream(path)) {

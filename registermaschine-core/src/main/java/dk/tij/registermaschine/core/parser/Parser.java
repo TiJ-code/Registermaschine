@@ -7,15 +7,16 @@ import dk.tij.registermaschine.core.parser.ast.OperandNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Parser {
-    private final List<Token> tokens;
-    private int currentIndex = 0;
+public final class Parser {
+    private static List<Token> tokens;
+    private static int currentIndex;
 
-    public Parser(final List<Token> tokens) {
-        this.tokens = tokens;
-    }
+    private Parser() {}
 
-    public List<ASTNode> parse() {
+    public static List<ASTNode> parse(List<Token> tokenList) {
+        currentIndex = 0;
+        tokens = tokenList;
+
         List<ASTNode> nodes = new ArrayList<>();
 
         while (isNotAtEnd()) {
@@ -26,10 +27,10 @@ public class Parser {
         return nodes;
     }
 
-    private ASTNode parseInstruction() {
+    private static ASTNode parseInstruction() {
         while (match(Token.Type.EOL) || match(Token.Type.UNKNOWN)) {}
 
-        if (peek().type == Token.Type.EOF) return null;
+        if (peek().type() == Token.Type.EOF) return null;
 
         Token instr = consume(Token.Type.INSTRUCTION, "Expected instruction");
         List<OperandNode> operands = new ArrayList<>();
@@ -39,26 +40,26 @@ public class Parser {
         }
 
         match(Token.Type.EOL);
-        return new InstructionNode(instr.value, operands, instr.line);
+        return new InstructionNode(instr.value(), operands, instr.line());
     }
 
-    private OperandNode parseOperand() {
+    private static OperandNode parseOperand() {
         while (match(Token.Type.UNKNOWN));
 
         if (match(Token.Type.REGISTER)) {
             Token t = previous();
-            return new OperandNode(t.value, true, t.line);
+            return new OperandNode(t.value(), true, t.line());
         }
 
         if (match(Token.Type.NUMBER)) {
             Token t = previous();
-            return new OperandNode(t.value, false, t.line);
+            return new OperandNode(t.value(), false, t.line());
         }
 
         throw error(peek(), "Invalid operand");
     }
 
-    private boolean match(Token.Type type) {
+    private static boolean match(Token.Type type) {
         if (check(type)) {
             advance();
             return true;
@@ -66,35 +67,35 @@ public class Parser {
         return false;
     }
 
-    private Token consume(Token.Type type, String msg) {
+    private static Token consume(Token.Type type, String msg) {
         if (check(type)) return advance();
         throw error(peek(), msg);
     }
 
-    private boolean check(Token.Type type) {
-        return isNotAtEnd() && peek().type == type;
+    private static boolean check(Token.Type type) {
+        return isNotAtEnd() && peek().type() == type;
     }
 
-    private Token advance() {
+    private static Token advance() {
         if (isNotAtEnd()) currentIndex++;
         return previous();
     }
 
-    boolean isNotAtEnd() {
-        return peek().type != Token.Type.EOF;
+    private static boolean isNotAtEnd() {
+        return peek().type() != Token.Type.EOF;
     }
 
-    private Token peek() {
+    private static Token peek() {
         return tokens.get(currentIndex);
     }
 
-    private Token previous() {
+    private static Token previous() {
         return tokens.get(currentIndex - 1);
     }
 
-    private RuntimeException error(Token token, String msg) {
+    private static RuntimeException error(Token token, String msg) {
         return new RuntimeException(
-                "Parser error at line " + token.line + ", col " + token.column + ": " + msg
+                "Parser error at line " + token.line() + ", col " + token.column() + ": " + msg
         );
     }
 }

@@ -1,9 +1,9 @@
 package dk.tij.registermaschine.ui;
 
-import dk.tij.registermaschine.core.CPU;
+import dk.tij.registermaschine.core.implementation.CPU;
 import dk.tij.registermaschine.core.config.Config;
 import dk.tij.registermaschine.core.config.InstructionConfigParser;
-import dk.tij.registermaschine.core.config.InstructionRegistry;
+import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.ui.config.ConfigParser;
 import javafx.application.Application;
 import javafx.concurrent.Worker;
@@ -21,11 +21,11 @@ public class UiApplication extends Application {
     private WebEngine webEngine;
     private JSObject window;
 
-    private final InstructionRegistry registry;
+    private final InstructionSet registry;
     private final CPU cpu;
     
     public UiApplication() {
-        this.registry = new InstructionRegistry();
+        this.registry = new InstructionSet();
         try (InputStream is = UiApplication.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
             if (is != null)
                 new InstructionConfigParser(registry, new ConfigParser()).parseConfig(is);

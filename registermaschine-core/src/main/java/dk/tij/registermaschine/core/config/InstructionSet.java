@@ -1,5 +1,6 @@
 package dk.tij.registermaschine.core.config;
 
+import dk.tij.registermaschine.core.exception.UnknownInstructionException;
 import dk.tij.registermaschine.core.instructions.AbstractInstruction;
 
 import java.util.ArrayList;
@@ -7,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InstructionRegistry {
+public class InstructionSet {
     private final List<InstructionDescriptor> instructions = new ArrayList<>();
     private final Map<String, Byte> byName = new HashMap<>();
     private final Map<Byte, AbstractInstruction> byOpcode = new HashMap<>();
@@ -21,13 +22,16 @@ public class InstructionRegistry {
     }
 
     public AbstractInstruction getHandler(byte opcode) {
-        return byOpcode.get(opcode);
+        AbstractInstruction instruction = byOpcode.get(opcode);
+        if (instruction == null)
+            throw new UnknownInstructionException("No instruction found with opcode " + opcode);
+        return instruction;
     }
 
     public byte getOpcode(String name) {
         Byte op = byName.get(name.toLowerCase());
         if (op == null)
-            throw new IllegalArgumentException("Unknown instruction: "+ name);
+            throw new UnknownInstructionException("No instruction found with name " + name);
         return op;
     }
 

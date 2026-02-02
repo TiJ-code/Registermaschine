@@ -1,10 +1,11 @@
-package dk.tij.registermaschine.core;
+package dk.tij.registermaschine.core.implementation;
 
+import dk.tij.registermaschine.core.ExecutionContext;
+import dk.tij.registermaschine.core.ExecutionContextListener;
 import dk.tij.registermaschine.core.config.Config;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class CPU implements ExecutionContext {
     private static final byte FLAG_RUNNING  = 0b0001,

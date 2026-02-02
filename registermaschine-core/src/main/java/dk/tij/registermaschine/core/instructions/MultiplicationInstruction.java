@@ -10,8 +10,6 @@ public final class MultiplicationInstruction extends AbstractInstruction {
 
     @Override
     public void executeInstruction(ExecutionContext context, int[] operands) {
-        super.executeInstruction(context, operands);
-
         int op1 = context.getAccumulator();
         int op2 = context.getRegister(operands[0]);
 

@@ -25,11 +25,6 @@ public abstract class AbstractInstruction implements InstructionHandler {
     }
 
     @Override
-    public void executeInstruction(ExecutionContext context, int[] operands) {
-        if (!shouldExecute(context)) context.setProgrammeCounter(context.getProgrammeCounter() + 1);
-    }
-
-    @Override
     public String toString() {
         return String.format("%02x( %d )", OpCode, operandCount);
     }

@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.core;
 
-import dk.tij.registermaschine.core.config.InstructionRegistry;
+import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.core.instructions.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.CompiledInstruction;
 import dk.tij.registermaschine.core.parser.ast.ASTNode;
@@ -10,22 +10,18 @@ import dk.tij.registermaschine.core.parser.ast.OperandNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Compiler {
-    private final InstructionRegistry registry;
+public final class Compiler {
+    private Compiler() {}
 
-    public Compiler(InstructionRegistry registry) {
-        this.registry = registry;
-    }
-
-    public List<CompiledInstruction> compile(List<ASTNode> nodes) {
+    public static List<CompiledInstruction> compile(List<ASTNode> nodes, InstructionSet instructionSet) {
         List<CompiledInstruction> program = new ArrayList<>();
 
         for (ASTNode node : nodes) {
             if (node instanceof InstructionNode instr) {
-                byte opcode = registry.getOpcode(instr.instruction);
+                byte opcode = instructionSet.getOpcode(instr.instruction);
                 int[] operands = compileOperands(instr.operands);
 
-                AbstractInstruction handler = registry.getHandler(opcode);
+                AbstractInstruction handler = instructionSet.getHandler(opcode);
                 handler.validate(operands);
 
                 program.add(new CompiledInstruction(opcode, operands));
@@ -35,7 +31,7 @@ public class Compiler {
         return program;
     }
 
-    private int[] compileOperands(List<OperandNode> operandNodes) {
+    private static int[] compileOperands(List<OperandNode> operandNodes) {
         int[] result = new int[operandNodes.size()];
 
         for (int i = 0; i < operandNodes.size(); i++) {

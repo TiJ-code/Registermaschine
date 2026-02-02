@@ -6,17 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 import static dk.tij.registermaschine.core.parser.Token.Type.*;
 
-public class Lexer {
-    private final String source;
-    private final List<Token> tokens = new ArrayList<>();
+public final class Lexer {
+    private static List<Token> tokens;
+    private static int index, line, column;
+    private static String source;
 
-    private int index = 0, line = 1, column = 1;
+    private Lexer() {}
 
-    public Lexer(String source) {
-        this.source = source.replaceAll("\r\n", "\n");
-    }
+    public static List<Token> tokenize(String sourceCode) {
+        source = sourceCode.replaceAll("\r\n", "\n").trim();
+        index = 0;
+        line = 1;
+        column = 1;
+        tokens = new ArrayList<>();
 
-    public List<Token> tokenize() {
         while (isNotAtEnd()) {
             char c = advance();
 
@@ -49,14 +52,14 @@ public class Lexer {
             }
         }
 
-        if (!tokens.isEmpty() && tokens.getLast().type != EOL)
+        if (!tokens.isEmpty() && tokens.getLast().type() != EOL)
             tokens.add(new Token(EOL, "\\n", line, column));
 
         tokens.add(new Token(EOF, "", line, column));
         return tokens;
     }
 
-    private void readImmediate() {
+    private static void readImmediate() {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
 
@@ -66,7 +69,7 @@ public class Lexer {
         tokens.add(new Token(NUMBER, sb.toString(), line, startCol));
     }
 
-    private void readComment() {
+    private static void readComment() {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
 
@@ -77,7 +80,7 @@ public class Lexer {
         tokens.add(new Token(COMMENT, sb.toString(), line, startCol));
     }
 
-    private void readNumber(char first) {
+    private static void readNumber(char first) {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
         sb.append(first);
@@ -89,7 +92,7 @@ public class Lexer {
         tokens.add(new Token(NUMBER, sb.toString(), line, startCol));
     }
 
-    private void readIdentifier(char first) {
+    private static void readIdentifier(char first) {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
         sb.append(first);
@@ -114,17 +117,17 @@ public class Lexer {
         }
     }
 
-    private char advance() {
+    private static char advance() {
         char c = source.charAt(index++);
         column++;
         return c;
     }
 
-    private char peek() {
+    private static char peek() {
         return source.charAt(index);
     }
 
-    private boolean isNotAtEnd() {
+    private static boolean isNotAtEnd() {
         return index < source.length();
     }
 }

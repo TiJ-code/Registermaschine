@@ -10,7 +10,6 @@ public final class LoadFromAddressInstruction extends AbstractInstruction {
 
     @Override
     public void executeInstruction(ExecutionContext context, int[] operands) {
-        super.executeInstruction(context, operands);
         context.setFlags(operands[0] < 0, operands[0] == 0, false);
         context.setAccumulator(context.getRegister(operands[0]));
     }
