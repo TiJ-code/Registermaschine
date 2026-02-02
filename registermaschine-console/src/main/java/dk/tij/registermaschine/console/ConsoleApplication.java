@@ -1,15 +1,17 @@
 package dk.tij.registermaschine.console;
 
-import dk.tij.registermaschine.core.implementation.CPU;
-import dk.tij.registermaschine.core.Compiler;
-import dk.tij.registermaschine.core.Executor;
-import dk.tij.registermaschine.core.config.InstructionConfigParser;
+import dk.tij.registermaschine.core.compilation.CompiledProgram;
+import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
+import dk.tij.registermaschine.core.compilation.TokenCollection;
+import dk.tij.registermaschine.core.compilation.AbstractSyntaxTree;
+import dk.tij.registermaschine.core.compilation.internal.Compiler;
+import dk.tij.registermaschine.core.runtime.Executor;
+import dk.tij.registermaschine.core.config.ConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
-import dk.tij.registermaschine.core.instructions.CompiledInstruction;
-import dk.tij.registermaschine.core.parser.Lexer;
-import dk.tij.registermaschine.core.parser.Parser;
-import dk.tij.registermaschine.core.parser.Token;
-import dk.tij.registermaschine.core.parser.ast.ASTNode;
+import dk.tij.registermaschine.core.compilation.compiling.CompiledInstruction;
+import dk.tij.registermaschine.core.compilation.internal.Lexer;
+import dk.tij.registermaschine.core.compilation.internal.Parser;
+import dk.tij.registermaschine.core.runtime.Pipeline;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,7 +19,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -28,17 +29,17 @@ public class ConsoleApplication {
             return;
         }
 
-        InstructionSet registry = initRegistry("configuration.jxml");
-        List<CompiledInstruction> program = new ArrayList<>();
+        InstructionSet registry = initRegistry();
+        CompiledProgram program = new CompiledProgram();
 
-        if (args[0].equalsIgnoreCase("--i") && args.length == 1) {
+        if (args[0].equalsIgnoreCase("-i") && args.length == 1) {
             runInteractiveMode(registry);
             return;
         }
 
-        if (args[0].equalsIgnoreCase("--r") && args.length >= 2) {
+        if (args[0].equalsIgnoreCase("-r") && args.length >= 2) {
             loadBinary(args[1], program);
-            CPU cpu = new CPU();
+            BasicExecutionContext cpu = new BasicExecutionContext();
             cpu.addListener(new MachineListener(null));
             new Executor(cpu, registry, program).run();
             return;
@@ -48,28 +49,28 @@ public class ConsoleApplication {
         String source = Files.readString(Path.of(sourcePath), StandardCharsets.UTF_8);
 
         var tokens = runLexer(source, false);
-        if (hasFlag(args, "--t")) {
-            String target = getArgAfter(args, "--t");
+        if (hasFlag(args, "-t")) {
+            String target = getArgAfter(args, "-t");
             saveTextFile(target, tokens);
             return;
         }
 
         var ast = runParser(tokens, false);
-        if (hasFlag(args, "--a")) {
-            String target = getArgAfter(args, "--a");
+        if (hasFlag(args, "-a")) {
+            String target = getArgAfter(args, "-a");
             saveTextFile(target, ast);
             return;
         }
 
         program = Compiler.compile(ast, registry);
 
-        if (hasFlag(args, "--o")) {
-            String outputPath = getArgAfter(args, "--o");
+        if (hasFlag(args, "-o")) {
+            String outputPath = getArgAfter(args, "-o");
             saveBinary(outputPath, program);
         }
 
-        if (hasFlag(args, "--r")) {
-            CPU cpu = new CPU();
+        if (hasFlag(args, "-r")) {
+            BasicExecutionContext cpu = new BasicExecutionContext();
             cpu.addListener(new MachineListener());
             new Executor(cpu, registry, program).run();
         }
@@ -78,7 +79,7 @@ public class ConsoleApplication {
     static void runInteractiveMode(InstructionSet registry) {
         Scanner scanner = new Scanner(System.in);
 
-        CPU cpu = new CPU();
+        BasicExecutionContext cpu = new BasicExecutionContext();
         cpu.addListener(new MachineListener(scanner));
         Executor exec = new Executor(cpu, registry);
 
@@ -93,9 +94,7 @@ public class ConsoleApplication {
             if (line.equalsIgnoreCase("/quit")) break;
 
             try {
-                var tokens = runLexer(line, false);
-                var ast = runParser(tokens, false);
-                var singleStep = Compiler.compile(ast, registry);
+                CompiledProgram singleStep = Pipeline.tokenize(line).parse().compile(registry);
 
                 exec.setProgram(singleStep);
                 cpu.setProgrammeCounter(0);
@@ -129,17 +128,17 @@ public class ConsoleApplication {
 
     static void printUsage() {
         System.out.printf("%s %s%n", "Usage:", "./core ");
-        System.out.printf("  %-30s%s%n", "<src.jasm> --o <out.o>", ": Compile source to binary");
-        System.out.printf("  %-30s%s%n", "<src.jasm> --o <out.o> --r", ": Compile and run");
-        System.out.printf("  %-30s%s%n", "--r <out.o>", ": Run binary file");
-        System.out.printf("  %-30s%s%n", "<src.jasm> --t <out.txt>", ": Dump tokens");
-        System.out.printf("  %-30s%s%n", "<src.jasm> --a <out.txt>", ": Dump Abstract Syntax Tree");
-        System.out.printf("  %-30s%s%n", "--i", ": Run as console text program");
+        System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o>", ": Compile source to binary");
+        System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o> -r", ": Compile and run");
+        System.out.printf("  %-30s%s%n", "-r <out.o>", ": Run binary file");
+        System.out.printf("  %-30s%s%n", "<src.jasm> -t <out.txt>", ": Dump tokens");
+        System.out.printf("  %-30s%s%n", "<src.jasm> -a <out.txt>", ": Dump Abstract Syntax Tree");
+        System.out.printf("  %-30s%s%n", "-i", ": Run as console text program");
     }
 
     static void loadBinary(String fileName, List<CompiledInstruction> program) throws Exception {
         if (fileName == null) {
-            System.err.println("Error: No input file specified for --r");
+            System.err.println("Error: No input file specified for -r");
             return;
         }
 
@@ -163,7 +162,7 @@ public class ConsoleApplication {
 
     static void saveBinary(String fileName, List<CompiledInstruction> program) throws Exception {
         if (fileName == null) {
-            System.err.println("Error: No output file specified for --o");
+            System.err.println("Error: No output file specified for -o");
             return;
         }
 
@@ -184,28 +183,28 @@ public class ConsoleApplication {
         System.out.println("binary successfully compiled to: " + fileName);
     }
 
-    static List<Token> runLexer(String source, boolean dump) {
-        List<Token> tokens = Lexer.tokenize(source);
+    static TokenCollection runLexer(String source, boolean dump) {
+        TokenCollection tokens = Lexer.tokenize(source);
         if (dump)
             tokens.forEach(System.out::println);
         return tokens;
     }
 
-    static List<ASTNode> runParser(List<Token> tokens, boolean dump) {
-        List<ASTNode> ast = Parser.parse(tokens);
+    static AbstractSyntaxTree runParser(TokenCollection tokens, boolean dump) {
+        AbstractSyntaxTree ast = Parser.parse(tokens);
         if (dump)
             ast.forEach(System.out::println);
         return ast;
     }
 
-    static InstructionSet initRegistry(String path) throws Exception {
+    static InstructionSet initRegistry() {
         InstructionSet registry = new InstructionSet();
-        InstructionConfigParser configParser = new InstructionConfigParser(registry);
-
-        try (InputStream is = ConsoleApplication.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream is = ConsoleApplication.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
             if (is == null)
-                throw new RuntimeException("Could not find configuration file: " + path);
-            configParser.parseConfig(is);
+                throw new RuntimeException("Could not find configuration file: configuration.jxml");
+            ConfigParser.parseConfig(registry, is, null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return registry;

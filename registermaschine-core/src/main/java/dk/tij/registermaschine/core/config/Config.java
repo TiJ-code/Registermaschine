@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.parser.Token;
+import dk.tij.registermaschine.core.compilation.lexing.Token;
 
 import java.util.Map;
 

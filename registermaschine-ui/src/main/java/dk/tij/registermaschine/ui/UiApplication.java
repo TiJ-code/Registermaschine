@@ -1,10 +1,9 @@
 package dk.tij.registermaschine.ui;
 
-import dk.tij.registermaschine.core.implementation.CPU;
+import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
 import dk.tij.registermaschine.core.config.Config;
-import dk.tij.registermaschine.core.config.InstructionConfigParser;
+import dk.tij.registermaschine.core.config.ConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
-import dk.tij.registermaschine.ui.config.ConfigParser;
 import javafx.application.Application;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
@@ -21,16 +20,16 @@ public class UiApplication extends Application {
     private WebEngine webEngine;
     private JSObject window;
 
-    private final InstructionSet registry;
-    private final CPU cpu;
+    private final InstructionSet instructionSet;
+    private final BasicExecutionContext cpu;
     
     public UiApplication() {
-        this.registry = new InstructionSet();
+        this.instructionSet = new InstructionSet();
         try (InputStream is = UiApplication.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
             if (is != null)
-                new InstructionConfigParser(registry, new ConfigParser()).parseConfig(is);
+                ConfigParser.parseConfig(instructionSet, is, new dk.tij.registermaschine.ui.config.ConfigParser());
         } catch (Exception _) {}
-        this.cpu = new CPU();
+        this.cpu = new BasicExecutionContext();
     }
 
     public static void externalLaunch(String[] args) {
@@ -38,7 +37,7 @@ public class UiApplication extends Application {
     }
     
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage) {
         primaryStage = stage;
 
         Scene scene = new Scene(createWebView());
@@ -72,7 +71,7 @@ public class UiApplication extends Application {
 
         window.call("initializeRegisters", cpu.getRegisterCount());
 
-        Object[] docs = registry.getInstructions().stream()
+        Object[] docs = instructionSet.getInstructions().stream()
                 .map(i -> {
                     // Wrap in a standard HashMap so the bridge can access .get()
                     var o = new java.util.HashMap<String, String>();

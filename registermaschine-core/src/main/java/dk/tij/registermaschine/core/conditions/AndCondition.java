@@ -1,17 +1,17 @@
 package dk.tij.registermaschine.core.conditions;
 
-import dk.tij.registermaschine.core.ExecutionContext;
+import dk.tij.registermaschine.core.runtime.ExecutionContext;
 
 import java.util.List;
 
-public final class AndCondition implements Condition {
-    private final Condition[] conditions;
+public final class AndCondition implements ICondition {
+    private final ICondition[] conditions;
 
-    public AndCondition(List<Condition> conditions) {
-        this.conditions = conditions.toArray(new Condition[0]);
+    public AndCondition(List<ICondition> conditions) {
+        this.conditions = conditions.toArray(new ICondition[0]);
     }
 
-    public AndCondition(Condition... conditions) {
+    public AndCondition(ICondition... conditions) {
         this.conditions = conditions;
     }
 
@@ -19,7 +19,7 @@ public final class AndCondition implements Condition {
     public boolean test(ExecutionContext context) {
         boolean result = true;
 
-        for (Condition c : conditions)
+        for (ICondition c : conditions)
             result &= c.test(context);
 
         return result;

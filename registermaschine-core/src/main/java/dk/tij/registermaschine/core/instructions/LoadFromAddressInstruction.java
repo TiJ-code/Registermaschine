@@ -1,10 +1,10 @@
 package dk.tij.registermaschine.core.instructions;
 
-import dk.tij.registermaschine.core.ExecutionContext;
-import dk.tij.registermaschine.core.conditions.Condition;
+import dk.tij.registermaschine.core.runtime.ExecutionContext;
+import dk.tij.registermaschine.core.conditions.ICondition;
 
 public final class LoadFromAddressInstruction extends AbstractInstruction {
-    public LoadFromAddressInstruction(byte opcode, int operandCount, Condition condition) {
+    public LoadFromAddressInstruction(byte opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 

@@ -1,14 +1,14 @@
 package dk.tij.registermaschine.core.instructions;
 
-import dk.tij.registermaschine.core.ExecutionContext;
-import dk.tij.registermaschine.core.conditions.Condition;
+import dk.tij.registermaschine.core.runtime.ExecutionContext;
+import dk.tij.registermaschine.core.conditions.ICondition;
 
-public abstract class AbstractInstruction implements InstructionHandler {
+public abstract class AbstractInstruction {
     public final byte OpCode;
     protected final int operandCount;
-    protected final Condition condition;
+    protected final ICondition condition;
 
-    public AbstractInstruction(final byte opcode, final int operandCount, Condition condition) {
+    public AbstractInstruction(final byte opcode, final int operandCount, ICondition condition) {
         this.OpCode = opcode;
         this.operandCount = operandCount;
         this.condition = condition;
@@ -23,6 +23,8 @@ public abstract class AbstractInstruction implements InstructionHandler {
         if (condition == null) return true;
         return condition.test(context);
     }
+
+    public abstract void executeInstruction(ExecutionContext context, int[] operands);
 
     @Override
     public String toString() {

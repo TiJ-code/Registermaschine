@@ -1,11 +1,11 @@
 package dk.tij.registermaschine.core.conditions;
 
-import dk.tij.registermaschine.core.ExecutionContext;
+import dk.tij.registermaschine.core.runtime.ExecutionContext;
 
-public final class NotCondition implements Condition {
-    private final Condition inner;
+public final class NotCondition implements ICondition {
+    private final ICondition inner;
 
-    public NotCondition(Condition condition) {
+    public NotCondition(ICondition condition) {
         this.inner = condition;
     }
 

@@ -1,10 +1,10 @@
 package dk.tij.registermaschine.core.instructions;
 
-import dk.tij.registermaschine.core.ExecutionContext;
-import dk.tij.registermaschine.core.conditions.Condition;
+import dk.tij.registermaschine.core.runtime.ExecutionContext;
+import dk.tij.registermaschine.core.conditions.ICondition;
 
 public final class AdditionInstruction extends AbstractInstruction {
-    public AdditionInstruction(byte opcode, int operandCount, Condition condition) {
+    public AdditionInstruction(byte opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 
