@@ -19,7 +19,7 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
-import java.util.List;
+import java.util.*;
 
 public final class CoreConfigParser {
     private CoreConfigParser() {}
@@ -27,6 +27,8 @@ public final class CoreConfigParser {
     private static final String CORE_IMPLEMENTATION = "core.",
                                 CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
 
+    private static final Map<String, String> CONDITION_MACROS = new HashMap<>();
+    
     public static void parseCoreConfig(InstructionSet set) throws ConfigurationParseException {
         parseConfig(set, null);
     }
@@ -39,6 +41,7 @@ public final class CoreConfigParser {
 
             parseRegisters(doc);
             parseTokenColours(doc);
+            parseConditionMacros(doc);
             parseInstructions(doc, set);
 
             if (customConfigParser != null)
@@ -73,6 +76,19 @@ public final class CoreConfigParser {
 
             if (type != null)
                 Config.TOKEN_COLOUR.put(type, hexString);
+        }
+    }
+    
+    private static void parseConditionMacros(Document document) {
+        NodeList macroNodes = document.getElementsByTagName("conditionMacro");
+
+        for (int i = 0; i < macroNodes.getLength(); i++) {
+            Element element = (Element) macroNodes.item(i);
+            String name = element.getAttribute("name");
+            String value = element.getAttribute("value");
+
+            if (!name.isEmpty() && !value.isEmpty())
+                CONDITION_MACROS.put(name, value);
         }
     }
 
@@ -122,6 +138,32 @@ public final class CoreConfigParser {
     }
 
     private static ICondition buildCondition(ConditionNode node) throws Exception {
+        return buildCondition(node, new HashSet<>());
+    }
+
+    private static ICondition buildCondition(ConditionNode node, Set<String> expansionChain) throws Exception {
+        if (node instanceof MacroNode(String macroName)) {
+            String macroValue = CONDITION_MACROS.get(macroName);
+
+            if (expansionChain.contains(macroName)) {
+                throw new IllegalStateException("Circular macro dependency detected: " + expansionChain + " -> " + macroName);
+            }
+
+            if (macroValue == null)
+                throw new IllegalStateException("Unknown condition macro: " + macroName);
+
+            expansionChain.add(macroName);
+
+            List<ConditionToken> tokens = ConditionLexer.tokenize(macroValue);
+            ConditionNode macroAst = ConditionParser.parse(tokens);
+
+            ICondition result = buildCondition(macroAst, expansionChain);
+
+            expansionChain.remove(macroName);
+
+            return result;
+        }
+
         if (node instanceof LeafNode(String className)) {
             Class<?> cls;
             if (className.startsWith(CORE_IMPLEMENTATION))

@@ -39,6 +39,10 @@ public final class ConditionParser {
     }
 
     private static ConditionNode parsePrimary(ParseContext context) {
+        if (match(context, ConditionToken.Type.MACRO)) {
+            return new MacroNode(previous(context).text());
+        }
+
         if (match(context, ConditionToken.Type.IDENTIFIER)) {
             return new LeafNode(previous(context).text());
         }

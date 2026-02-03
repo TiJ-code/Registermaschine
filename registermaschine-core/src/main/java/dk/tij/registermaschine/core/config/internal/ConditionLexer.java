@@ -39,6 +39,11 @@ public final class ConditionLexer {
                     i.incrementAndGet();
                 }
 
+                case '@' -> {
+                    i.incrementAndGet();
+                    tokens.add(readMacroIdentifier(source, i));
+                }
+
                 default -> {
                     if (Character.isJavaIdentifierStart(c)) {
                         tokens.add(readIdentifier(source, i));
@@ -56,10 +61,23 @@ public final class ConditionLexer {
     private static ConditionToken readIdentifier(String source, AtomicInteger currentIndex) {
         int start = currentIndex.get();
 
-        while (currentIndex.get() < source.length() &&
-               (Character.isJavaIdentifierPart(source.charAt(currentIndex.get())) || source.charAt(currentIndex.get()) == '.'))
+        while (currentIndex.get() < source.length() && isValidIdentifierChar(source.charAt(currentIndex.get())))
             currentIndex.incrementAndGet();
 
         return new ConditionToken(ConditionToken.Type.IDENTIFIER, source.substring(start, currentIndex.get()));
+    }
+
+    private static ConditionToken readMacroIdentifier(String source, AtomicInteger currentIndex) {
+        int start = currentIndex.get();
+
+        while (currentIndex.get() < source.length() && isValidIdentifierChar(source.charAt(currentIndex.get())))
+            currentIndex.incrementAndGet();
+
+        String name = source.substring(start, currentIndex.get());
+        return new ConditionToken(ConditionToken.Type.MACRO, name);
+    }
+
+    private static boolean isValidIdentifierChar(char c) {
+        return Character.isJavaIdentifierPart(c) || c == '.';
     }
 }

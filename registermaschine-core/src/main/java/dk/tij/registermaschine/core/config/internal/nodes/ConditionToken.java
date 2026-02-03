@@ -8,6 +8,7 @@ public record ConditionToken(Type type, String text) {
         OR,
         LEFT_PAREN,
         RIGHT_PAREN,
+        MACRO,
         EOF
     }
 }
