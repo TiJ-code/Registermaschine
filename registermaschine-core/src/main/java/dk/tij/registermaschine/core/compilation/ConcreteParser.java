@@ -5,9 +5,10 @@ import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.lexing.TokenType;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
-import dk.tij.registermaschine.core.compilation.parsing.InstructionNode;
-import dk.tij.registermaschine.core.compilation.parsing.LabelNode;
-import dk.tij.registermaschine.core.compilation.parsing.OperandNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.AbstractSyntaxTree;
+import dk.tij.registermaschine.core.compilation.internal.parsing.InstructionNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.LabelNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.OperandNode;
 
 import java.util.ArrayList;
 import java.util.List;

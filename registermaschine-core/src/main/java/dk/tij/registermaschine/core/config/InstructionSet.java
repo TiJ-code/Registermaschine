@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.exception.ExistingInstructionException;
-import dk.tij.registermaschine.core.exception.UnknownInstructionException;
+import dk.tij.registermaschine.core.error.ExistingInstructionException;
+import dk.tij.registermaschine.core.error.UnknownInstructionException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InstructionSet {
+public final class InstructionSet {
     private final List<InstructionInfo> instructions = new ArrayList<>();
     private final Map<String, InstructionInfo> byName = new HashMap<>();
     private final Map<Byte, InstructionInfo> byOpcode = new HashMap<>();

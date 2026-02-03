@@ -2,7 +2,7 @@ package dk.tij.registermaschine.core.compilation;
 
 import dk.tij.registermaschine.core.compilation.api.ILexer;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
-import dk.tij.registermaschine.core.compilation.lexing.Token;
+import dk.tij.registermaschine.core.compilation.internal.lexing.Token;
 import dk.tij.registermaschine.core.config.Config;
 
 import java.util.ArrayList;

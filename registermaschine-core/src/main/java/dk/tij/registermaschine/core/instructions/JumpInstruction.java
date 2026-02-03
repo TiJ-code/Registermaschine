@@ -6,7 +6,7 @@ import dk.tij.registermaschine.core.conditions.api.ICondition;
 
 public final class JumpInstruction extends AbstractInstruction {
 
-    public JumpInstruction(byte opcode, ICondition condition) {
+    public JumpInstruction(byte opcode, int operandCount, ICondition condition) {
         super(opcode, 1, condition);
     }
 

@@ -6,12 +6,12 @@ import dk.tij.registermaschine.core.conditions.api.ICondition;
 import dk.tij.registermaschine.core.conditions.internal.NotCondition;
 import dk.tij.registermaschine.core.conditions.internal.OrCondition;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
-import dk.tij.registermaschine.core.config.conditionParser.*;
-import dk.tij.registermaschine.core.config.conditionParser.nodes.*;
-import dk.tij.registermaschine.core.exception.ConfigurationParseException;
+import dk.tij.registermaschine.core.config.internal.ConditionLexer;
+import dk.tij.registermaschine.core.config.internal.ConditionNode;
+import dk.tij.registermaschine.core.config.internal.ConditionParser;
+import dk.tij.registermaschine.core.config.internal.nodes.*;
+import dk.tij.registermaschine.core.error.ConfigurationParseException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
-import dk.tij.registermaschine.core.instructions.JumpInstruction;
-import dk.tij.registermaschine.core.compilation.lexing.Token;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -91,11 +91,7 @@ public final class CoreConfigParser {
 
             ICondition condition = parseCondition(conditionStr);
 
-            AbstractInstruction handler;
-            if (handlerStr.contains(JumpInstruction.class.getSimpleName()))
-                handler = new JumpInstruction(opcode, condition);
-            else
-                handler = createInstruction(parseHandler(handlerStr), opcode, operands, condition);
+            AbstractInstruction handler = createInstruction(parseHandler(handlerStr), opcode, operands, condition);
 
             set.registerInstruction(id, opcode, description, handler);
             Config.INSTRUCTIONS.add(id);

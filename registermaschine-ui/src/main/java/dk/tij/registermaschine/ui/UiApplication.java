@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.ui;
 
-import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
+import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
 import dk.tij.registermaschine.core.config.Config;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;

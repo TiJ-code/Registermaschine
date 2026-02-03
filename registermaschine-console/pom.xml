@@ -11,7 +11,7 @@
     </parent>
     <name>Registermaschine Console</name>
 
-    <artifactId>registermaschine-console</artifactId>
+    <artifactId>console</artifactId>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>

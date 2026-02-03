@@ -5,11 +5,12 @@ import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstructi
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
+import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledProgram;
 import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
-import dk.tij.registermaschine.core.compilation.compiling.CompiledInstruction;
-import dk.tij.registermaschine.core.compilation.parsing.InstructionNode;
-import dk.tij.registermaschine.core.compilation.parsing.OperandNode;
+import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledInstruction;
+import dk.tij.registermaschine.core.compilation.internal.parsing.InstructionNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.OperandNode;
 
 import java.util.ArrayList;
 import java.util.List;

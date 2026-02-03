@@ -1,16 +1,16 @@
 package dk.tij.registermaschine.console;
 
-import dk.tij.registermaschine.core.compilation.CompiledProgram;
+import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
+import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
 import dk.tij.registermaschine.core.compilation.ConcreteCompiler;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
-import dk.tij.registermaschine.core.compilation.compiling.CompiledInstruction;
+import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledInstruction;
 import dk.tij.registermaschine.core.compilation.ConcreteLexer;
 import dk.tij.registermaschine.core.compilation.ConcreteParser;
 import dk.tij.registermaschine.core.runtime.Pipeline;
