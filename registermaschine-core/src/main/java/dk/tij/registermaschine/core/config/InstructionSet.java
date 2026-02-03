@@ -4,10 +4,7 @@ import dk.tij.registermaschine.core.error.ExistingInstructionException;
 import dk.tij.registermaschine.core.error.UnknownInstructionException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class InstructionSet {
     private final List<InstructionInfo> instructions = new ArrayList<>();
@@ -22,6 +19,19 @@ public final class InstructionSet {
         instructions.add(entry);
         byName.put(mnemonic.toLowerCase(), entry);
         byOpcode.put(opcode, entry);
+    }
+
+    public void prohibitInstruction(Class<? extends AbstractInstruction> instruction) {
+        List<InstructionInfo> permittedInstructions = instructions.stream()
+                    .filter(Objects::nonNull)
+                    .filter(i -> Objects.nonNull(i.handler()))
+                    .filter(i -> i.handler().getClass().equals(instruction))
+                    .toList();
+        for (InstructionInfo instr : permittedInstructions) {
+            byName.remove(instr.mnemonic().toLowerCase(), instr);
+            byOpcode.remove(instr.opcode(), instr);
+            instructions.remove(instr);
+        }
     }
 
     public AbstractInstruction getHandler(byte opcode) {

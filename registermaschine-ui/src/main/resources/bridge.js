@@ -75,7 +75,7 @@ function initializeDocs(instructions) {
         console.log(ins);
     return `
         <div class="instr-item">
-            <span class="instr-name">${ins.get("name")}</span>
+            <span class="instr-name">${ins.get("name").toUpperCase()}</span>
             <span class="instr-desc">${ins.get("description")}</span>
         </div>
     `;}).join('');

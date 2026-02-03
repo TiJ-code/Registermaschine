@@ -9,6 +9,7 @@ import dk.tij.registermaschine.core.compilation.internal.parsing.AbstractSyntaxT
 import dk.tij.registermaschine.core.compilation.internal.parsing.InstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.LabelNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.OperandNode;
+import dk.tij.registermaschine.core.error.SyntaxErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public final class ConcreteParser implements IParser {
     private int currentIndex;
 
     @Override
-    public ISyntaxTree parse(List<IToken> tokenList) {
+    public ISyntaxTree parse(List<IToken> tokenList) throws SyntaxErrorException {
         currentIndex = 0;
         tokens = tokenList;
 
@@ -61,7 +62,7 @@ public final class ConcreteParser implements IParser {
     }
 
     private OperandNode parseOperand() {
-        while (match(TokenType.COMMENT));
+        while (match(TokenType.COMMENT)) {}
 
         if (match(TokenType.REGISTER)) {
             IToken t = previous();
@@ -115,9 +116,9 @@ public final class ConcreteParser implements IParser {
         return tokens.get(currentIndex - 1);
     }
 
-    private RuntimeException error(IToken token, String msg) {
-        return new RuntimeException(
-                "Parser error at line " + token.line() + ", col " + token.column() + ": " + msg
+    private SyntaxErrorException error(IToken token, String msg) {
+        return new SyntaxErrorException(
+                "at line " + token.line() + ", col " + token.column() + ": " + msg
         );
     }
 }

@@ -5,15 +5,16 @@ import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstructi
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
+import dk.tij.registermaschine.core.error.DefectPipelineException;
+import dk.tij.registermaschine.core.error.SyntaxErrorException;
+import dk.tij.registermaschine.core.instructions.JumpInstruction;
 import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
 import dk.tij.registermaschine.core.compilation.ConcreteCompiler;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledInstruction;
-import dk.tij.registermaschine.core.compilation.ConcreteLexer;
-import dk.tij.registermaschine.core.compilation.ConcreteParser;
-import dk.tij.registermaschine.core.runtime.Pipeline;
+import dk.tij.registermaschine.core.compilation.Pipeline;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -48,21 +49,19 @@ public class ConsoleApplication {
         String sourcePath = args[0];
         String source = Files.readString(Path.of(sourcePath), StandardCharsets.UTF_8);
 
-        var tokens = runLexer(source, false);
         if (hasFlag(args, "-t")) {
             String target = getArgAfter(args, "-t");
-            saveTextFile(target, tokens);
+            saveTextFile(target, Pipeline.tokenize(source).tokens());
             return;
         }
 
-        var ast = runParser(tokens, false);
         if (hasFlag(args, "-a")) {
             String target = getArgAfter(args, "-a");
-            saveTextFile(target, ast);
+            saveTextFile(target, Pipeline.tokenize(source).parse().syntaxTree());
             return;
         }
 
-        ICompiledProgram program = new ConcreteCompiler().compile(ast, registry);
+        ICompiledProgram program = Pipeline.compile(source, registry);
 
         if (hasFlag(args, "-o")) {
             String outputPath = getArgAfter(args, "-o");
@@ -78,6 +77,8 @@ public class ConsoleApplication {
 
     static void runInteractiveMode(InstructionSet registry) {
         Scanner scanner = new Scanner(System.in);
+
+        registry.prohibitInstruction(JumpInstruction.class);
 
         BasicExecutionContext cpu = new BasicExecutionContext();
         cpu.addListener(new MachineListener(scanner));
@@ -104,9 +105,8 @@ public class ConsoleApplication {
                     System.out.println("CPU is halted. Terminating...");
                     break;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.err.println("Syntax Error: " + e.getMessage());
+            } catch (SyntaxErrorException e) {
+                System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
             }
         }
     }
@@ -186,20 +186,6 @@ public class ConsoleApplication {
         }
 
         System.out.println("binary successfully compiled to: " + fileName);
-    }
-
-    static List<IToken> runLexer(String source, boolean dump) {
-        List<IToken> tokens = new ConcreteLexer().tokenize(source);
-        if (dump)
-            tokens.forEach(System.out::println);
-        return tokens;
-    }
-
-    static ISyntaxTree runParser(List<IToken> tokens, boolean dump) {
-        ISyntaxTree ast = new ConcreteParser().parse(tokens);
-        if (dump)
-            ast.forEach(System.out::println);
-        return ast;
     }
 
     static InstructionSet initRegistry() {
