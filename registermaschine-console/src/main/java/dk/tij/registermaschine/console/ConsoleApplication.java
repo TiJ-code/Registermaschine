@@ -3,13 +3,9 @@ package dk.tij.registermaschine.console;
 import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
-import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.error.DefectPipelineException;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
 import dk.tij.registermaschine.core.instructions.JumpInstruction;
 import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
-import dk.tij.registermaschine.core.compilation.ConcreteCompiler;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
@@ -32,6 +28,7 @@ public class ConsoleApplication {
         }
 
         InstructionSet registry = initRegistry();
+        Pipeline.setGlobalInstructionSet(registry);
 
         if (args[0].equalsIgnoreCase("-i") && args.length == 1) {
             runInteractiveMode(registry);
@@ -51,17 +48,17 @@ public class ConsoleApplication {
 
         if (hasFlag(args, "-t")) {
             String target = getArgAfter(args, "-t");
-            saveTextFile(target, Pipeline.tokenize(source).tokens());
+            saveTextFile(target, Pipeline.tokenizeWithGlobal(source).tokens());
             return;
         }
 
         if (hasFlag(args, "-a")) {
             String target = getArgAfter(args, "-a");
-            saveTextFile(target, Pipeline.tokenize(source).parse().syntaxTree());
+            saveTextFile(target, Pipeline.tokenizeWithGlobal(source).parse().syntaxTree());
             return;
         }
 
-        ICompiledProgram program = Pipeline.compile(source, registry);
+        ICompiledProgram program = Pipeline.compileWithGlobal(source);
 
         if (hasFlag(args, "-o")) {
             String outputPath = getArgAfter(args, "-o");
@@ -95,7 +92,7 @@ public class ConsoleApplication {
             if (line.equalsIgnoreCase("/quit")) break;
 
             try {
-                ICompiledProgram singleStep = Pipeline.tokenize(line).parse().compile(registry);
+                ICompiledProgram singleStep = Pipeline.compileWithGlobal(line);
 
                 exec.setProgram(singleStep);
                 cpu.setProgrammeCounter(0);

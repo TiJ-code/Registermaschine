@@ -40,7 +40,6 @@ public final class CoreConfigParser {
             Document doc = builder.parse(is);
 
             parseRegisters(doc);
-            parseTokenColours(doc);
             parseConditionMacros(doc);
             parseInstructions(doc, set);
 
@@ -56,27 +55,7 @@ public final class CoreConfigParser {
 
         if (registerNodeList.getLength() < 1) return;
 
-        Config.REGISTERS = Math.max(Integer.parseInt(registerNodeList.item(0).getTextContent()), 1);
-    }
-
-    private static void parseTokenColours(Document document) {
-        NodeList colourNodes = document.getElementsByTagName("colours");
-
-        for (int i = 0; i < colourNodes.getLength(); i++) {
-            Element element = (Element) colourNodes.item(i);
-
-
-            String tokenId = element.getAttribute("tokenId");
-            String hexString = element.getTextContent();
-
-            TokenType type = null;
-            try {
-                type = TokenType.valueOf(tokenId);
-            } catch (IllegalArgumentException ignored) {}
-
-            if (type != null)
-                Config.TOKEN_COLOUR.put(type, hexString);
-        }
+        CoreConfig.REGISTERS = Math.max(Integer.parseInt(registerNodeList.item(0).getTextContent()), 1);
     }
     
     private static void parseConditionMacros(Document document) {
@@ -110,7 +89,6 @@ public final class CoreConfigParser {
             AbstractInstruction handler = createInstruction(parseHandler(handlerStr), opcode, operands, condition);
 
             set.registerInstruction(id, opcode, description, handler);
-            Config.INSTRUCTIONS.add(id);
         }
     }
 

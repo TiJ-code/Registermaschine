@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <registers>80</registers>
-    <colours>
-        <colour tokenId="register">#123456</colour>
-        <colour tokenId="instruction">#123456</colour>
-        <colour tokenId="number">#123456</colour>
-        <colour tokenId="comment">#123456</colour>
-    </colours>
-    <conditionMacros>
+    <registers>8</registers>
+    <conditionMacros internal="true">
+        <conditionMacro name="core.conditions.NotEqualsZeroCondition" value="!core.conditions.EqualsZeroCondition"/>
         <conditionMacro name="core.conditions.LessThanOrEqualsToZeroCondition" value="core.conditions.LessThanZeroCondition+core.conditions.EqualsZeroCondition"/>
         <conditionMacro name="core.conditions.GreaterThanZeroCondition" value="!core.conditions.LessThanZeroCondition*!core.conditions.EqualsZeroCondition"/>
         <conditionMacro name="core.conditions.GreaterThanOrEqualsToZeroCondition" value="!core.conditions.LessThanZeroCondition"/>
@@ -93,7 +88,7 @@
                 operands="1"
                 description="Jumps to program line, if accumulator is not zero"
                 handler="core.instructions.JumpInstruction"
-                condition="!core.conditions.EqualsZeroCondition"/>
+                condition="@core.conditions.NotEqualsZeroCondition"/>
         <instruction
                 id="jlz"
                 opcode="0x0E"

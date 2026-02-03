@@ -2,7 +2,7 @@ package dk.tij.registermaschine.core.runtime;
 
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContextListener;
-import dk.tij.registermaschine.core.config.Config;
+import dk.tij.registermaschine.core.config.CoreConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class BasicExecutionContext implements IExecutionContext {
     public BasicExecutionContext() {
         this.listeners = new ArrayList<>();
 
-        this.registers = new int[Config.REGISTERS];
+        this.registers = new int[CoreConfig.REGISTERS];
         this.programmeCounter = 0;
         this.exitCode = 0;
         this.flags = 0;

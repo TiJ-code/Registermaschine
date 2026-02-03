@@ -3,19 +3,22 @@ package dk.tij.registermaschine.core.compilation;
 import dk.tij.registermaschine.core.compilation.api.ILexer;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.internal.lexing.Token;
-import dk.tij.registermaschine.core.config.Config;
+import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.config.InstructionSet;
 
 import java.util.ArrayList;
 import java.util.List;
 import static dk.tij.registermaschine.core.compilation.api.lexing.TokenType.*;
 
 public final class ConcreteLexer implements ILexer {
+    private InstructionSet instructionSet;
     private List<IToken> tokens;
     private int index, line, column;
     private String source;
 
     @Override
-    public List<IToken> tokenize(String sourceCode) {
+    public List<IToken> tokenize(String sourceCode, InstructionSet instructions) {
+        instructionSet = instructions;
         source = sourceCode.replaceAll("\r\n", "\n");
         index = 0;
         line = 1;
@@ -121,7 +124,7 @@ public final class ConcreteLexer implements ILexer {
             return;
         }
 
-        if (Config.INSTRUCTIONS.contains(textLower)) {
+        if (instructionSet.containsMnemonic(textLower)) {
             tokens.add(new Token(INSTRUCTION, textLower, line, startCol));
             return;
         }
@@ -133,7 +136,7 @@ public final class ConcreteLexer implements ILexer {
         if (text.length() < 2) return false;
         if (text.charAt(0) != 'r') return false;
 
-        return text.matches(Config.TOKEN_REGEX.get(REGISTER));
+        return text.matches(CoreConfig.TOKEN_REGEX.get(REGISTER));
     }
 
     private char advance() {

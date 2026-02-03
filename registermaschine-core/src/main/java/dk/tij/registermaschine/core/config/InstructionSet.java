@@ -48,6 +48,10 @@ public final class InstructionSet {
         return entry.opcode();
     }
 
+    public boolean containsMnemonic(String mnemonic) {
+        return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.mnemonic().equals(mnemonic));
+    }
+
     public List<InstructionInfo> getInstructions() {
         return instructions;
     }

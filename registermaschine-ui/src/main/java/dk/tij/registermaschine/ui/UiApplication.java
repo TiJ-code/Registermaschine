@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.ui;
 
 import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
-import dk.tij.registermaschine.core.config.Config;
+import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.ui.config.ConfigParser;
@@ -82,6 +82,6 @@ public class UiApplication extends Application {
 
         window.call("initializeDocs", (Object) docs);
 
-        window.call("initializeRegisters", Config.REGISTERS);
+        window.call("initializeRegisters", CoreConfig.REGISTERS);
     }
 }
