@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.compilation.api.lexing;
 
 public interface IToken {
-    ITokenType type();
+    TokenType type();
     int line();
     int column();
     String value();

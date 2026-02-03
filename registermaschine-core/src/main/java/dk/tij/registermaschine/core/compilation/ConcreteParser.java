@@ -1,20 +1,20 @@
-package dk.tij.registermaschine.core.compilation.internal;
+package dk.tij.registermaschine.core.compilation;
 
-import dk.tij.registermaschine.core.compilation.AbstractSyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.IParser;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
+import dk.tij.registermaschine.core.compilation.api.lexing.TokenType;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
 import dk.tij.registermaschine.core.compilation.parsing.InstructionNode;
+import dk.tij.registermaschine.core.compilation.parsing.LabelNode;
 import dk.tij.registermaschine.core.compilation.parsing.OperandNode;
-import dk.tij.registermaschine.core.compilation.lexing.Token;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Parser implements IParser {
-    private static List<IToken> tokens;
-    private static int currentIndex;
+public final class ConcreteParser implements IParser {
+    private List<IToken> tokens;
+    private int currentIndex;
 
     @Override
     public ISyntaxTree parse(List<IToken> tokenList) {
@@ -31,39 +31,56 @@ public final class Parser implements IParser {
         return new AbstractSyntaxTree(nodes);
     }
 
-    private static ISyntaxTreeNode parseInstruction() {
-        while (match(Token.Type.EOL) || match(Token.Type.UNKNOWN)) {}
+    private ISyntaxTreeNode parseInstruction() {
+        while (match(TokenType.EOL) || match(TokenType.COMMENT)) {}
 
-        if (peek().type() == Token.Type.EOF) return null;
+        if (peek().type() == TokenType.EOF) return null;
 
-        IToken instr = consume(Token.Type.INSTRUCTION, "Expected instruction");
-        List<OperandNode> operands = new ArrayList<>();
-
-        while (!check(Token.Type.EOL) && !check(Token.Type.EOF)) {
-            operands.add(parseOperand());
+        if (peek().type() == TokenType.ERROR) {
+            throw error(peek(), peek().value());
         }
 
-        match(Token.Type.EOL);
+        if (match(TokenType.LABEL_DEF)) {
+            IToken label = previous();
+            return new LabelNode(label.value(), label.line());
+        }
+
+        IToken instr = consume(TokenType.INSTRUCTION, "Expected instruction");
+
+        List<OperandNode> operands = new ArrayList<>();
+
+        while (!check(TokenType.EOL) && !check(TokenType.EOF)) {
+            operands.add(parseOperand());
+            match(TokenType.COMMA);
+        }
+
+        match(TokenType.EOL);
+
         return new InstructionNode(instr.value(), operands, instr.line());
     }
 
-    private static OperandNode parseOperand() {
-        while (match(Token.Type.UNKNOWN));
+    private OperandNode parseOperand() {
+        while (match(TokenType.COMMENT));
 
-        if (match(Token.Type.REGISTER)) {
+        if (match(TokenType.REGISTER)) {
             IToken t = previous();
             return new OperandNode(t.value(), true, t.line());
         }
 
-        if (match(Token.Type.NUMBER)) {
+        if (match(TokenType.NUMBER)) {
             IToken t = previous();
             return new OperandNode(t.value(), false, t.line());
         }
+        
+        if (match(TokenType.ERROR)) {
+            IToken t = previous();
+            throw error(t, t.value());
+        }
 
-        throw error(peek(), "Invalid operand");
+        throw error(peek(), "Expected operand");
     }
 
-    private static boolean match(Token.Type type) {
+    private boolean match(TokenType type) {
         if (check(type)) {
             advance();
             return true;
@@ -71,33 +88,33 @@ public final class Parser implements IParser {
         return false;
     }
 
-    private static IToken consume(Token.Type type, String msg) {
+    private IToken consume(TokenType type, String msg) {
         if (check(type)) return advance();
         throw error(peek(), msg);
     }
 
-    private static boolean check(Token.Type type) {
+    private boolean check(TokenType type) {
         return isNotAtEnd() && peek().type() == type;
     }
 
-    private static IToken advance() {
+    private IToken advance() {
         if (isNotAtEnd()) currentIndex++;
         return previous();
     }
 
-    private static boolean isNotAtEnd() {
-        return peek().type() != Token.Type.EOF;
+    private boolean isNotAtEnd() {
+        return peek().type() != TokenType.EOF;
     }
 
-    private static IToken peek() {
+    private IToken peek() {
         return tokens.get(currentIndex);
     }
 
-    private static IToken previous() {
+    private IToken previous() {
         return tokens.get(currentIndex - 1);
     }
 
-    private static RuntimeException error(IToken token, String msg) {
+    private RuntimeException error(IToken token, String msg) {
         return new RuntimeException(
                 "Parser error at line " + token.line() + ", col " + token.column() + ": " + msg
         );

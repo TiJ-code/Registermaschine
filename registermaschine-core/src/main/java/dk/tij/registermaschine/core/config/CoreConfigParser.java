@@ -1,5 +1,6 @@
 package dk.tij.registermaschine.core.config;
 
+import dk.tij.registermaschine.core.compilation.api.lexing.TokenType;
 import dk.tij.registermaschine.core.conditions.internal.AndCondition;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
 import dk.tij.registermaschine.core.conditions.internal.NotCondition;
@@ -65,9 +66,9 @@ public final class CoreConfigParser {
             String tokenId = element.getAttribute("tokenId");
             String hexString = element.getTextContent();
 
-            Token.Type type = null;
+            TokenType type = null;
             try {
-                type = Token.Type.valueOf(tokenId);
+                type = TokenType.valueOf(tokenId);
             } catch (IllegalArgumentException ignored) {}
 
             if (type != null)
@@ -97,6 +98,7 @@ public final class CoreConfigParser {
                 handler = createInstruction(parseHandler(handlerStr), opcode, operands, condition);
 
             set.registerInstruction(id, opcode, description, handler);
+            Config.INSTRUCTIONS.add(id);
         }
     }
 

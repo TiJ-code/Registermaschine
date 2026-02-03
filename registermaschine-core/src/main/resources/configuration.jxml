@@ -48,6 +48,7 @@
                 id="ldk"
                 opcode="0x07"
                 operands="1"
+                condition="core.conditions.EqualsZeroCondition"
                 description="Loads constant value into accumulator"
                 handler="core.instructions.LoadConstantValueInstruction"/>
         <instruction

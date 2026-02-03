@@ -1,25 +1,28 @@
 package dk.tij.registermaschine.core.config;
 
+import dk.tij.registermaschine.core.compilation.api.lexing.TokenType;
 import dk.tij.registermaschine.core.compilation.lexing.Token;
 
-import java.util.Map;
+import java.util.*;
 
 public final class Config {
     private Config() {}
 
     public static int REGISTERS = 8;
 
-    public static final Map<Token.Type, String> TOKEN_REGEX = Map.of(
-            Token.Type.INSTRUCTION, "(?:[A-Z]+|[a-z]+)",
-            Token.Type.REGISTER, "r[0-7]",
-            Token.Type.NUMBER, "[0-9]*",
-            Token.Type.COMMENT, ";.*"
+    public static final Set<String> INSTRUCTIONS = new HashSet<>();
+
+    public static final Map<TokenType, String> TOKEN_REGEX = Map.of(
+            TokenType.INSTRUCTION, "(?:[A-Z]+|[a-z]+)",
+            TokenType.REGISTER, "r[0-9]+",
+            TokenType.NUMBER, "#[0-9]+",
+            TokenType.COMMENT, ";.*"
     );
 
-    public static Map<Token.Type, String> TOKEN_COLOUR = Map.of(
-            Token.Type.INSTRUCTION, "#123456",
-            Token.Type.REGISTER, "#123456",
-            Token.Type.NUMBER, "#123456",
-            Token.Type.COMMENT, "#123789"
+    public static Map<TokenType, String> TOKEN_COLOUR = Map.of(
+            TokenType.INSTRUCTION, "#123456",
+            TokenType.REGISTER, "#123456",
+            TokenType.NUMBER, "#123456",
+            TokenType.COMMENT, "#123789"
     );
 }

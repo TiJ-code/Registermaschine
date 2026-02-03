@@ -1,6 +1,5 @@
-package dk.tij.registermaschine.core.compilation.internal;
+package dk.tij.registermaschine.core.compilation;
 
-import dk.tij.registermaschine.core.compilation.CompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.ICompiler;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
@@ -15,7 +14,7 @@ import dk.tij.registermaschine.core.compilation.parsing.OperandNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Compiler implements ICompiler {
+public final class ConcreteCompiler implements ICompiler {
     @Override
     public ICompiledProgram compile(ISyntaxTree tree, InstructionSet instructionSet) {
         List<ICompiledInstruction> program = new ArrayList<>();

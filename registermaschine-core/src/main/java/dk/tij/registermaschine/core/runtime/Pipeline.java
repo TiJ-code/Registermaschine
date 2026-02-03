@@ -6,9 +6,9 @@ import dk.tij.registermaschine.core.compilation.api.IParser;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.compilation.internal.Compiler;
-import dk.tij.registermaschine.core.compilation.internal.Lexer;
-import dk.tij.registermaschine.core.compilation.internal.Parser;
+import dk.tij.registermaschine.core.compilation.ConcreteCompiler;
+import dk.tij.registermaschine.core.compilation.ConcreteLexer;
+import dk.tij.registermaschine.core.compilation.ConcreteParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
 
 import java.util.List;
@@ -16,9 +16,9 @@ import java.util.List;
 public final class Pipeline {
     private Pipeline() {}
 
-    private static Class<? extends ILexer> pipelineLexer = Lexer.class;
-    private static Class<? extends IParser> pipelineParser = Parser.class;
-    private static Class<? extends ICompiler> pipelineCompiler = Compiler.class;
+    private static Class<? extends ILexer> pipelineLexer = ConcreteLexer.class;
+    private static Class<? extends IParser> pipelineParser = ConcreteParser.class;
+    private static Class<? extends ICompiler> pipelineCompiler = ConcreteCompiler.class;
 
     public static void useLexer(Class<? extends ILexer> customLexer) {
         pipelineLexer = customLexer;

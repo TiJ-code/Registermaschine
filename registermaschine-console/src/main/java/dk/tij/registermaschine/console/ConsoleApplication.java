@@ -6,13 +6,13 @@ import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
-import dk.tij.registermaschine.core.compilation.internal.Compiler;
+import dk.tij.registermaschine.core.compilation.ConcreteCompiler;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.core.compilation.compiling.CompiledInstruction;
-import dk.tij.registermaschine.core.compilation.internal.Lexer;
-import dk.tij.registermaschine.core.compilation.internal.Parser;
+import dk.tij.registermaschine.core.compilation.ConcreteLexer;
+import dk.tij.registermaschine.core.compilation.ConcreteParser;
 import dk.tij.registermaschine.core.runtime.Pipeline;
 
 import java.io.DataInputStream;
@@ -62,7 +62,7 @@ public class ConsoleApplication {
             return;
         }
 
-        ICompiledProgram program = new Compiler().compile(ast, registry);
+        ICompiledProgram program = new ConcreteCompiler().compile(ast, registry);
 
         if (hasFlag(args, "-o")) {
             String outputPath = getArgAfter(args, "-o");
@@ -105,6 +105,7 @@ public class ConsoleApplication {
                     break;
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 System.err.println("Syntax Error: " + e.getMessage());
             }
         }
@@ -188,14 +189,14 @@ public class ConsoleApplication {
     }
 
     static List<IToken> runLexer(String source, boolean dump) {
-        List<IToken> tokens = new Lexer().tokenize(source);
+        List<IToken> tokens = new ConcreteLexer().tokenize(source);
         if (dump)
             tokens.forEach(System.out::println);
         return tokens;
     }
 
     static ISyntaxTree runParser(List<IToken> tokens, boolean dump) {
-        ISyntaxTree ast = new Parser().parse(tokens);
+        ISyntaxTree ast = new ConcreteParser().parse(tokens);
         if (dump)
             ast.forEach(System.out::println);
         return ast;
