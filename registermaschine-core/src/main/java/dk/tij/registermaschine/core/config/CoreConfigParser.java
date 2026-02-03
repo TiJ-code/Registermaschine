@@ -20,18 +20,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
 import java.util.List;
 
-public final class ConfigParser {
-    private ConfigParser() {}
+public final class CoreConfigParser {
+    private CoreConfigParser() {}
 
     private static final String CORE_IMPLEMENTATION = "core.",
                                 CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
 
-    public static void parseConfig(InstructionSet set) throws ConfigurationParseException {
+    public static void parseCoreConfig(InstructionSet set) throws ConfigurationParseException {
         parseConfig(set, null);
     }
 
     public static void parseConfig(InstructionSet set, IConfigParser customConfigParser) throws ConfigurationParseException {
-        try (InputStream is = ConfigParser.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
+        try (InputStream is = CoreConfigParser.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(is);

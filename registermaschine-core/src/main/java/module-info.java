@@ -15,7 +15,6 @@ module dk.tij.registermaschine.core {
     exports dk.tij.registermaschine.core.conditions.internal;
     exports dk.tij.registermaschine.core.conditions.api;
 
-    exports dk.tij.registermaschine.core.compilation;
     exports dk.tij.registermaschine.core.compilation.api;
     exports dk.tij.registermaschine.core.compilation.api.parsing;
     exports dk.tij.registermaschine.core.compilation.api.compiling;

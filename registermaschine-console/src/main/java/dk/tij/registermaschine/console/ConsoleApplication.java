@@ -8,7 +8,7 @@ import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
 import dk.tij.registermaschine.core.compilation.internal.Compiler;
 import dk.tij.registermaschine.core.runtime.Executor;
-import dk.tij.registermaschine.core.config.ConfigParser;
+import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.core.compilation.compiling.CompiledInstruction;
 import dk.tij.registermaschine.core.compilation.internal.Lexer;
@@ -17,7 +17,6 @@ import dk.tij.registermaschine.core.runtime.Pipeline;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -206,7 +205,7 @@ public class ConsoleApplication {
         InstructionSet registry = new InstructionSet();
 
         try {
-            ConfigParser.parseConfig(registry);
+            CoreConfigParser.parseCoreConfig(registry);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -218,11 +217,5 @@ public class ConsoleApplication {
         for (String arg : args)
             if (arg.equalsIgnoreCase(flag)) return true;
         return false;
-    }
-
-    static String loadSource(String path) throws Exception {
-        try (InputStream is = ConsoleApplication.class.getClassLoader().getResourceAsStream(path)) {
-            return new String(is.readAllBytes(), StandardCharsets.UTF_8);
-        }
     }
 }

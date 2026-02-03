@@ -2,8 +2,9 @@ package dk.tij.registermaschine.ui;
 
 import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
 import dk.tij.registermaschine.core.config.Config;
-import dk.tij.registermaschine.core.config.ConfigParser;
+import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
+import dk.tij.registermaschine.ui.config.ConfigParser;
 import javafx.application.Application;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
@@ -25,7 +26,7 @@ public class UiApplication extends Application {
     public UiApplication() {
         this.instructionSet = new InstructionSet();
         try {
-            ConfigParser.parseConfig(instructionSet, new dk.tij.registermaschine.ui.config.ConfigParser());
+            CoreConfigParser.parseConfig(instructionSet, new ConfigParser());
         } catch (Exception _) {}
         this.cpu = new BasicExecutionContext();
     }
