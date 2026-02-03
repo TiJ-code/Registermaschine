@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.core.config;
+package dk.tij.registermaschine.core.config.api;
 
 import org.w3c.dom.Document;
 

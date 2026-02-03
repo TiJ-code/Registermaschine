@@ -12,7 +12,6 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
-import java.io.InputStream;
 import java.util.Objects;
 
 public class UiApplication extends Application {
@@ -25,9 +24,8 @@ public class UiApplication extends Application {
     
     public UiApplication() {
         this.instructionSet = new InstructionSet();
-        try (InputStream is = UiApplication.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
-            if (is != null)
-                ConfigParser.parseConfig(instructionSet, is, new dk.tij.registermaschine.ui.config.ConfigParser());
+        try {
+            ConfigParser.parseConfig(instructionSet, new dk.tij.registermaschine.ui.config.ConfigParser());
         } catch (Exception _) {}
         this.cpu = new BasicExecutionContext();
     }

@@ -1,8 +1,10 @@
 package dk.tij.registermaschine.core.compilation.internal;
 
 import dk.tij.registermaschine.core.compilation.AbstractSyntaxTree;
-import dk.tij.registermaschine.core.compilation.TokenCollection;
-import dk.tij.registermaschine.core.compilation.parsing.AbstractSyntaxTreeNode;
+import dk.tij.registermaschine.core.compilation.api.IParser;
+import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
+import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
+import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
 import dk.tij.registermaschine.core.compilation.parsing.InstructionNode;
 import dk.tij.registermaschine.core.compilation.parsing.OperandNode;
 import dk.tij.registermaschine.core.compilation.lexing.Token;
@@ -10,32 +12,31 @@ import dk.tij.registermaschine.core.compilation.lexing.Token;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class Parser {
-    private static TokenCollection tokens;
+public final class Parser implements IParser {
+    private static List<IToken> tokens;
     private static int currentIndex;
 
-    private Parser() {}
-
-    public static AbstractSyntaxTree parse(TokenCollection tokenList) {
+    @Override
+    public ISyntaxTree parse(List<IToken> tokenList) {
         currentIndex = 0;
         tokens = tokenList;
 
-        List<AbstractSyntaxTreeNode> nodes = new ArrayList<>();
+        List<ISyntaxTreeNode> nodes = new ArrayList<>();
 
         while (isNotAtEnd()) {
-            AbstractSyntaxTreeNode node = parseInstruction();
+            ISyntaxTreeNode node = parseInstruction();
             if (node != null) nodes.add(node);
         }
 
         return new AbstractSyntaxTree(nodes);
     }
 
-    private static AbstractSyntaxTreeNode parseInstruction() {
+    private static ISyntaxTreeNode parseInstruction() {
         while (match(Token.Type.EOL) || match(Token.Type.UNKNOWN)) {}
 
         if (peek().type() == Token.Type.EOF) return null;
 
-        Token instr = consume(Token.Type.INSTRUCTION, "Expected instruction");
+        IToken instr = consume(Token.Type.INSTRUCTION, "Expected instruction");
         List<OperandNode> operands = new ArrayList<>();
 
         while (!check(Token.Type.EOL) && !check(Token.Type.EOF)) {
@@ -50,12 +51,12 @@ public final class Parser {
         while (match(Token.Type.UNKNOWN));
 
         if (match(Token.Type.REGISTER)) {
-            Token t = previous();
+            IToken t = previous();
             return new OperandNode(t.value(), true, t.line());
         }
 
         if (match(Token.Type.NUMBER)) {
-            Token t = previous();
+            IToken t = previous();
             return new OperandNode(t.value(), false, t.line());
         }
 
@@ -70,7 +71,7 @@ public final class Parser {
         return false;
     }
 
-    private static Token consume(Token.Type type, String msg) {
+    private static IToken consume(Token.Type type, String msg) {
         if (check(type)) return advance();
         throw error(peek(), msg);
     }
@@ -79,7 +80,7 @@ public final class Parser {
         return isNotAtEnd() && peek().type() == type;
     }
 
-    private static Token advance() {
+    private static IToken advance() {
         if (isNotAtEnd()) currentIndex++;
         return previous();
     }
@@ -88,15 +89,15 @@ public final class Parser {
         return peek().type() != Token.Type.EOF;
     }
 
-    private static Token peek() {
+    private static IToken peek() {
         return tokens.get(currentIndex);
     }
 
-    private static Token previous() {
+    private static IToken previous() {
         return tokens.get(currentIndex - 1);
     }
 
-    private static RuntimeException error(Token token, String msg) {
+    private static RuntimeException error(IToken token, String msg) {
         return new RuntimeException(
                 "Parser error at line " + token.line() + ", col " + token.column() + ": " + msg
         );

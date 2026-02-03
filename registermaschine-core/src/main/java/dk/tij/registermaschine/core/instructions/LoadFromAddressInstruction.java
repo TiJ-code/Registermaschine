@@ -1,7 +1,8 @@
 package dk.tij.registermaschine.core.instructions;
 
-import dk.tij.registermaschine.core.runtime.ExecutionContext;
-import dk.tij.registermaschine.core.conditions.ICondition;
+import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
+import dk.tij.registermaschine.core.conditions.api.ICondition;
 
 public final class LoadFromAddressInstruction extends AbstractInstruction {
     public LoadFromAddressInstruction(byte opcode, int operandCount, ICondition condition) {
@@ -9,7 +10,7 @@ public final class LoadFromAddressInstruction extends AbstractInstruction {
     }
 
     @Override
-    public void executeInstruction(ExecutionContext context, int[] operands) {
+    public void executeInstruction(IExecutionContext context, int[] operands) {
         context.setFlags(operands[0] < 0, operands[0] == 0, false);
         context.setAccumulator(context.getRegister(operands[0]));
     }

@@ -2,7 +2,7 @@ package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.core.exception.ExistingInstructionException;
 import dk.tij.registermaschine.core.exception.UnknownInstructionException;
-import dk.tij.registermaschine.core.instructions.AbstractInstruction;
+import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 
 import java.util.ArrayList;
 import java.util.HashMap;

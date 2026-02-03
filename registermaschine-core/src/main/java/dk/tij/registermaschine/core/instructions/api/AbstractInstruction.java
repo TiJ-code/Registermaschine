@@ -1,7 +1,7 @@
-package dk.tij.registermaschine.core.instructions;
+package dk.tij.registermaschine.core.instructions.api;
 
-import dk.tij.registermaschine.core.runtime.ExecutionContext;
-import dk.tij.registermaschine.core.conditions.ICondition;
+import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
+import dk.tij.registermaschine.core.conditions.api.ICondition;
 
 public abstract class AbstractInstruction {
     public final byte OpCode;
@@ -19,12 +19,12 @@ public abstract class AbstractInstruction {
             throw new RuntimeException("Instruction " + this.getClass().getSimpleName() + " expects " + operandCount + " operands.");
     }
 
-    public boolean shouldExecute(ExecutionContext context) {
+    public boolean shouldExecute(IExecutionContext context) {
         if (condition == null) return true;
         return condition.test(context);
     }
 
-    public abstract void executeInstruction(ExecutionContext context, int[] operands);
+    public abstract void executeInstruction(IExecutionContext context, int[] operands);
 
     @Override
     public String toString() {

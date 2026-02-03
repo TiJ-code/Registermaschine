@@ -1,6 +1,6 @@
-package dk.tij.registermaschine.core.runtime;
+package dk.tij.registermaschine.core.runtime.api;
 
-public interface ExecutionContextListener {
+public interface IExecutionContextListener {
     void onExecutionStarted();
     void onExecutionStopped();
 

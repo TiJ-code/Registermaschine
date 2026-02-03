@@ -1,7 +1,10 @@
 package dk.tij.registermaschine.core.compilation.lexing;
 
-public record Token(Type type, String value, int line, int column) {
-    public enum Type {
+import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
+import dk.tij.registermaschine.core.compilation.api.lexing.ITokenType;
+
+public record Token(ITokenType type, String value, int line, int column) implements IToken {
+    public enum Type implements ITokenType {
         INSTRUCTION,
         REGISTER,
         NUMBER,

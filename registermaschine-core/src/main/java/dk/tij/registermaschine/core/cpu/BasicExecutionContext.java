@@ -1,19 +1,19 @@
 package dk.tij.registermaschine.core.cpu;
 
-import dk.tij.registermaschine.core.runtime.ExecutionContext;
-import dk.tij.registermaschine.core.runtime.ExecutionContextListener;
+import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
+import dk.tij.registermaschine.core.runtime.api.IExecutionContextListener;
 import dk.tij.registermaschine.core.config.Config;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicExecutionContext implements ExecutionContext {
+public class BasicExecutionContext implements IExecutionContext {
     private static final byte FLAG_RUNNING  = 0b0001,
                               FLAG_ZERO     = 0b0010,
                               FLAG_NEGATIVE = 0b0100,
                               FLAG_OVERFLOW = 0b1000;
     
-    private final List<ExecutionContextListener> listeners;
+    private final List<IExecutionContextListener> listeners;
 
     private final int[] registers;
     private int programmeCounter;
@@ -31,12 +31,12 @@ public class BasicExecutionContext implements ExecutionContext {
     }
 
     @Override
-    public void addListener(ExecutionContextListener listener) {
+    public void addListener(IExecutionContextListener listener) {
         listeners.add(listener);
     }
 
     @Override
-    public void removeListener(ExecutionContextListener listener) {
+    public void removeListener(IExecutionContextListener listener) {
         listeners.remove(listener);
     }
 
@@ -70,13 +70,13 @@ public class BasicExecutionContext implements ExecutionContext {
     @Override
     public void startExecution() {
         flags |= FLAG_RUNNING;
-        listeners.forEach(ExecutionContextListener::onExecutionStarted);
+        listeners.forEach(IExecutionContextListener::onExecutionStarted);
     }
 
     @Override
     public void stopExecution() {
         flags &= ~FLAG_RUNNING;
-        listeners.forEach(ExecutionContextListener::onExecutionStopped);
+        listeners.forEach(IExecutionContextListener::onExecutionStopped);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class BasicExecutionContext implements ExecutionContext {
 
     @Override
     public int input() {
-        for (ExecutionContextListener l : listeners) {
+        for (IExecutionContextListener l : listeners) {
             Integer value = l.onInputRequested();
             if (value != null)
                 return value;

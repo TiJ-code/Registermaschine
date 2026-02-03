@@ -1,6 +1,7 @@
-package dk.tij.registermaschine.core.conditions;
+package dk.tij.registermaschine.core.conditions.internal;
 
-import dk.tij.registermaschine.core.runtime.ExecutionContext;
+import dk.tij.registermaschine.core.conditions.api.ICondition;
+import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
 public final class NotCondition implements ICondition {
     private final ICondition inner;
@@ -10,7 +11,7 @@ public final class NotCondition implements ICondition {
     }
 
     @Override
-    public boolean test(ExecutionContext context) {
+    public boolean test(IExecutionContext context) {
         return !inner.test(context);
     }
 }

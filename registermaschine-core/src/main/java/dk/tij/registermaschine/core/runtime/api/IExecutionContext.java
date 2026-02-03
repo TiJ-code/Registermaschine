@@ -1,8 +1,8 @@
-package dk.tij.registermaschine.core.runtime;
+package dk.tij.registermaschine.core.runtime.api;
 
-public interface ExecutionContext {
-    void addListener(ExecutionContextListener listener);
-    void removeListener(ExecutionContextListener listener);
+public interface IExecutionContext {
+    void addListener(IExecutionContextListener listener);
+    void removeListener(IExecutionContextListener listener);
 
     int getRegisterCount();
     int getRegister(int index);

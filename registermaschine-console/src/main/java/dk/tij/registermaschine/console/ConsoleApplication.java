@@ -1,9 +1,11 @@
 package dk.tij.registermaschine.console;
 
 import dk.tij.registermaschine.core.compilation.CompiledProgram;
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
+import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
+import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.cpu.BasicExecutionContext;
-import dk.tij.registermaschine.core.compilation.TokenCollection;
-import dk.tij.registermaschine.core.compilation.AbstractSyntaxTree;
 import dk.tij.registermaschine.core.compilation.internal.Compiler;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.ConfigParser;
@@ -30,7 +32,6 @@ public class ConsoleApplication {
         }
 
         InstructionSet registry = initRegistry();
-        CompiledProgram program = new CompiledProgram();
 
         if (args[0].equalsIgnoreCase("-i") && args.length == 1) {
             runInteractiveMode(registry);
@@ -38,7 +39,7 @@ public class ConsoleApplication {
         }
 
         if (args[0].equalsIgnoreCase("-r") && args.length >= 2) {
-            loadBinary(args[1], program);
+            ICompiledProgram program = loadBinary(args[1]);
             BasicExecutionContext cpu = new BasicExecutionContext();
             cpu.addListener(new MachineListener(null));
             new Executor(cpu, registry, program).run();
@@ -62,7 +63,7 @@ public class ConsoleApplication {
             return;
         }
 
-        program = Compiler.compile(ast, registry);
+        ICompiledProgram program = new Compiler().compile(ast, registry);
 
         if (hasFlag(args, "-o")) {
             String outputPath = getArgAfter(args, "-o");
@@ -94,7 +95,7 @@ public class ConsoleApplication {
             if (line.equalsIgnoreCase("/quit")) break;
 
             try {
-                CompiledProgram singleStep = Pipeline.tokenize(line).parse().compile(registry);
+                ICompiledProgram singleStep = Pipeline.tokenize(line).parse().compile(registry);
 
                 exec.setProgram(singleStep);
                 cpu.setProgrammeCounter(0);
@@ -119,7 +120,7 @@ public class ConsoleApplication {
         throw new RuntimeException("Missing argument for flag " + flag);
     }
 
-    static void saveTextFile(String path, List<?> items) throws Exception {
+    static void saveTextFile(String path, Iterable<?> items) throws Exception {
         StringBuilder sb = new StringBuilder();
         for (Object item : items) sb.append(item.toString()).append("\n");
         Files.writeString(Path.of(path), sb.toString());
@@ -131,15 +132,17 @@ public class ConsoleApplication {
         System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o>", ": Compile source to binary");
         System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o> -r", ": Compile and run");
         System.out.printf("  %-30s%s%n", "-r <out.o>", ": Run binary file");
-        System.out.printf("  %-30s%s%n", "<src.jasm> -t <out.txt>", ": Dump tokens");
+        System.out.printf("  %-30s%s%n", "<src.jasm> -t <out.txt>", ": Dump syntaxTree");
         System.out.printf("  %-30s%s%n", "<src.jasm> -a <out.txt>", ": Dump Abstract Syntax Tree");
         System.out.printf("  %-30s%s%n", "-i", ": Run as console text program");
     }
 
-    static void loadBinary(String fileName, List<CompiledInstruction> program) throws Exception {
+    static ICompiledProgram loadBinary(String fileName) throws Exception {
+        ICompiledProgram program = new CompiledProgram();
+
         if (fileName == null) {
             System.err.println("Error: No input file specified for -r");
-            return;
+            return null;
         }
 
         try (DataInputStream dis = new DataInputStream(Files.newInputStream(Path.of(fileName)))) {
@@ -158,9 +161,11 @@ public class ConsoleApplication {
                 program.add(new CompiledInstruction(opcode, operands));
             }
         }
+
+        return program;
     }
 
-    static void saveBinary(String fileName, List<CompiledInstruction> program) throws Exception {
+    static void saveBinary(String fileName, List<ICompiledInstruction> program) throws Exception {
         if (fileName == null) {
             System.err.println("Error: No output file specified for -o");
             return;
@@ -183,15 +188,15 @@ public class ConsoleApplication {
         System.out.println("binary successfully compiled to: " + fileName);
     }
 
-    static TokenCollection runLexer(String source, boolean dump) {
-        TokenCollection tokens = Lexer.tokenize(source);
+    static List<IToken> runLexer(String source, boolean dump) {
+        List<IToken> tokens = new Lexer().tokenize(source);
         if (dump)
             tokens.forEach(System.out::println);
         return tokens;
     }
 
-    static AbstractSyntaxTree runParser(TokenCollection tokens, boolean dump) {
-        AbstractSyntaxTree ast = Parser.parse(tokens);
+    static ISyntaxTree runParser(List<IToken> tokens, boolean dump) {
+        ISyntaxTree ast = new Parser().parse(tokens);
         if (dump)
             ast.forEach(System.out::println);
         return ast;
@@ -199,10 +204,9 @@ public class ConsoleApplication {
 
     static InstructionSet initRegistry() {
         InstructionSet registry = new InstructionSet();
-        try (InputStream is = ConsoleApplication.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
-            if (is == null)
-                throw new RuntimeException("Could not find configuration file: configuration.jxml");
-            ConfigParser.parseConfig(registry, is, null);
+
+        try {
+            ConfigParser.parseConfig(registry);
         } catch (Exception e) {
             e.printStackTrace();
         }

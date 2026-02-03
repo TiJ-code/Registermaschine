@@ -1,6 +1,7 @@
-package dk.tij.registermaschine.core.conditions;
+package dk.tij.registermaschine.core.conditions.internal;
 
-import dk.tij.registermaschine.core.runtime.ExecutionContext;
+import dk.tij.registermaschine.core.conditions.api.ICondition;
+import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public final class OrCondition implements ICondition {
     }
 
     @Override
-    public boolean test(ExecutionContext context) {
+    public boolean test(IExecutionContext context) {
         boolean result = false;
 
         for (ICondition c : conditions)

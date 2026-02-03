@@ -1,6 +1,7 @@
 package dk.tij.registermaschine.core.compilation.internal;
 
-import dk.tij.registermaschine.core.compilation.TokenCollection;
+import dk.tij.registermaschine.core.compilation.api.ILexer;
+import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.lexing.Token;
 import dk.tij.registermaschine.core.config.Config;
 
@@ -8,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import static dk.tij.registermaschine.core.compilation.lexing.Token.Type.*;
 
-public final class Lexer {
-    private static List<Token> tokens;
+public final class Lexer implements ILexer {
+    private static List<IToken> tokens;
     private static int index, line, column;
     private static String source;
 
-    private Lexer() {}
-
-    public static TokenCollection tokenize(String sourceCode) {
+    @Override
+    public List<IToken> tokenize(String sourceCode) {
         source = sourceCode.replaceAll("\r\n", "\n").trim();
         index = 0;
         line = 1;
@@ -58,7 +58,7 @@ public final class Lexer {
             tokens.add(new Token(EOL, "\\n", line, column));
 
         tokens.add(new Token(EOF, "", line, column));
-        return new TokenCollection(tokens);
+        return tokens;
     }
 
     private static void readImmediate() {

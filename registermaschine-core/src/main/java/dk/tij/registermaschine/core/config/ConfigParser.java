@@ -1,13 +1,14 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.conditions.AndCondition;
-import dk.tij.registermaschine.core.conditions.ICondition;
-import dk.tij.registermaschine.core.conditions.NotCondition;
-import dk.tij.registermaschine.core.conditions.OrCondition;
+import dk.tij.registermaschine.core.conditions.internal.AndCondition;
+import dk.tij.registermaschine.core.conditions.api.ICondition;
+import dk.tij.registermaschine.core.conditions.internal.NotCondition;
+import dk.tij.registermaschine.core.conditions.internal.OrCondition;
+import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.conditionParser.*;
 import dk.tij.registermaschine.core.config.conditionParser.nodes.*;
 import dk.tij.registermaschine.core.exception.ConfigurationParseException;
-import dk.tij.registermaschine.core.instructions.AbstractInstruction;
+import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.JumpInstruction;
 import dk.tij.registermaschine.core.compilation.lexing.Token;
 import org.w3c.dom.Document;
@@ -25,8 +26,12 @@ public final class ConfigParser {
     private static final String CORE_IMPLEMENTATION = "core.",
                                 CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
 
-    public static void parseConfig(InstructionSet set, InputStream is, IConfigParser customConfigParser) throws ConfigurationParseException {
-        try {
+    public static void parseConfig(InstructionSet set) throws ConfigurationParseException {
+        parseConfig(set, null);
+    }
+
+    public static void parseConfig(InstructionSet set, IConfigParser customConfigParser) throws ConfigurationParseException {
+        try (InputStream is = ConfigParser.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(is);

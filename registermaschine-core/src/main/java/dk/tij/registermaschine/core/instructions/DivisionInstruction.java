@@ -1,7 +1,8 @@
 package dk.tij.registermaschine.core.instructions;
 
-import dk.tij.registermaschine.core.runtime.ExecutionContext;
-import dk.tij.registermaschine.core.conditions.ICondition;
+import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
+import dk.tij.registermaschine.core.conditions.api.ICondition;
 
 public final class DivisionInstruction extends AbstractInstruction {
     public DivisionInstruction(byte opcode, int operandCount, ICondition condition) {
@@ -9,7 +10,7 @@ public final class DivisionInstruction extends AbstractInstruction {
     }
 
     @Override
-    public void executeInstruction(ExecutionContext context, int[] operands) {
+    public void executeInstruction(IExecutionContext context, int[] operands) {
         int dividend = context.getAccumulator();
         int divisor = operands[0];
 
