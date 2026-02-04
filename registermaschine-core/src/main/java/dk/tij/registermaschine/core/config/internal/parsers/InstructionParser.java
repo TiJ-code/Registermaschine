@@ -1,0 +1,140 @@
+package dk.tij.registermaschine.core.config.internal.parsers;
+
+import dk.tij.registermaschine.core.conditions.api.ICondition;
+import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.config.XmlConstants;
+import dk.tij.registermaschine.core.config.api.IConfigParser;
+import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
+import dk.tij.registermaschine.core.config.internal.ConfigInstruction;
+import dk.tij.registermaschine.core.config.internal.ConfigOperand;
+import dk.tij.registermaschine.core.error.ClassInstantiationException;
+import dk.tij.registermaschine.core.error.ConfigurationParseException;
+import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import org.w3c.dom.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public final class InstructionParser implements IConfigParser {
+    public static List<ConfigInstruction> instructions;
+
+    @Override
+    public void parseConfig(Document xmlDocument) {
+        NodeList instructionNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
+
+        if (instructionNodeList.getLength() < 0) return;
+
+        instructions = new ArrayList<>(instructionNodeList.getLength());
+        for (int i = 0; i < instructionNodeList.getLength(); i++) {
+            Node instructionNode = instructionNodeList.item(i);
+            if (instructionNode.getNodeType() != Node.ELEMENT_NODE) continue;
+
+            try {
+                ConfigInstruction instruction = parseInstruction(instructionNode, (byte) instructions.size());
+                instructions.add(instruction);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+
+        // TODO: Output the parsed instructions in a InstructionSet
+    }
+
+    private static ConfigInstruction parseInstruction(Node instructionNode, final byte opcode)
+            throws Exception {
+        Element instructionElem = (Element) instructionNode;
+        NodeList operandNodes = instructionElem.getElementsByTagName(XmlConstants.TAG_OPERAND);
+
+        String instructionMnemonic = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_ID);
+        String instructionDescription = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_DESCRIPTION);
+        String instructionHandlerStr = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);
+        String instructionConditionStr = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_CONDITION);
+
+        int resultCount = 0;
+
+        List<ConfigOperand> operands = new ArrayList<>(operandNodes.getLength());
+        for (int i = 0; i < operandNodes.getLength(); i++) {
+            ConfigOperand operand = parseOperand(operandNodes.item(i));
+
+            if (operand.concept() == ConfigOperand.Concept.RESULT) {
+                resultCount++;
+            }
+
+            operands.add(operand);
+        }
+
+        if (resultCount < 0 || resultCount > 1) {
+            throw new ConfigurationParseException(String.format("Instruction %s must have exactly one result.",
+                    instructionMnemonic));
+        }
+
+        AbstractInstruction instructionHandler = createInstructionHandler(parseInstructionHandler(instructionHandlerStr),
+                                                                          opcode, operands.size(),
+                                                                          ConditionBuilder.build(instructionConditionStr));
+
+        return new ConfigInstruction(instructionMnemonic, instructionDescription,
+                                     opcode, operands, instructionHandler);
+    }
+
+    private static ConfigOperand parseOperand(Node operandNode) {
+        Element operandElem = (Element) operandNode;
+
+        String typeStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_TYPE).toUpperCase();
+        String conceptStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_CONCEPT).toUpperCase();
+        String value = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_VALUE);
+
+        validate(typeStr, conceptStr);
+
+        ConfigOperand.Type type = ConfigOperand.Type.valueOf(typeStr);
+        ConfigOperand.Concept concept = ConfigOperand.Concept.valueOf(conceptStr);
+
+        if (value.isEmpty()) value = null;
+
+        return new ConfigOperand(type, concept, value);
+    }
+
+    private static void validate(String type, String concept) throws ConfigurationParseException {
+        ConfigOperand.Type parsedType;
+        ConfigOperand.Concept parsedConcept;
+        try {
+            parsedType = ConfigOperand.Type.valueOf(type);
+            parsedConcept = ConfigOperand.Concept.valueOf(concept);
+        } catch (IllegalArgumentException e) {
+            throw new ConfigurationParseException("Invalid value: " + e.getMessage());
+        }
+        
+        boolean isIllegal = switch (parsedConcept) {
+            case ConfigOperand.Concept.RESULT -> parsedType != ConfigOperand.Type.REGISTER;
+            case ConfigOperand.Concept.OPERAND -> parsedType == ConfigOperand.Type.LABEL;
+            case ConfigOperand.Concept.TARGET -> parsedType != ConfigOperand.Type.LABEL;
+        };
+
+        if (isIllegal) {
+            throw new ConfigurationParseException(
+                    String.format("Invalid combination: type=%s with concept=%s", parsedType, parsedConcept)
+            );
+        }
+    }
+
+    private static Class<? extends AbstractInstruction> parseInstructionHandler(String handlerString) throws  Exception {
+        if (handlerString == null || handlerString.isEmpty())
+            throw new IllegalStateException("Cannot parse empty instruction handler");
+
+        if (handlerString.startsWith(CoreConfig.CORE_IMPLEMENTATION_PREFIX))
+            return Class.forName(CoreConfig.CORE_CLASS_PATH_PREFIX + handlerString.trim()).asSubclass(AbstractInstruction.class);
+        else
+            return Class.forName(handlerString.trim()).asSubclass(AbstractInstruction.class);
+    }
+
+    private static AbstractInstruction createInstructionHandler(Class<? extends AbstractInstruction> handlerClass,
+                                                                byte opcode, int operands, ICondition condition)
+            throws ClassInstantiationException {
+        try {
+            return handlerClass
+                    .getDeclaredConstructor(byte.class, int.class, ICondition.class)
+                    .newInstance(opcode, operands, condition);
+        } catch (Exception e) {
+            throw new ClassInstantiationException("Could not instantiate instruction handler class.", e);
+        }
+    }
+}

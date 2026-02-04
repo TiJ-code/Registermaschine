@@ -3,15 +3,17 @@ package dk.tij.registermaschine.core.config;
 import dk.tij.registermaschine.core.error.ExistingInstructionException;
 import dk.tij.registermaschine.core.error.UnknownInstructionException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 
 import java.util.*;
 
-public final class InstructionSet {
+public final class InstructionSet implements IInstructionSet {
     private final List<InstructionInfo> instructions = new ArrayList<>();
     private final Map<String, InstructionInfo> byName = new HashMap<>();
     private final Map<Byte, InstructionInfo> byOpcode = new HashMap<>();
 
-    public void registerInstruction(String mnemonic, byte opcode, String description, AbstractInstruction handler) {
+    @Override
+    public void registerInstruction(String mnemonic, String description, byte opcode, AbstractInstruction handler) {
         if (byOpcode.containsKey(opcode))
             throw new ExistingInstructionException("Opcode " + opcode + " is already registered!");
 
@@ -21,7 +23,8 @@ public final class InstructionSet {
         byOpcode.put(opcode, entry);
     }
 
-    public void prohibitInstruction(Class<? extends AbstractInstruction> instruction) {
+    @Override
+    public void prohibitInstructionHandler(Class<? extends AbstractInstruction> instruction) {
         List<InstructionInfo> permittedInstructions = instructions.stream()
                     .filter(Objects::nonNull)
                     .filter(i -> Objects.nonNull(i.handler()))
@@ -34,6 +37,15 @@ public final class InstructionSet {
         }
     }
 
+    @Override
+    public AbstractInstruction getHandler(String mnemonic) {
+        InstructionInfo entry = byName.get(mnemonic);
+        if (entry == null)
+            throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);
+        return entry.handler();
+    }
+
+    @Override
     public AbstractInstruction getHandler(byte opcode) {
         InstructionInfo entry = byOpcode.get(opcode);
         if (entry == null)
@@ -41,6 +53,15 @@ public final class InstructionSet {
         return entry.handler();
     }
 
+    @Override
+    public String getMnemonic(byte opcode) {
+        InstructionInfo entry = byOpcode.get(opcode);
+        if (entry == null)
+            throw new UnknownInstructionException("No instruction found with opcode " + opcode);
+        return entry.mnemonic();
+    }
+
+    @Override
     public byte getOpcode(String mnemonic) {
         InstructionInfo entry = byName.get(mnemonic);
         if (entry == null)
@@ -48,10 +69,17 @@ public final class InstructionSet {
         return entry.opcode();
     }
 
-    public boolean containsMnemonic(String mnemonic) {
+    @Override
+    public boolean contains(String mnemonic) {
         return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.mnemonic().equals(mnemonic));
     }
 
+    @Override
+    public boolean contains(byte mnemonic) {
+        return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.opcode() == mnemonic);
+    }
+
+    @Override
     public List<InstructionInfo> getInstructions() {
         return instructions;
     }

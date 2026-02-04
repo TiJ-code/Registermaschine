@@ -2,12 +2,14 @@ package dk.tij.registermaschine.core.compilation.internal.parsing;
 
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
 
-public abstract class AbstractSyntaxTreeNode implements ISyntaxTreeNode {
+public abstract class ConcreteAbstractSyntaxTreeNode implements ISyntaxTreeNode {
     protected static final String AST_NODE_PRINT_FORMAT = "%s[%sline=%d]";
 
     public final int line;
+    protected final String value;
 
-    protected AbstractSyntaxTreeNode(int line) {
+    protected ConcreteAbstractSyntaxTreeNode(String value, int line) {
+        this.value = value;
         this.line = line;
     }
 

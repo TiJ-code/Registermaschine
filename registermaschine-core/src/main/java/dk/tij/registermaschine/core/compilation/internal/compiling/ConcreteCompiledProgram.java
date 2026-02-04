@@ -7,10 +7,10 @@ import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompiledProgram extends ArrayList<ICompiledInstruction> implements ICompiledProgram {
-    public CompiledProgram() {}
+public class ConcreteCompiledProgram extends ArrayList<ICompiledInstruction> implements ICompiledProgram {
+    public ConcreteCompiledProgram() {}
 
-    public CompiledProgram(List<ICompiledInstruction> instructions) {
+    public ConcreteCompiledProgram(List<ICompiledInstruction> instructions) {
         super(instructions);
     }
 }

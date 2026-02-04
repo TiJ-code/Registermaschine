@@ -5,10 +5,10 @@ import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.lexing.TokenType;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
-import dk.tij.registermaschine.core.compilation.internal.parsing.AbstractSyntaxTree;
-import dk.tij.registermaschine.core.compilation.internal.parsing.InstructionNode;
-import dk.tij.registermaschine.core.compilation.internal.parsing.LabelNode;
-import dk.tij.registermaschine.core.compilation.internal.parsing.OperandNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteSyntaxTree;
+import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public final class ConcreteParser implements IParser {
             if (node != null) nodes.add(node);
         }
 
-        return new AbstractSyntaxTree(nodes);
+        return new ConcreteSyntaxTree(nodes);
     }
 
     private ISyntaxTreeNode parseInstruction() {
@@ -44,12 +44,12 @@ public final class ConcreteParser implements IParser {
 
         if (match(TokenType.LABEL_DEF)) {
             IToken label = previous();
-            return new LabelNode(label.value(), label.line());
+            return new ConcreteLabelNode(label.value(), label.line());
         }
 
         IToken instr = consume(TokenType.INSTRUCTION, "Expected instruction");
 
-        List<OperandNode> operands = new ArrayList<>();
+        List<ConcreteOperandNode> operands = new ArrayList<>();
 
         while (!check(TokenType.EOL) && !check(TokenType.EOF)) {
             operands.add(parseOperand());
@@ -58,20 +58,20 @@ public final class ConcreteParser implements IParser {
 
         match(TokenType.EOL);
 
-        return new InstructionNode(instr.value(), operands, instr.line());
+        return new ConcreteInstructionNode(instr.value(), operands, instr.line());
     }
 
-    private OperandNode parseOperand() {
+    private ConcreteOperandNode parseOperand() {
         while (match(TokenType.COMMENT)) {}
 
         if (match(TokenType.REGISTER)) {
             IToken t = previous();
-            return new OperandNode(t.value(), true, t.line());
+            return new ConcreteOperandNode(t.value(), true, t.line());
         }
 
         if (match(TokenType.NUMBER)) {
             IToken t = previous();
-            return new OperandNode(t.value(), false, t.line());
+            return new ConcreteOperandNode(t.value(), false, t.line());
         }
         
         if (match(TokenType.ERROR)) {

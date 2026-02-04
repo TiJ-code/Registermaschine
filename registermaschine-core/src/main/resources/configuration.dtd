@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!ELEMENT configuration (registers, conditionMacros?, instructions)>
+
+<!ELEMENT registers (#PCDATA)>
+
+<!ELEMENT conditionMacros (conditionMacro*)>
+<!ATTLIST conditionMacros internal (true|false) "false">
+
+<!ELEMENT conditionMacro EMPTY>
+<!ATTLIST conditionMacro
+        name CDATA #REQUIRED
+        value CDATA #REQUIRED>
+
+<!ELEMENT instructions (instruction*)>
+<!ELEMENT instruction (operand*)>
+<!ATTLIST instruction
+        id ID #REQUIRED
+        opcode CDATA #REQUIRED
+        description CDATA #IMPLIED
+        handler CDATA #REQUIRED
+        condition CDATA #IMPLIED>
+
+<!ELEMENT operand EMPTY>
+<!ATTLIST operand
+        type (register|immediate|label) #REQUIRED
+        concept (result|operand|target) #REQUIRED
+        value CDATA #IMPLIED>

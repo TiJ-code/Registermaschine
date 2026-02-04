@@ -1,6 +1,6 @@
-package dk.tij.registermaschine.core.config.internal;
+package dk.tij.registermaschine.core.config.internal.conditions;
 
-import dk.tij.registermaschine.core.config.internal.nodes.ConditionToken;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.ConditionToken;
 
 import java.util.ArrayList;
 import java.util.List;

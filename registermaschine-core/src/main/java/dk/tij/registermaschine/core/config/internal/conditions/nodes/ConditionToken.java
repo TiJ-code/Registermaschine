@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.core.config.internal.nodes;
+package dk.tij.registermaschine.core.config.internal.conditions.nodes;
 
 public record ConditionToken(Type type, String text) {
     public enum Type {

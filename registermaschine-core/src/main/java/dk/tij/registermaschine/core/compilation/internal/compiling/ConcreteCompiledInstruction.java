@@ -2,7 +2,7 @@ package dk.tij.registermaschine.core.compilation.internal.compiling;
 
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 
-public record CompiledInstruction(byte opcode, int[] operands) implements ICompiledInstruction {
+public record ConcreteCompiledInstruction(byte opcode, int[] operands) implements ICompiledInstruction {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

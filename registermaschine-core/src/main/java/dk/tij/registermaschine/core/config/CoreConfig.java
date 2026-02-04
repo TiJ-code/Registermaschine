@@ -7,6 +7,9 @@ import java.util.*;
 public final class CoreConfig {
     private CoreConfig() {}
 
+    public static final String  CORE_IMPLEMENTATION_PREFIX = "core.",
+                                CORE_CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
+
     public static int REGISTERS = 8;
 
     public static final Map<TokenType, String> TOKEN_REGEX = Map.of(
@@ -15,4 +18,6 @@ public final class CoreConfig {
             TokenType.NUMBER, "#[0-9]+",
             TokenType.COMMENT, ";.*"
     );
+
+    public static final Map<String, String> CONDITION_MACROS = new HashMap<>();
 }

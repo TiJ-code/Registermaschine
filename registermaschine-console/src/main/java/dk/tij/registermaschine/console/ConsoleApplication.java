@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.console;
 
-import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledProgram;
+import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
@@ -9,7 +9,7 @@ import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.InstructionSet;
-import dk.tij.registermaschine.core.compilation.internal.compiling.CompiledInstruction;
+import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.Pipeline;
 
 import java.io.DataInputStream;
@@ -75,7 +75,7 @@ public class ConsoleApplication {
     static void runInteractiveMode(InstructionSet registry) {
         Scanner scanner = new Scanner(System.in);
 
-        registry.prohibitInstruction(JumpInstruction.class);
+        registry.prohibitInstructionHandler(JumpInstruction.class);
 
         BasicExecutionContext cpu = new BasicExecutionContext();
         cpu.addListener(new MachineListener(scanner));
@@ -135,7 +135,7 @@ public class ConsoleApplication {
     }
 
     static ICompiledProgram loadBinary(String fileName) throws Exception {
-        ICompiledProgram program = new CompiledProgram();
+        ICompiledProgram program = new ConcreteCompiledProgram();
 
         if (fileName == null) {
             System.err.println("Error: No input file specified for -r");
@@ -155,7 +155,7 @@ public class ConsoleApplication {
                     operands[j] = dis.readInt();
                 }
 
-                program.add(new CompiledInstruction(opcode, operands));
+                program.add(new ConcreteCompiledInstruction(opcode, operands));
             }
         }
 

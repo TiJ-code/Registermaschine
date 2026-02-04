@@ -6,8 +6,8 @@ import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AbstractSyntaxTree extends ArrayList<ISyntaxTreeNode> implements ISyntaxTree {
-    public AbstractSyntaxTree(List<ISyntaxTreeNode> nodes) {
+public class ConcreteSyntaxTree extends ArrayList<ISyntaxTreeNode> implements ISyntaxTree {
+    public ConcreteSyntaxTree(List<ISyntaxTreeNode> nodes) {
         super(nodes);
     }
 }

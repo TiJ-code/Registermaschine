@@ -2,7 +2,7 @@ package dk.tij.registermaschine.core.compilation;
 
 import dk.tij.registermaschine.core.compilation.api.ILexer;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
-import dk.tij.registermaschine.core.compilation.internal.lexing.Token;
+import dk.tij.registermaschine.core.compilation.internal.lexing.ConcreteToken;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.InstructionSet;
 
@@ -32,12 +32,12 @@ public final class ConcreteLexer implements ILexer {
                 case ' ', '\t' -> {}
 
                 case '\n' -> {
-                    tokens.add(new Token(EOL, "\\n", line, column - 1));
+                    tokens.add(new ConcreteToken(EOL, "\\n", line, column - 1));
                     line++;
                     column = 1;
                 }
 
-                case ',' -> tokens.add(new Token(COMMA, ",", line, column - 1));
+                case ',' -> tokens.add(new ConcreteToken(COMMA, ",", line, column - 1));
                 case ';' -> readComment();
 
                 case '#' -> readImmediate();
@@ -48,16 +48,16 @@ public final class ConcreteLexer implements ILexer {
                     } else if (Character.isLetter(c)) {
                         readIdentifier(c);
                     } else {
-                        tokens.add(new Token(UNKNOWN, String.valueOf(c), line, column));
+                        tokens.add(new ConcreteToken(UNKNOWN, String.valueOf(c), line, column));
                     }
                 }
             }
         }
 
         if (!tokens.isEmpty() && tokens.getLast().type() != EOL)
-            tokens.add(new Token(EOL, "\\n", line, column));
+            tokens.add(new ConcreteToken(EOL, "\\n", line, column));
 
-        tokens.add(new Token(EOF, null, line, column));
+        tokens.add(new ConcreteToken(EOF, null, line, column));
         return tokens;
     }
 
@@ -66,14 +66,14 @@ public final class ConcreteLexer implements ILexer {
         StringBuilder sb = new StringBuilder();
 
         if (isNotAtEnd() && !Character.isDigit(peek())) {
-            tokens.add(new Token(ERROR, "Expected number after '#'", line, startCol));
+            tokens.add(new ConcreteToken(ERROR, "Expected number after '#'", line, startCol));
             return;
         }
 
         while (isNotAtEnd() && Character.isDigit(peek()))
             sb.append(advance());
 
-        tokens.add(new Token(NUMBER, sb.toString(), line, startCol));
+        tokens.add(new ConcreteToken(NUMBER, sb.toString(), line, startCol));
     }
 
     private void readComment() {
@@ -84,7 +84,7 @@ public final class ConcreteLexer implements ILexer {
             sb.append(advance());
         }
 
-        tokens.add(new Token(COMMENT, sb.toString(), line, startCol));
+        tokens.add(new ConcreteToken(COMMENT, sb.toString(), line, startCol));
     }
 
     private void readIllegalNumber(char first) {
@@ -96,7 +96,7 @@ public final class ConcreteLexer implements ILexer {
             sb.append(advance());
         }
 
-        tokens.add(new Token(ERROR, "Constants must start with '#': " + sb, line, startCol));
+        tokens.add(new ConcreteToken(ERROR, "Constants must start with '#': " + sb, line, startCol));
     }
 
     private void readIdentifier(char first) {
@@ -113,23 +113,23 @@ public final class ConcreteLexer implements ILexer {
         // label definition
         if (isNotAtEnd() && peek() == ':') {
             advance();
-            tokens.add(new Token(LABEL_DEF, text, line, startCol));
+            tokens.add(new ConcreteToken(LABEL_DEF, text, line, startCol));
             return;
         }
 
         String textLower = text.toLowerCase();
 
         if (isRegister(textLower)) {
-            tokens.add(new Token(REGISTER, textLower, line, startCol));
+            tokens.add(new ConcreteToken(REGISTER, textLower, line, startCol));
             return;
         }
 
-        if (instructionSet.containsMnemonic(textLower)) {
-            tokens.add(new Token(INSTRUCTION, textLower, line, startCol));
+        if (instructionSet.contains(textLower)) {
+            tokens.add(new ConcreteToken(INSTRUCTION, textLower, line, startCol));
             return;
         }
 
-        tokens.add(new Token(LABEL, text, line, startCol));
+        tokens.add(new ConcreteToken(LABEL, text, line, startCol));
     }
 
     private boolean isRegister(String text) {
