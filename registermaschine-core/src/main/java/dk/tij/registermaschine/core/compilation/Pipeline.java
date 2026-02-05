@@ -6,9 +6,9 @@ import dk.tij.registermaschine.core.compilation.api.IParser;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.config.InstructionSet;
 import dk.tij.registermaschine.core.error.DefectPipelineException;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
+import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +19,7 @@ public final class Pipeline {
     private static Class<? extends ILexer> pipelineLexer = ConcreteLexer.class;
     private static Class<? extends IParser> pipelineParser = ConcreteParser.class;
     private static Class<? extends ICompiler> pipelineCompiler = ConcreteCompiler.class;
-    private static InstructionSet globalInstructionSet;
+    private static IInstructionSet globalInstructionSet;
 
     public static void useLexer(Class<? extends ILexer> customLexer) {
         Objects.requireNonNull(customLexer, "Custom Lexer cannot be null");
@@ -36,13 +36,13 @@ public final class Pipeline {
         pipelineCompiler = customCompiler;
     }
 
-    public static void setGlobalInstructionSet(InstructionSet set) {
+    public static void setGlobalInstructionSet(IInstructionSet set) {
         Objects.requireNonNull(set, "Custom global InstructionSet cannot be null");
         globalInstructionSet = set;
     }
 
     /**
-     * Compiles the given source code with a configured global {@link InstructionSet}
+     * Compiles the given source code with a configured global {@link IInstructionSet}
      * @param sourceCode The source code to compile
      * @return The compiled program
      * @throws SyntaxErrorException Thrown when there is a syntax error within the source code
@@ -52,13 +52,13 @@ public final class Pipeline {
         return compile(sourceCode, globalInstructionSet);
     }
 
-    public static ICompiledProgram compile(String sourceCode, InstructionSet set) throws SyntaxErrorException, DefectPipelineException {
+    public static ICompiledProgram compile(String sourceCode, IInstructionSet set) throws SyntaxErrorException, DefectPipelineException {
         Objects.requireNonNull(set, "InstructionSet cannot be null");
         return tokenize(sourceCode, set).parse().compile();
     }
 
     /**
-     * Tokenises the given source code with a configured global {@link InstructionSet}
+     * Tokenises the given source code with a configured global {@link IInstructionSet}
      * @param sourceCode The source code to tokenise
      * @return A pipeline stage
      * @throws SyntaxErrorException Thrown when there is a syntax error within the source code
@@ -68,20 +68,20 @@ public final class Pipeline {
         return tokenize(sourceCode, globalInstructionSet);
     }
 
-    public static TokenStage tokenize(String sourceCode, InstructionSet instructionSet) throws DefectPipelineException {
+    public static TokenStage tokenize(String sourceCode, IInstructionSet instructionSet) throws DefectPipelineException {
         Objects.requireNonNull(instructionSet, "InstructionSet cannot be null");
         ILexer lexer = newInstance(pipelineLexer);
         return new TokenStage(lexer.tokenize(sourceCode, instructionSet), instructionSet);
     }
 
-    public record TokenStage(List<IToken> tokens, InstructionSet set) {
+    public record TokenStage(List<IToken> tokens, IInstructionSet set) {
         public ParseStage parse() throws SyntaxErrorException, DefectPipelineException {
             IParser parser = newInstance(pipelineParser);
             return new ParseStage(parser.parse(tokens), set);
         }
     }
 
-    public record ParseStage(ISyntaxTree syntaxTree, InstructionSet set) {
+    public record ParseStage(ISyntaxTree syntaxTree, IInstructionSet set) {
         public ICompiledProgram compile() throws DefectPipelineException {
             ICompiler compiler = newInstance(pipelineCompiler);
             return compiler.compile(syntaxTree, set);

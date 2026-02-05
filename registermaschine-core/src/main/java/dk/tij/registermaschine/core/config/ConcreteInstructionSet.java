@@ -7,17 +7,22 @@ import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 
 import java.util.*;
 
-public final class InstructionSet implements IInstructionSet {
-    private final List<InstructionInfo> instructions = new ArrayList<>();
-    private final Map<String, InstructionInfo> byName = new HashMap<>();
-    private final Map<Byte, InstructionInfo> byOpcode = new HashMap<>();
+public final class ConcreteInstructionSet implements IInstructionSet {
+    private final List<ConfigInstruction> instructions = new ArrayList<>();
+    private final Map<String, ConfigInstruction> byName = new HashMap<>();
+    private final Map<Byte, ConfigInstruction> byOpcode = new HashMap<>();
 
     @Override
-    public void registerInstruction(String mnemonic, String description, byte opcode, AbstractInstruction handler) {
+    public void registerInstruction(ConfigInstruction configInstruction) {
+        String mnemonic = configInstruction.mnemonic();
+        String description = configInstruction.description();;
+        byte opcode = configInstruction.opcode();
+        AbstractInstruction handler = configInstruction.handler();
+
         if (byOpcode.containsKey(opcode))
             throw new ExistingInstructionException("Opcode " + opcode + " is already registered!");
 
-        InstructionInfo entry = new InstructionInfo(mnemonic, description, opcode, handler);
+        ConfigInstruction entry = new ConfigInstruction(mnemonic, description, opcode, null, handler);
         instructions.add(entry);
         byName.put(mnemonic.toLowerCase(), entry);
         byOpcode.put(opcode, entry);
@@ -25,12 +30,12 @@ public final class InstructionSet implements IInstructionSet {
 
     @Override
     public void prohibitInstructionHandler(Class<? extends AbstractInstruction> instruction) {
-        List<InstructionInfo> permittedInstructions = instructions.stream()
+        List<ConfigInstruction> permittedInstructions = instructions.stream()
                     .filter(Objects::nonNull)
                     .filter(i -> Objects.nonNull(i.handler()))
                     .filter(i -> i.handler().getClass().equals(instruction))
                     .toList();
-        for (InstructionInfo instr : permittedInstructions) {
+        for (ConfigInstruction instr : permittedInstructions) {
             byName.remove(instr.mnemonic().toLowerCase(), instr);
             byOpcode.remove(instr.opcode(), instr);
             instructions.remove(instr);
@@ -39,7 +44,7 @@ public final class InstructionSet implements IInstructionSet {
 
     @Override
     public AbstractInstruction getHandler(String mnemonic) {
-        InstructionInfo entry = byName.get(mnemonic);
+        ConfigInstruction entry = byName.get(mnemonic);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);
         return entry.handler();
@@ -47,7 +52,7 @@ public final class InstructionSet implements IInstructionSet {
 
     @Override
     public AbstractInstruction getHandler(byte opcode) {
-        InstructionInfo entry = byOpcode.get(opcode);
+        ConfigInstruction entry = byOpcode.get(opcode);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with opcode " + opcode);
         return entry.handler();
@@ -55,7 +60,7 @@ public final class InstructionSet implements IInstructionSet {
 
     @Override
     public String getMnemonic(byte opcode) {
-        InstructionInfo entry = byOpcode.get(opcode);
+        ConfigInstruction entry = byOpcode.get(opcode);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with opcode " + opcode);
         return entry.mnemonic();
@@ -63,7 +68,7 @@ public final class InstructionSet implements IInstructionSet {
 
     @Override
     public byte getOpcode(String mnemonic) {
-        InstructionInfo entry = byName.get(mnemonic);
+        ConfigInstruction entry = byName.get(mnemonic);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);
         return entry.opcode();
@@ -80,7 +85,7 @@ public final class InstructionSet implements IInstructionSet {
     }
 
     @Override
-    public List<InstructionInfo> getInstructions() {
-        return instructions;
+    public List<ConfigInstruction> getInstructions() {
+        return List.copyOf(instructions);
     }
 }

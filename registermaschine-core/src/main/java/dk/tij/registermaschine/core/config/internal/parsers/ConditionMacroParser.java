@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.config.internal.parsers;
 
 import dk.tij.registermaschine.core.config.CoreConfig;
-import dk.tij.registermaschine.core.config.XmlConstants;
+import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

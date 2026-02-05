@@ -2,11 +2,11 @@ package dk.tij.registermaschine.core.config.internal.parsers;
 
 import dk.tij.registermaschine.core.conditions.api.ICondition;
 import dk.tij.registermaschine.core.config.CoreConfig;
-import dk.tij.registermaschine.core.config.XmlConstants;
+import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
-import dk.tij.registermaschine.core.config.internal.ConfigInstruction;
-import dk.tij.registermaschine.core.config.internal.ConfigOperand;
+import dk.tij.registermaschine.core.config.ConfigInstruction;
+import dk.tij.registermaschine.core.config.ConfigOperand;
 import dk.tij.registermaschine.core.error.ClassInstantiationException;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class InstructionParser implements IConfigParser {
-    public static List<ConfigInstruction> instructions;
 
     @Override
     public void parseConfig(Document xmlDocument) {
@@ -24,7 +23,7 @@ public final class InstructionParser implements IConfigParser {
 
         if (instructionNodeList.getLength() < 0) return;
 
-        instructions = new ArrayList<>(instructionNodeList.getLength());
+        List<ConfigInstruction> instructions = new ArrayList<>(instructionNodeList.getLength());
         for (int i = 0; i < instructionNodeList.getLength(); i++) {
             Node instructionNode = instructionNodeList.item(i);
             if (instructionNode.getNodeType() != Node.ELEMENT_NODE) continue;
@@ -37,7 +36,7 @@ public final class InstructionParser implements IConfigParser {
             }
         }
 
-        // TODO: Output the parsed instructions in a InstructionSet
+        CoreConfig.INSTRUCTIONS.addAll(instructions);
     }
 
     private static ConfigInstruction parseInstruction(Node instructionNode, final byte opcode)

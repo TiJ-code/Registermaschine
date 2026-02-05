@@ -21,8 +21,8 @@
                 opcode="0x01"
                 description="Adds register B to A"
                 handler="core.instructions.AdditionInstruction">
-            <operand type="register" concept="result" value="r0"/>
-            <operand type="register" concept="operand" value="r0"/>
+            <operand type="register" concept="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
         </instruction>
         <instruction
@@ -30,8 +30,8 @@
                 opcode="0x02"
                 description="Subtracts register B from A"
                 handler="core.instructions.SubtractionInstruction">
-            <operand type="register" concept="result" value="r0"/>
-            <operand type="register" concept="operand" value="r0"/>
+            <operand type="register" concept="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
         </instruction>
         <instruction
@@ -39,8 +39,8 @@
                 opcode="0x03"
                 description="Multiplies register A by B"
                 handler="core.instructions.MultiplicationInstruction">
-            <operand type="register" concept="result" value="r0"/>
-            <operand type="register" concept="operand" value="r0"/>
+            <operand type="register" concept="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
         </instruction>
         <instruction
@@ -48,8 +48,8 @@
                 opcode="0x04"
                 description="Divides register A by B"
                 handler="core.instructions.DivisionInstruction">
-            <operand type="register" concept="result" value="r0"/>
-            <operand type="register" concept="operand" value="r0"/>
+            <operand type="register" concept="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
         </instruction>
         <instruction
@@ -57,7 +57,7 @@
                 opcode="0x06"
                 description="Loads value from register A into accumulator"
                 handler="core.instructions.LoadFromAddressInstruction">
-            <operand type="register" concept="result" value="r0"/>
+            <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
         </instruction>
         <instruction
@@ -66,7 +66,7 @@
                 condition="core.conditions.EqualsZeroCondition"
                 description="Loads constant value into accumulator"
                 handler="core.instructions.LoadConstantValueInstruction">
-            <operand type="register" concept="result" value="r0"/>
+            <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="immediate" concept="operand"/>
         </instruction>
         <instruction
@@ -74,7 +74,7 @@
                 opcode="0x08"
                 description="Stores value of accumulator into register A"
                 handler="core.instructions.StoreToAddressInstruction">
-            <operand type="register" concept="operand" value="r0"/>
+            <operand type="register" concept="operand" implicitValue="r0"/>
         </instruction>
         <instruction
                 id="inp"
@@ -88,7 +88,7 @@
                 opcode="0x0A"
                 description="Outputs content from accumulator onto display"
                 handler="core.instructions.OutputInstruction">
-            <operand type="register" concept="operand" value="r0"/>
+            <operand type="register" concept="operand" implicitValue="r0"/>
         </instruction>
         <instruction
                 id="jmp"

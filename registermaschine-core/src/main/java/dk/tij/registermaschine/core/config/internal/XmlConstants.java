@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.core.config;
+package dk.tij.registermaschine.core.config.internal;
 
 public final class XmlConstants {
     private XmlConstants() {}
@@ -16,5 +16,5 @@ public final class XmlConstants {
 
     public static final String  ATTRIBUTE_OPERAND_TYPE = "type",
                                 ATTRIBUTE_OPERAND_CONCEPT = "concept",
-                                ATTRIBUTE_OPERAND_VALUE = "value";
+                                ATTRIBUTE_OPERAND_VALUE = "implicitValue";
 }

@@ -25,4 +25,4 @@
 <!ATTLIST operand
         type (register|immediate|label) #REQUIRED
         concept (result|operand|target) #REQUIRED
-        value CDATA #IMPLIED>
+        implicitValue CDATA #IMPLIED>

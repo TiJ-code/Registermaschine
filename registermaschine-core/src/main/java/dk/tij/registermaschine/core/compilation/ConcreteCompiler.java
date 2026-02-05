@@ -6,18 +6,19 @@ import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
-import dk.tij.registermaschine.core.config.InstructionSet;
+import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
+import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ConcreteCompiler implements ICompiler {
     @Override
-    public ICompiledProgram compile(ISyntaxTree tree, InstructionSet instructionSet) {
+    public ICompiledProgram compile(ISyntaxTree tree, IInstructionSet instructionSet) {
         List<ICompiledInstruction> program = new ArrayList<>();
 
         for (ISyntaxTreeNode node : tree) {

@@ -20,4 +20,6 @@ public final class CoreConfig {
     );
 
     public static final Map<String, String> CONDITION_MACROS = new HashMap<>();
+
+    public static final List<ConfigInstruction> INSTRUCTIONS = new LinkedList<>();
 }

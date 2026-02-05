@@ -1,9 +1,11 @@
 package dk.tij.registermaschine.core.instructions.api;
 
+import dk.tij.registermaschine.core.config.ConfigInstruction;
+
 import java.util.List;
 
 public interface IInstructionSet {
-    void registerInstruction(String mnemonic, String description, byte opcode, AbstractInstruction handler);
+    void registerInstruction(ConfigInstruction configInstruction);
     void prohibitInstructionHandler(Class<? extends AbstractInstruction> instructionHandler);
 
     AbstractInstruction getHandler(String mnemonic);

@@ -4,20 +4,21 @@ import dk.tij.registermaschine.core.compilation.api.ILexer;
 import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.internal.lexing.ConcreteToken;
 import dk.tij.registermaschine.core.config.CoreConfig;
-import dk.tij.registermaschine.core.config.InstructionSet;
+import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
+import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 
 import java.util.ArrayList;
 import java.util.List;
 import static dk.tij.registermaschine.core.compilation.api.lexing.TokenType.*;
 
 public final class ConcreteLexer implements ILexer {
-    private InstructionSet instructionSet;
+    private IInstructionSet instructionSet;
     private List<IToken> tokens;
     private int index, line, column;
     private String source;
 
     @Override
-    public List<IToken> tokenize(String sourceCode, InstructionSet instructions) {
+    public List<IToken> tokenize(String sourceCode, IInstructionSet instructions) {
         instructionSet = instructions;
         source = sourceCode.replaceAll("\r\n", "\n");
         index = 0;

@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.core.config.internal;
+package dk.tij.registermaschine.core.config;
 
 public record ConfigOperand(Type type, Concept concept, String value) {
     public enum Type {

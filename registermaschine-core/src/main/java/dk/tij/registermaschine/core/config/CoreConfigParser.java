@@ -5,8 +5,8 @@ import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.RegisterParser;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
+import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
@@ -24,7 +24,7 @@ public final class CoreConfigParser {
             new InstructionParser()
     );
 
-    public static void parseCoreConfig(InstructionSet set, IConfigParser... customConfigParsers) throws ConfigurationParseException {
+    public static void parseCoreConfig(IInstructionSet set, IConfigParser... customConfigParsers) throws ConfigurationParseException {
         try (InputStream is = CoreConfigParser.class.getClassLoader().getResourceAsStream("configuration.jxml")) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -39,9 +39,9 @@ public final class CoreConfigParser {
             });
             Document doc = builder.parse(is);
 
-            internalConfigParsers.forEach(parser -> {
-                parser.parseConfig(doc);
-            });
+            internalConfigParsers.forEach(parser -> parser.parseConfig(doc));
+
+            CoreConfig.INSTRUCTIONS.forEach(set::registerInstruction);
 
             if (customConfigParsers != null) {
                 Arrays.stream(customConfigParsers)

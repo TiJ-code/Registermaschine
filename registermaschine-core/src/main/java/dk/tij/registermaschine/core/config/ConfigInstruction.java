@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.core.config.internal;
+package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 
