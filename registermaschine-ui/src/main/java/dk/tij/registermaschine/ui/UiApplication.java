@@ -1,9 +1,10 @@
 package dk.tij.registermaschine.ui;
 
-import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
+import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.core.runtime.ConcreteExecutionContext;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
-import dk.tij.registermaschine.core.config.InstructionSet;
+import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
 import dk.tij.registermaschine.ui.config.ConfigParser;
 import javafx.application.Application;
 import javafx.concurrent.Worker;
@@ -20,15 +21,15 @@ public class UiApplication extends Application {
     private WebEngine webEngine;
     private JSObject window;
 
-    private final InstructionSet instructionSet;
-    private final BasicExecutionContext cpu;
+    private final IInstructionSet instructionSet;
+    private final ConcreteExecutionContext cpu;
     
     public UiApplication() {
-        this.instructionSet = new InstructionSet();
+        this.instructionSet = new ConcreteInstructionSet();
         try {
-            CoreConfigParser.parseConfig(instructionSet, new ConfigParser());
+            CoreConfigParser.parseCoreConfig(instructionSet, new ConfigParser());
         } catch (Exception _) {}
-        this.cpu = new BasicExecutionContext();
+        this.cpu = new ConcreteExecutionContext();
     }
 
     public static void externalLaunch(String[] args) {

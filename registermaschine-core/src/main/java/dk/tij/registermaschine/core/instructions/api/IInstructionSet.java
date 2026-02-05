@@ -17,5 +17,5 @@ public interface IInstructionSet {
     boolean contains(String mnemonic);
     boolean contains(byte mnemonic);
 
-    List<?> getInstructions();
+    List<ConfigInstruction> getInstructions();
 }

@@ -3,7 +3,6 @@ module dk.tij.registermaschine.ui {
     requires javafx.graphics;
     requires javafx.web;
     requires jdk.jsobject;
-    requires org.fxmisc.richtext;
     requires dk.tij.registermaschine.core;
 
     opens dk.tij.registermaschine.ui to javafx.fxml, javafx.graphics;

@@ -10,7 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>Registermaschine UI</name>
-    <version>1.4.8</version>
+    <version>2.0.0</version>
 
     <artifactId>ui</artifactId>
 
@@ -53,9 +53,10 @@
             <version>${javafx.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fxmisc.richtext</groupId>
-            <artifactId>richtextfx</artifactId>
-            <version>0.11.0</version>
+            <groupId>dk.tij</groupId>
+            <artifactId>jissuesystem</artifactId>
+            <version>0.1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

@@ -5,10 +5,11 @@ import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstructi
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
 import dk.tij.registermaschine.core.instructions.JumpInstruction;
-import dk.tij.registermaschine.core.runtime.BasicExecutionContext;
+import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.core.runtime.ConcreteExecutionContext;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
-import dk.tij.registermaschine.core.config.InstructionSet;
+import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.Pipeline;
 
@@ -27,7 +28,7 @@ public class ConsoleApplication {
             return;
         }
 
-        InstructionSet registry = initRegistry();
+        IInstructionSet registry = initRegistry();
         Pipeline.setGlobalInstructionSet(registry);
 
         if (args[0].equalsIgnoreCase("-i") && args.length == 1) {
@@ -37,7 +38,7 @@ public class ConsoleApplication {
 
         if (args[0].equalsIgnoreCase("-r") && args.length >= 2) {
             ICompiledProgram program = loadBinary(args[1]);
-            BasicExecutionContext cpu = new BasicExecutionContext();
+            ConcreteExecutionContext cpu = new ConcreteExecutionContext();
             cpu.addListener(new MachineListener(null));
             new Executor(cpu, registry, program).run();
             return;
@@ -66,18 +67,18 @@ public class ConsoleApplication {
         }
 
         if (hasFlag(args, "-r")) {
-            BasicExecutionContext cpu = new BasicExecutionContext();
+            ConcreteExecutionContext cpu = new ConcreteExecutionContext();
             cpu.addListener(new MachineListener());
             new Executor(cpu, registry, program).run();
         }
     }
 
-    static void runInteractiveMode(InstructionSet registry) {
+    static void runInteractiveMode(IInstructionSet registry) {
         Scanner scanner = new Scanner(System.in);
 
         registry.prohibitInstructionHandler(JumpInstruction.class);
 
-        BasicExecutionContext cpu = new BasicExecutionContext();
+        ConcreteExecutionContext cpu = new ConcreteExecutionContext();
         cpu.addListener(new MachineListener(scanner));
         Executor exec = new Executor(cpu, registry);
 
@@ -185,8 +186,8 @@ public class ConsoleApplication {
         System.out.println("binary successfully compiled to: " + fileName);
     }
 
-    static InstructionSet initRegistry() {
-        InstructionSet registry = new InstructionSet();
+    static IInstructionSet initRegistry() {
+        IInstructionSet registry = new ConcreteInstructionSet();
 
         try {
             CoreConfigParser.parseCoreConfig(registry);

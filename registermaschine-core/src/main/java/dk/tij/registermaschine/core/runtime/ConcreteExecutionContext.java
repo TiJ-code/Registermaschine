@@ -7,7 +7,7 @@ import dk.tij.registermaschine.core.config.CoreConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BasicExecutionContext implements IExecutionContext {
+public final class ConcreteExecutionContext implements IExecutionContext {
     private static final byte FLAG_RUNNING  = 0b0001,
                               FLAG_ZERO     = 0b0010,
                               FLAG_NEGATIVE = 0b0100,
@@ -21,7 +21,7 @@ public class BasicExecutionContext implements IExecutionContext {
     private byte exitCode;
     private byte flags;
 
-    public BasicExecutionContext() {
+    public ConcreteExecutionContext() {
         this.listeners = new ArrayList<>();
 
         this.registers = new int[CoreConfig.REGISTERS];
