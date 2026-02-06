@@ -31,22 +31,24 @@ public class ConsoleApplication {
         IInstructionSet registry = initRegistry();
         Pipeline.setGlobalInstructionSet(registry);
 
+        // 1) Run interactive mode
         if (args[0].equalsIgnoreCase("-i") && args.length == 1) {
             runInteractiveMode(registry);
             return;
         }
 
+        // 2) Run existing binary
         if (args[0].equalsIgnoreCase("-r") && args.length >= 2) {
             ICompiledProgram program = loadBinary(args[1]);
-            ConcreteExecutionContext cpu = new ConcreteExecutionContext();
-            cpu.addListener(new MachineListener(null));
-            new Executor(cpu, registry, program).run();
+            runProgram(program, registry);
             return;
         }
 
+        // 3) Source processing
         String sourcePath = args[0];
         String source = Files.readString(Path.of(sourcePath), StandardCharsets.UTF_8);
 
+        // Debug Dumps
         if (hasFlag(args, "-t")) {
             String target = getArgAfter(args, "-t");
             saveTextFile(target, Pipeline.tokenizeWithGlobal(source).tokens());
@@ -59,18 +61,28 @@ public class ConsoleApplication {
             return;
         }
 
+        // Compilation
         ICompiledProgram program = Pipeline.compileWithGlobal(source);
 
-        if (hasFlag(args, "-o")) {
+        boolean shouldSave = hasFlag(args, "-o");
+        boolean shouldRun = hasFlag(args, "-r") || hasFlag(args, "-or") || !shouldSave;
+
+        if (shouldSave) {
             String outputPath = getArgAfter(args, "-o");
             saveBinary(outputPath, program);
         }
 
-        if (hasFlag(args, "-r")) {
-            ConcreteExecutionContext cpu = new ConcreteExecutionContext();
-            cpu.addListener(new MachineListener());
-            new Executor(cpu, registry, program).run();
+        if (shouldRun) {
+            runProgram(program, registry);
         }
+    }
+
+    static void runProgram(ICompiledProgram program, IInstructionSet reg) {
+        Scanner in = new Scanner(System.in);
+        ConcreteExecutionContext cpu = new ConcreteExecutionContext();
+        cpu.addListener(new MachineListener(in));
+        new Executor(cpu, reg, program).run();
+        in.close();
     }
 
     static void runInteractiveMode(IInstructionSet registry) {

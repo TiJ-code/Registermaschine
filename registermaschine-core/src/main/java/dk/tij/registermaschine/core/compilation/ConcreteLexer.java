@@ -66,13 +66,40 @@ public final class ConcreteLexer implements ILexer {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
 
-        if (isNotAtEnd() && !Character.isDigit(peek())) {
+        if (!isNotAtEnd()) {
             tokens.add(new ConcreteToken(ERROR, "Expected number after '#'", line, startCol));
             return;
         }
 
+        if (peek() == '0') {
+            char zero = advance();
+            if (isNotAtEnd() && (peek() == 'x' || peek() == 'X')) {
+                sb.append(zero);
+                sb.append(advance());
+
+                while (isNotAtEnd() && isHexDigit(peek())) {
+                    sb.append(advance());
+                }
+
+                if (sb.length() == 2) {
+                    tokens.add(new ConcreteToken(ERROR, "Expected hex digits after '0x'", line, startCol));
+                    return;
+                }
+
+                tokens.add(new ConcreteToken(NUMBER, sb.toString(), line, startCol));
+                return;
+            } else {
+                sb.append(zero);
+            }
+        }
+
         while (isNotAtEnd() && Character.isDigit(peek()))
             sb.append(advance());
+
+        if (sb.isEmpty()) {
+            tokens.add(new ConcreteToken(ERROR, "Expected number '#'", line, startCol));
+            return;
+        }
 
         tokens.add(new ConcreteToken(NUMBER, sb.toString(), line, startCol));
     }
@@ -93,7 +120,7 @@ public final class ConcreteLexer implements ILexer {
         StringBuilder sb = new StringBuilder();
         sb.append(first);
 
-        while (isNotAtEnd() && Character.isDigit(peek())) {
+        while (isNotAtEnd() && Character.isLetterOrDigit(peek())) {
             sb.append(advance());
         }
 
@@ -138,6 +165,10 @@ public final class ConcreteLexer implements ILexer {
         if (text.charAt(0) != 'r') return false;
 
         return text.matches(CoreConfig.TOKEN_REGEX.get(REGISTER));
+    }
+
+    private boolean isHexDigit(char c) {
+        return Character.isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
     }
 
     private char advance() {

@@ -2,7 +2,7 @@
   <configuration default="false" name="ConsoleApplication" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="dk.tij.registermaschine.console.ConsoleApplication" />
     <module name="console" />
-    <option name="PROGRAM_PARAMETERS" value="-i" />
+    <option name="PROGRAM_PARAMETERS" value="program.jasm -or" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="dk.tij.registermaschine.console.*" />

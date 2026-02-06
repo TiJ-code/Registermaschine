@@ -1,5 +1,7 @@
-LDK #1
-STA r1
-ADD r1
-ADD r1
-STA r2
+ldk #1
+sta r1
+inp r0
+jle #7
+sub r1
+jmp #0x4
+hlt #99
