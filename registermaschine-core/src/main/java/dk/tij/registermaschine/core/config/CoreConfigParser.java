@@ -38,14 +38,20 @@ public final class CoreConfigParser {
     private CoreConfigParser() {}
 
     public static void init(IConfigParser... postConfigParsers) throws ConfigurationParseException {
+        init(false, postConfigParsers);
+    }
+
+    public static void init(boolean onlyInternal, IConfigParser... postConfigParsers) {
         if (coreConfigParsed) return;
 
         synchronized (INIT_LOCK) {
             if (coreConfigParsed) return;
 
-            copyDefaultFiles();
+            if (!onlyInternal) {
+                copyDefaultFiles();
+            }
 
-            try (InputStream is = getSmartStream(CONFIGURATION_FILE)) {
+            try (InputStream is = getSmartStream(CONFIGURATION_FILE, onlyInternal)) {
                 Document doc = parseWithDtd(is, DTD_CONFIGURATION);
 
                 INTERNAL_CONFIG_PARSERS.forEach(parser -> parser.parseConfig(doc));
@@ -65,6 +71,10 @@ public final class CoreConfigParser {
 
             loadDefaultMacros();
         }
+    }
+
+    public static void parseInstructionSet(IInstructionSet set) throws ConfigurationParseException {
+        parseInstructionSet(DEFAULT_INSTRUCTION_SET_FILE, set);
     }
 
     public static void parseInstructionSet(String fileName, IInstructionSet set)
@@ -106,9 +116,15 @@ public final class CoreConfigParser {
     }
 
     private static InputStream getSmartStream(String fileName) throws FileNotFoundException {
-        File localFile = new File(fileName);
-        if (localFile.exists()) {
-            return new FileInputStream(localFile);
+        return getSmartStream(fileName, false);
+    }
+
+    private static InputStream getSmartStream(String fileName, boolean onlyInternal) throws FileNotFoundException {
+        if (!onlyInternal) {
+            File localFile = new File(fileName);
+            if (localFile.exists()) {
+                return new FileInputStream(localFile);
+            }
         }
 
         InputStream is = getResourceStream(fileName);

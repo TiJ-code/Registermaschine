@@ -27,7 +27,7 @@ public class ConsoleApplication {
             return;
         }
 
-        CoreConfigParser.init();
+        CoreConfigParser.init(true);
         IInstructionSet registry = initRegistry();
         Pipeline.setGlobalInstructionSet(registry);
 
