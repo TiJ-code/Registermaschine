@@ -19,8 +19,15 @@ public final class InstructionParser implements IConfigParser {
 
     @Override
     public void parseConfig(Document xmlDocument) {
-        NodeList instructionNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
+        NodeList optionsList = xmlDocument.getElementsByTagName(XmlConstants.TAG_OPTION);
+        for (int i = 0; i < optionsList.getLength(); i++) {
+            Element option = (Element) optionsList.item(i);
+            if (XmlConstants.INSTR_OPTION_ALLOW_LABELS.equals(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_ID))) {
+                CoreConfig.ALLOW_LABELS = Boolean.parseBoolean(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_VALUE));
+            }
+        }
 
+        NodeList instructionNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
         if (instructionNodeList.getLength() < 0) return;
 
         List<ConfigInstruction> instructions = new ArrayList<>(instructionNodeList.getLength());
@@ -80,7 +87,7 @@ public final class InstructionParser implements IConfigParser {
 
         String typeStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_TYPE).toUpperCase();
         String conceptStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_CONCEPT).toUpperCase();
-        String value = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_VALUE);
+        String value = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_IMPLICIT_VALUE);
 
         validate(typeStr, conceptStr);
 

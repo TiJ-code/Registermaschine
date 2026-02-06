@@ -12,6 +12,7 @@ public final class CoreConfig {
 
     public static volatile int REGISTERS = 8;
     public static volatile int MAX_JUMPS = 255;
+    public static volatile boolean ALLOW_LABELS = true;
 
     public static final Map<TokenType, String> TOKEN_REGEX = Map.of(
             TokenType.INSTRUCTION, "(?:[A-Z]+|[a-z]+)",

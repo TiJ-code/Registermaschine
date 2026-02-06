@@ -171,7 +171,11 @@ public final class ConcreteLexer implements ILexer {
         // label definition
         if (isNotAtEnd() && peek() == ':') {
             advance();
-            tokens.add(new ConcreteToken(LABEL_DEF, text, line, startCol));
+            if (CoreConfig.ALLOW_LABELS) {
+                tokens.add(new ConcreteToken(LABEL_DEF, text, line, startCol));
+            } else {
+                tokens.add(new ConcreteToken(ERROR, "Symbolic labels are disabled: " + text, line, startCol));
+            }
             return;
         }
 
@@ -187,7 +191,11 @@ public final class ConcreteLexer implements ILexer {
             return;
         }
 
-        tokens.add(new ConcreteToken(LABEL, text, line, startCol));
+        if (CoreConfig.ALLOW_LABELS) {
+            tokens.add(new ConcreteToken(LABEL, text, line, startCol));
+        } else {
+            tokens.add(new ConcreteToken(ERROR, "Symbolic labels are disabled: " + text, line, startCol));
+        }
     }
 
     private boolean isRegister(String text) {
