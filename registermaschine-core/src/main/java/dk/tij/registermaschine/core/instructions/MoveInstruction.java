@@ -2,7 +2,7 @@ package dk.tij.registermaschine.core.instructions;
 
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
-import dk.tij.registermaschine.core.config.ConfigOperand;
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
@@ -17,7 +17,7 @@ public class MoveInstruction extends AbstractInstruction {
         int destinationIndex = -1;
 
         for (ICompiledOperand op : operands) {
-            if (op.concept() == ConfigOperand.Concept.RESULT) {
+            if (op.concept() == OperandConcept.RESULT) {
                 destinationIndex = op.value();
             } else {
                 value = getValueFromOperand(context, op);

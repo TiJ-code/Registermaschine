@@ -1,17 +1,13 @@
 package dk.tij.registermaschine.core.compilation;
 
 import dk.tij.registermaschine.core.compilation.api.ICompiler;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
+import dk.tij.registermaschine.core.compilation.api.compiling.*;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledOperand;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
-import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
-import dk.tij.registermaschine.core.config.ConfigInstruction;
-import dk.tij.registermaschine.core.config.ConfigOperand;
-import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.config.*;
+import dk.tij.registermaschine.core.error.SyntaxErrorException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
@@ -59,10 +55,10 @@ public final class ConcreteCompiler implements ICompiler {
                 }
 
                 ConcreteOperandNode userNode = userNodes.get(userIdx++);
-                if (t.type() == ConfigOperand.Type.REGISTER && !userNode.isRegister)
-                    throw new RuntimeException("Operand " + i + " must be a REGISTER, gut got IMMEDIATE");
-                if (t.type() == ConfigOperand.Type.IMMEDIATE && userNode.isRegister)
-                    throw new RuntimeException("Operand " + i + " must be a IMMEDIATE, gut got REGISTER");
+                if (t.type() == OperandType.REGISTER && !userNode.isRegister)
+                    throw new SyntaxErrorException("Operand " + i + " must be a REGISTER, gut got IMMEDIATE");
+                if (t.type() == OperandType.IMMEDIATE && userNode.isRegister)
+                    throw new SyntaxErrorException("Operand " + i + " must be a IMMEDIATE, gut got REGISTER");
 
                 result[i] = parseUserValue(userNode, t.concept());
             }
@@ -78,23 +74,23 @@ public final class ConcreteCompiler implements ICompiler {
     private ICompiledOperand parseInternalValue(ConfigOperand op) {
         ICompiledOperand result;
         String value = op.value();
-        if (op.type() == ConfigOperand.Type.REGISTER && value.toLowerCase().startsWith("r")) {
-            result = new ConcreteCompiledOperand(ConfigOperand.Type.REGISTER, op.concept(),
+        if (op.type() == OperandType.REGISTER && value.toLowerCase().startsWith("r")) {
+            result = new ConcreteCompiledOperand(OperandType.REGISTER, op.concept(),
                                                  Integer.parseInt(value.substring(1)));
         } else {
-            result = new ConcreteCompiledOperand(ConfigOperand.Type.IMMEDIATE, ConfigOperand.Concept.OPERAND,
+            result = new ConcreteCompiledOperand(OperandType.IMMEDIATE, OperandConcept.OPERAND,
                                                  Integer.decode(value));
         }
         return result;
     }
 
-    private ICompiledOperand parseUserValue(ConcreteOperandNode node, ConfigOperand.Concept concept) {
+    private ICompiledOperand parseUserValue(ConcreteOperandNode node, OperandConcept concept) {
         ICompiledOperand result;
         if (node.isRegister) {
-            result = new ConcreteCompiledOperand(ConfigOperand.Type.REGISTER, concept,
+            result = new ConcreteCompiledOperand(OperandType.REGISTER, concept,
                                                  Integer.parseInt(node.value().substring(1)));
         } else {
-            result = new ConcreteCompiledOperand(ConfigOperand.Type.IMMEDIATE, ConfigOperand.Concept.OPERAND,
+            result = new ConcreteCompiledOperand(OperandType.IMMEDIATE, OperandConcept.OPERAND,
                                                  Integer.decode(node.value()));
         }
         return result;

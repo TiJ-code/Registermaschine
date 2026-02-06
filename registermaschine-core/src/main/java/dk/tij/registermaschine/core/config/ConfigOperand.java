@@ -1,14 +1,9 @@
 package dk.tij.registermaschine.core.config;
 
-public record ConfigOperand(Type type, Concept concept, String value) {
-    public enum Type {
-        REGISTER, IMMEDIATE, LABEL
-    }
-    
-    public enum Concept {
-        RESULT, OPERAND, TARGET
-    }
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandType;
 
+public record ConfigOperand(OperandType type, OperandConcept concept, String value) {
     public boolean isImplicit() {
         return value != null;
     }

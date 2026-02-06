@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.instructions;
 
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
-import dk.tij.registermaschine.core.config.ConfigOperand;
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
@@ -16,7 +16,7 @@ public final class SubtractionInstruction extends AbstractInstruction {
     @Override
     public void validate(ICompiledOperand[] operands) {
         super.validate(operands);
-        if (Arrays.stream(operands).noneMatch(o -> o.concept() == ConfigOperand.Concept.RESULT))
+        if (Arrays.stream(operands).noneMatch(o -> o.concept() == OperandConcept.RESULT))
             throw new RuntimeException(String.format("Instruction Handler %s expects 1 result operand",
                     this.getClass().getSimpleName()));
     }
@@ -27,7 +27,7 @@ public final class SubtractionInstruction extends AbstractInstruction {
         Long runningDifference = null;
 
         for (ICompiledOperand op : operands) {
-            if (op.concept() == ConfigOperand.Concept.RESULT) {
+            if (op.concept() == OperandConcept.RESULT) {
                 destination = op;
                 continue;
             }

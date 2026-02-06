@@ -1,12 +1,12 @@
 package dk.tij.registermaschine.core.config.internal.parsers;
 
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandType;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
-import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.config.*;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
-import dk.tij.registermaschine.core.config.ConfigInstruction;
-import dk.tij.registermaschine.core.config.ConfigOperand;
 import dk.tij.registermaschine.core.error.ClassInstantiationException;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
@@ -55,7 +55,7 @@ public final class InstructionParser implements IConfigParser {
         for (int i = 0; i < operandNodes.getLength(); i++) {
             ConfigOperand operand = parseOperand(operandNodes.item(i));
 
-            if (operand.concept() == ConfigOperand.Concept.RESULT) {
+            if (operand.concept() == OperandConcept.RESULT) {
                 resultCount++;
             }
 
@@ -84,8 +84,8 @@ public final class InstructionParser implements IConfigParser {
 
         validate(typeStr, conceptStr);
 
-        ConfigOperand.Type type = ConfigOperand.Type.valueOf(typeStr);
-        ConfigOperand.Concept concept = ConfigOperand.Concept.valueOf(conceptStr);
+        OperandType type = OperandType.valueOf(typeStr);
+        OperandConcept concept = OperandConcept.valueOf(conceptStr);
 
         if (value.isEmpty()) value = null;
 
@@ -93,19 +93,19 @@ public final class InstructionParser implements IConfigParser {
     }
 
     private static void validate(String type, String concept) throws ConfigurationParseException {
-        ConfigOperand.Type parsedType;
-        ConfigOperand.Concept parsedConcept;
+        OperandType parsedType;
+        OperandConcept parsedConcept;
         try {
-            parsedType = ConfigOperand.Type.valueOf(type);
-            parsedConcept = ConfigOperand.Concept.valueOf(concept);
+            parsedType = OperandType.valueOf(type);
+            parsedConcept = OperandConcept.valueOf(concept);
         } catch (IllegalArgumentException e) {
             throw new ConfigurationParseException("Invalid value: " + e.getMessage());
         }
         
         boolean isIllegal = switch (parsedConcept) {
-            case ConfigOperand.Concept.RESULT -> parsedType != ConfigOperand.Type.REGISTER;
-            case ConfigOperand.Concept.OPERAND -> parsedType == ConfigOperand.Type.LABEL;
-            case ConfigOperand.Concept.TARGET -> parsedType != ConfigOperand.Type.LABEL;
+            case OperandConcept.RESULT -> parsedType != OperandType.REGISTER;
+            case OperandConcept.OPERAND -> parsedType == OperandType.LABEL;
+            case OperandConcept.TARGET -> parsedType != OperandType.LABEL;
         };
 
         if (isIllegal) {
