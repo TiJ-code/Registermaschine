@@ -66,12 +66,17 @@ public final class ConcreteParser implements IParser {
 
         if (match(TokenType.REGISTER)) {
             IToken t = previous();
-            return new ConcreteOperandNode(t.value(), true, t.line());
+            return new ConcreteOperandNode(t.value(), true, false, t.line());
         }
 
         if (match(TokenType.NUMBER)) {
             IToken t = previous();
-            return new ConcreteOperandNode(t.value(), false, t.line());
+            return new ConcreteOperandNode(t.value(), false, false, t.line());
+        }
+
+        if (match(TokenType.LABEL)) {
+            IToken t = previous();
+            return new ConcreteOperandNode(t.value(), false, true, t.line());
         }
         
         if (match(TokenType.ERROR)) {

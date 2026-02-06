@@ -88,7 +88,7 @@
                 opcode="0x0B"
                 description="Jumps to program line"
                 handler="core.instructions.JumpInstruction">
-            <operand type="immediate" concept="operand"/>
+            <operand type="label" concept="target"/>
         </instruction>
         <instruction
                 id="jez"
@@ -96,7 +96,7 @@
                 description="Jumps to program line, if accumulator is zero"
                 handler="core.instructions.JumpInstruction"
                 condition="core.conditions.EqualsZeroCondition">
-            <operand type="immediate" concept="operand"/>
+            <operand type="label" concept="target"/>
         </instruction>
         <instruction
                 id="jne"
@@ -104,7 +104,7 @@
                 description="Jumps to program line, if accumulator is not zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.NotEqualsZeroCondition">
-            <operand type="immediate" concept="operand"/>
+            <operand type="label" concept="target"/>
         </instruction>
         <instruction
                 id="jlz"
@@ -112,7 +112,7 @@
                 description="Jumps to program line, if accumulator is less than zero"
                 handler="core.instructions.JumpInstruction"
                 condition="core.conditions.LessThanZeroCondition">
-            <operand type="immediate" concept="operand"/>
+            <operand type="label" concept="target"/>
         </instruction>
         <instruction
                 id="jle"
@@ -120,7 +120,7 @@
                 description="Jumps to program line, if accumulator is less than or equal to zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.LessThanOrEqualsToZeroCondition">
-            <operand type="immediate" concept="operand"/>
+            <operand type="label" concept="target"/>
         </instruction>
         <instruction
                 id="jgz"
@@ -128,7 +128,7 @@
                 description="Jumps to program line, if accumulator is greater than zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.GreaterThanZeroCondition">
-            <operand type="immediate" concept="operand"/>
+            <operand type="label" concept="target"/>
         </instruction>
         <instruction
                 id="jge"
@@ -136,7 +136,7 @@
                 description="Jumps to program line, if accumulator is greater than or equal to zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
-            <operand type="immediate" concept="operand"/>
+            <operand type="label" concept="target"/>
         </instruction>
     </instructions>
 </instruction-set>

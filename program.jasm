@@ -1,7 +1,7 @@
 ldk #1
 sta r1
 inp r0
-jle #7
+jle @0x7
 sub r1
-jmp #0x4
+jmp @0x4
 hlt #99

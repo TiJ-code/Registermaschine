@@ -68,7 +68,7 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     }
 
     @Override
-    public void incProgrammeCounter() {
+    public void step() {
         programmeCounter++;
         listeners.forEach(l -> l.onProgrammeCounterChanged(programmeCounter));
     }

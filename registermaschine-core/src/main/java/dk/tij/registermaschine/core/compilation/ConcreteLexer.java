@@ -41,6 +41,7 @@ public final class ConcreteLexer implements ILexer {
                 case ',' -> tokens.add(new ConcreteToken(COMMA, ",", line, column - 1));
                 case ';' -> readComment();
 
+                case '@' -> readAddress();
                 case '#' -> readImmediate();
 
                 default -> {
@@ -102,6 +103,35 @@ public final class ConcreteLexer implements ILexer {
         }
 
         tokens.add(new ConcreteToken(NUMBER, sb.toString(), line, startCol));
+    }
+
+    private void readAddress() {
+        int startCol = column - 1;
+        StringBuilder sb = new StringBuilder();
+        sb.append('@');
+
+        if (!isNotAtEnd() || peek() != '0') {
+            tokens.add(new ConcreteToken(ERROR, "Addresses must be hexadecimal (starting with '@0x')", line, startCol));
+            return;
+        }
+        sb.append(advance());
+
+        if (!isNotAtEnd() || (peek() != 'x' && peek() != 'X')) {
+            tokens.add(new ConcreteToken(ERROR, "Addresses must be hexadecimal (starting with '@0x')", line, startCol));
+            return;
+        }
+        sb.append(advance());
+
+        while (isNotAtEnd() && isHexDigit(peek())) {
+            sb.append(advance());
+        }
+
+        if (sb.length() == 2) {
+            tokens.add(new ConcreteToken(ERROR, "Missing hex value after '@0x'", line, startCol));
+            return;
+        }
+
+        tokens.add(new ConcreteToken(LABEL, sb.toString(), line, startCol));
     }
 
     private void readComment() {

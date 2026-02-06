@@ -13,6 +13,6 @@ public final class JumpInstruction extends AbstractInstruction {
 
     @Override
     public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
-        context.setProgrammeCounter( getValueFromOperand(context, operands[0]) - 1 );
+        context.setProgrammeCounter( operands[0].value() - 1 );
     }
 }

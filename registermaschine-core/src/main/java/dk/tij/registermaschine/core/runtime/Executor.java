@@ -34,7 +34,7 @@ public class Executor {
             int pc = context.getProgrammeCounter();
             ICompiledInstruction instr = program.get(pc);
 
-            context.incProgrammeCounter();
+            context.step();
 
             AbstractInstruction handler = instructionSet.getHandler(instr.opcode());
             if (handler.shouldExecute(context))

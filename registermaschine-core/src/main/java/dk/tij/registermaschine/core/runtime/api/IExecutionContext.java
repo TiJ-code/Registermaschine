@@ -10,8 +10,8 @@ public interface IExecutionContext {
 
     int getProgrammeCounter();
     void resetProgrammeCounter();
-    void incProgrammeCounter();
     void setProgrammeCounter(int pc);
+    void step();
 
     void startExecution();
     void stopExecution();
