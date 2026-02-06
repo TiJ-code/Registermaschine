@@ -1,7 +1,5 @@
 package dk.tij.registermaschine.console;
 
-import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
 import dk.tij.registermaschine.core.instructions.JumpInstruction;
@@ -12,12 +10,8 @@ import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
 import dk.tij.registermaschine.core.compilation.Pipeline;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Scanner;
 
 public class ConsoleApplication {
@@ -27,53 +21,19 @@ public class ConsoleApplication {
             return;
         }
 
-        CoreConfigParser.init(true);
-        IInstructionSet registry = initRegistry();
-        Pipeline.setGlobalInstructionSet(registry);
+        try {
+            CliOptions options = CliOptions.parse(args);
 
-        // 1) Run interactive mode
-        if (args[0].equalsIgnoreCase("-i") && args.length == 1) {
-            runInteractiveMode(registry);
-            return;
-        }
+            CoreConfigParser.init();
 
-        // 2) Run existing binary
-        if (args[0].equalsIgnoreCase("-r") && args.length >= 2) {
-            ICompiledProgram program = loadBinary(args[1]);
-            runProgram(program, registry);
-            return;
-        }
+            IInstructionSet registry = new ConcreteInstructionSet();
+            CoreConfigParser.parseDefaultInstructionSet(registry);
+            Pipeline.setGlobalInstructionSet(registry);
 
-        // 3) Source processing
-        String sourcePath = args[0];
-        String source = Files.readString(Path.of(sourcePath), StandardCharsets.UTF_8);
-
-        // Debug Dumps
-        if (hasFlag(args, "-t")) {
-            String target = getArgAfter(args, "-t");
-            saveTextFile(target, Pipeline.tokenizeWithGlobal(source).tokens());
-            return;
-        }
-
-        if (hasFlag(args, "-a")) {
-            String target = getArgAfter(args, "-a");
-            saveTextFile(target, Pipeline.tokenizeWithGlobal(source).parse().syntaxTree());
-            return;
-        }
-
-        // Compilation
-        ICompiledProgram program = Pipeline.compileWithGlobal(source);
-
-        boolean shouldSave = hasFlag(args, "-o");
-        boolean shouldRun = hasFlag(args, "-r") || hasFlag(args, "-or") || !shouldSave;
-
-        if (shouldSave) {
-            String outputPath = getArgAfter(args, "-o");
-            saveBinary(outputPath, program);
-        }
-
-        if (shouldRun) {
-            runProgram(program, registry);
+            CompilerService service = new CompilerService(registry);
+            service.process(options);
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
         }
     }
 
@@ -121,14 +81,7 @@ public class ConsoleApplication {
         }
     }
 
-    static String getArgAfter(String[] args, String flag) {
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equalsIgnoreCase(flag) &&  i + 1 < args.length) {
-                return args[i + 1];
-            }
-        }
-        throw new RuntimeException("Missing argument for flag " + flag);
-    }
+
 
     static void saveTextFile(String path, Iterable<?> items) throws Exception {
         StringBuilder sb = new StringBuilder();
@@ -147,72 +100,15 @@ public class ConsoleApplication {
         System.out.printf("  %-30s%s%n", "-i", ": Run as console text program");
     }
 
-    static ICompiledProgram loadBinary(String fileName) throws Exception {
-        ICompiledProgram program = new ConcreteCompiledProgram();
-
-        if (fileName == null) {
-            System.err.println("Error: No input file specified for -r");
-            return null;
-        }
-
-        try (DataInputStream dis = new DataInputStream(Files.newInputStream(Path.of(fileName)))) {
-            dis.readInt(); // consume magic number
-
-            int instructions = dis.readInt();
-            for (int i = 0; i < instructions; i++) {
-                byte opcode = dis.readByte();
-                byte operandCount = dis.readByte();
-
-                int[] operands = new int[operandCount];
-                for (byte j = 0; j < operandCount; j++) {
-                    operands[j] = dis.readInt();
-                }
-
-                //program.add(new ConcreteCompiledInstruction(opcode, operands));
-            }
-        }
-
-        return program;
-    }
-
-    static void saveBinary(String fileName, List<ICompiledInstruction> program) throws Exception {
-        if (fileName == null) {
-            System.err.println("Error: No output file specified for -o");
-            return;
-        }
-
-        try (DataOutputStream dos = new DataOutputStream(Files.newOutputStream(Path.of(fileName)))) {
-            dos.writeInt(0x4A_41_53_4D);
-
-            dos.writeInt(program.size());
-            for (var instruction : program) {
-                dos.writeByte(instruction.opcode());
-                dos.writeByte(instruction.operands().length);
-
-//                for (int operand : instruction.operands()) {
-//                    dos.writeInt(operand);
-//                }
-            }
-        }
-
-        System.out.println("binary successfully compiled to: " + fileName);
-    }
-
     static IInstructionSet initRegistry() {
         IInstructionSet registry = new ConcreteInstructionSet();
 
         try {
-            CoreConfigParser.parseInstructionSet("default.instructions.jxml", registry);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return registry;
-    }
-
-    static boolean hasFlag(String[] args, String flag) {
-        for (String arg : args)
-            if (arg.equalsIgnoreCase(flag)) return true;
-        return false;
     }
 }

@@ -73,7 +73,7 @@ public final class CoreConfigParser {
         }
     }
 
-    public static void parseInstructionSet(IInstructionSet set) throws ConfigurationParseException {
+    public static void parseDefaultInstructionSet(IInstructionSet set) throws ConfigurationParseException {
         parseInstructionSet(DEFAULT_INSTRUCTION_SET_FILE, set);
     }
 

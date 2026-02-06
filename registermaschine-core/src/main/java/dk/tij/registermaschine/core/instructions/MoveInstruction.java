@@ -6,7 +6,7 @@ import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
-public class MoveInstruction extends AbstractInstruction {
+public final class MoveInstruction extends AbstractInstruction {
     public MoveInstruction(byte opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
