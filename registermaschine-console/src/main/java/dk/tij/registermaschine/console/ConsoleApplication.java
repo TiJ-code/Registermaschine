@@ -10,7 +10,6 @@ import dk.tij.registermaschine.core.runtime.ConcreteExecutionContext;
 import dk.tij.registermaschine.core.runtime.Executor;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
-import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.Pipeline;
 
 import java.io.DataInputStream;
@@ -28,6 +27,7 @@ public class ConsoleApplication {
             return;
         }
 
+        CoreConfigParser.init();
         IInstructionSet registry = initRegistry();
         Pipeline.setGlobalInstructionSet(registry);
 
@@ -190,7 +190,7 @@ public class ConsoleApplication {
         IInstructionSet registry = new ConcreteInstructionSet();
 
         try {
-            CoreConfigParser.parseCoreConfig(registry);
+            CoreConfigParser.parseInstructionSet("default.instructions.jxml", registry);
         } catch (Exception e) {
             e.printStackTrace();
         }

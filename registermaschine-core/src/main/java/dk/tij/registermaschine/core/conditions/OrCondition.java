@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.core.conditions.internal;
+package dk.tij.registermaschine.core.conditions;
 
 import dk.tij.registermaschine.core.conditions.api.ICondition;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;

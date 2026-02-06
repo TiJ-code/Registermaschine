@@ -1,6 +1,8 @@
 *.*~
 
 tree.py
+configuration.jxml
+default.instructions.jxml
 
 target/
 !.mvn/wrapper/maven-wrapper.jar

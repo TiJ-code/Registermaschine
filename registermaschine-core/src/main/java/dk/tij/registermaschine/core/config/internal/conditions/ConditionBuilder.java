@@ -1,9 +1,9 @@
 package dk.tij.registermaschine.core.config.internal.conditions;
 
 import dk.tij.registermaschine.core.conditions.api.ICondition;
-import dk.tij.registermaschine.core.conditions.internal.AndCondition;
-import dk.tij.registermaschine.core.conditions.internal.NotCondition;
-import dk.tij.registermaschine.core.conditions.internal.OrCondition;
+import dk.tij.registermaschine.core.conditions.AndCondition;
+import dk.tij.registermaschine.core.conditions.NotCondition;
+import dk.tij.registermaschine.core.conditions.OrCondition;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.*;
 import dk.tij.registermaschine.core.error.ClassInstantiationException;

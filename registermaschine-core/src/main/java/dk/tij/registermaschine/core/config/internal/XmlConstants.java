@@ -3,6 +3,8 @@ package dk.tij.registermaschine.core.config.internal;
 public final class XmlConstants {
     private XmlConstants() {}
 
+    public static final String  TAG_REGISTERS = "registers";
+
     public static final String  TAG_INSTRUCTION = "instruction",
                                 TAG_OPERAND = "operand";
 

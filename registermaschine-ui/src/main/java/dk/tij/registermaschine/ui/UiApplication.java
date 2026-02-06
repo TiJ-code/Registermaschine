@@ -27,7 +27,7 @@ public class UiApplication extends Application {
     public UiApplication() {
         this.instructionSet = new ConcreteInstructionSet();
         try {
-            CoreConfigParser.parseCoreConfig(instructionSet, new ConfigParser());
+            CoreConfigParser.init(new ConfigParser());
         } catch (Exception _) {}
         this.cpu = new ConcreteExecutionContext();
     }
