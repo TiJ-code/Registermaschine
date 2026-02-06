@@ -13,5 +13,7 @@
  * <p>While the public interfaces in {@code core.compilation.api} are stable and
  * safe to depend on, the concrete implementations in this package may evolve
  * over time and are not guaranteed to remain backwards compatible.</p>
+ *
+ * @author TiJ
  */
 package dk.tij.registermaschine.core.compilation;

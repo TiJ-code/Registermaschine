@@ -9,5 +9,7 @@
  * Users may implement their own versions by implementing the provided interfaces.</p>
  *
  * <p>Implementations in this package may change without notice.</p>
+ *
+ * @author TiJ
  */
 package dk.tij.registermaschine.core.compilation.internal;
