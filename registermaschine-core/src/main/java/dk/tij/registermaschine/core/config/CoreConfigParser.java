@@ -1,5 +1,6 @@
 package dk.tij.registermaschine.core.config;
 
+import dk.tij.registermaschine.core.config.api.IConfigEventListener;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
@@ -19,6 +20,8 @@ import java.nio.file.Files;
 import java.util.*;
 
 public final class CoreConfigParser {
+    public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName();
+
     public static final String  DTD_CONFIGURATION = "dtd/configuration.dtd",
                                 DTD_INSTRUCTION_SET = "dtd/instruction_file.dtd";
 
@@ -94,6 +97,11 @@ public final class CoreConfigParser {
         } catch (Exception e) {
             throw new ConfigurationParseException("Failed to parse instruction set: " + fileName, e);
         }
+    }
+
+    public static void addListenerToTarget(String target, IConfigEventListener listener) {
+        if (PARSER_INSTRUCTIONS.equals(target))
+            INSTRUCTION_PARSER.addListener(listener);
     }
 
     private static void copyDefaultFiles() {

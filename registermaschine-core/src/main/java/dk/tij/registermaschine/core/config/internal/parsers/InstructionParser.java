@@ -24,6 +24,7 @@ public final class InstructionParser implements IConfigParser {
             Element option = (Element) optionsList.item(i);
             if (XmlConstants.INSTR_OPTION_ALLOW_LABELS.equals(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_ID))) {
                 CoreConfig.ALLOW_LABELS = Boolean.parseBoolean(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_VALUE));
+                fireEvent(option, CoreConfig.ALLOW_LABELS);
             }
         }
 
@@ -38,6 +39,8 @@ public final class InstructionParser implements IConfigParser {
             try {
                 ConfigInstruction instruction = parseInstruction(instructionNode, (byte) instructions.size());
                 instructions.add(instruction);
+
+                fireEvent((Element) instructionNode, instruction);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }

@@ -51,7 +51,6 @@ module dk.tij.registermaschine.core {
     exports dk.tij.registermaschine.core.instructions.api;
 
     exports dk.tij.registermaschine.core.conditions;
-    exports dk.tij.registermaschine.core.conditions.atomic;
     exports dk.tij.registermaschine.core.conditions.api;
 
     exports dk.tij.registermaschine.core.compilation;
