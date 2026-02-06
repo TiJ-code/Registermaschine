@@ -30,7 +30,7 @@ public class MachineListener implements IExecutionContextListener {
 
     @Override
     public void onFlagChanged(boolean negative, boolean zero, boolean overflow) {
-        System.out.println("N: " + negative + "\tZ: " + zero + "\tV: " + overflow);
+        System.out.printf("N: %-5s  |  Z: %-5s  |  V: %-5s%n", negative, zero, overflow);
     }
 
     @Override

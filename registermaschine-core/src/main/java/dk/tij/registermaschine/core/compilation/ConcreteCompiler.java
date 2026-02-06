@@ -28,12 +28,9 @@ public final class ConcreteCompiler implements ICompiler {
 
         for (ISyntaxTreeNode node : tree) {
             if (node instanceof ConcreteInstructionNode instr) {
-                System.out.println(instructionSet.getInstructions());
                 ConfigInstruction config = instructionSet.getInstructions().stream()
                         .filter(c -> c.mnemonic().equalsIgnoreCase(instr.instruction()))
                         .findFirst().orElseThrow(() -> new RuntimeException("Unknown: " + instr.instruction()));
-
-                System.out.println(config);
 
                 ICompiledOperand[] finalOperands = mergeOperands(config.operands(), instr.operands);
 
@@ -49,7 +46,6 @@ public final class ConcreteCompiler implements ICompiler {
 
     private ICompiledOperand[] mergeOperands(List<ConfigOperand> template, List<ConcreteOperandNode> userNodes) {
         ICompiledOperand[] result = new ICompiledOperand[template.size()];
-
         int userIdx = 0;
 
         for (int i = 0; i < template.size(); i++) {
@@ -61,7 +57,14 @@ public final class ConcreteCompiler implements ICompiler {
                 if (userIdx >= userNodes.size()) {
                     throw new RuntimeException("Missing operand for template at index " + i);
                 }
-                result[i] = parseUserValue(userNodes.get(userIdx++), t.concept());
+
+                ConcreteOperandNode userNode = userNodes.get(userIdx++);
+                if (t.type() == ConfigOperand.Type.REGISTER && !userNode.isRegister)
+                    throw new RuntimeException("Operand " + i + " must be a REGISTER, gut got IMMEDIATE");
+                if (t.type() == ConfigOperand.Type.IMMEDIATE && userNode.isRegister)
+                    throw new RuntimeException("Operand " + i + " must be a IMMEDIATE, gut got REGISTER");
+
+                result[i] = parseUserValue(userNode, t.concept());
             }
         }
 
