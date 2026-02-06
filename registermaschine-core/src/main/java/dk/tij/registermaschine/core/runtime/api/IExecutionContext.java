@@ -8,14 +8,9 @@ public interface IExecutionContext {
     int getRegister(int index);
     void setRegister(int index, int value);
 
-    default int getAccumulator() {
-        return getRegister(0);
-    }
-    default void setAccumulator(int value) {
-        setRegister(0, value);
-    }
-
     int getProgrammeCounter();
+    void resetProgrammeCounter();
+    void incProgrammeCounter();
     void setProgrammeCounter(int pc);
 
     void startExecution();
@@ -29,6 +24,9 @@ public interface IExecutionContext {
 
     void setFlags(boolean negative, boolean zero, boolean overflow);
     void setExitCode(byte code);
+
+    void incJumpCounter();
+    int maxJumpCounter();
 
     void output(int value);
     int input();

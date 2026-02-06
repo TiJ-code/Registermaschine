@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!ELEMENT configuration (registers, ANY*)>
+<!ELEMENT configuration (registers, maxJumps, ANY*)>
 
 <!ELEMENT registers (#PCDATA)>
+<!ELEMENT maxJumps (#PCDATA)>
 

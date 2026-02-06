@@ -3,7 +3,7 @@ package dk.tij.registermaschine.core.config;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
-import dk.tij.registermaschine.core.config.internal.parsers.RegisterParser;
+import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import org.w3c.dom.Document;
@@ -30,7 +30,7 @@ public final class CoreConfigParser {
     private static final Object INIT_LOCK = new Object();
 
     private static final List<IConfigParser> INTERNAL_CONFIG_PARSERS = List.of(
-            new RegisterParser()
+            new SettingsParser()
     );
     private static final IConfigParser MACRO_PARSER = new ConditionMacroParser();
     private static final IConfigParser INSTRUCTION_PARSER = new InstructionParser();

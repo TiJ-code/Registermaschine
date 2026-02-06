@@ -18,6 +18,7 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     private final int[] registers;
     private int programmeCounter;
 
+    private byte jumpCounter;
     private byte exitCode;
     private byte flags;
 
@@ -62,7 +63,19 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     }
 
     @Override
+    public void resetProgrammeCounter() {
+        programmeCounter = 0;
+    }
+
+    @Override
+    public void incProgrammeCounter() {
+        programmeCounter++;
+        listeners.forEach(l -> l.onProgrammeCounterChanged(programmeCounter));
+    }
+
+    @Override
     public void setProgrammeCounter(int pc) {
+        if (jumpCounter >= maxJumpCounter()) return;
         programmeCounter = pc;
         listeners.forEach(l -> l.onProgrammeCounterChanged(pc));
     }
@@ -117,6 +130,16 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     public void setExitCode(byte code) {
         this.exitCode = code;
         listeners.forEach(l -> l.onExitCodeChanged(code));
+    }
+
+    @Override
+    public void incJumpCounter() {
+        jumpCounter++;
+    }
+
+    @Override
+    public int maxJumpCounter() {
+        return CoreConfig.MAX_JUMPS;
     }
 
     @Override

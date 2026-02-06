@@ -10,7 +10,8 @@ public final class CoreConfig {
     public static final String  CORE_IMPLEMENTATION_PREFIX = "core.",
                                 CORE_CLASS_PATH_PREFIX = "dk.tij.registermaschine.";
 
-    public static int REGISTERS = 8;
+    public static volatile int REGISTERS = 8;
+    public static volatile int MAX_JUMPS = 255;
 
     public static final Map<TokenType, String> TOKEN_REGEX = Map.of(
             TokenType.INSTRUCTION, "(?:[A-Z]+|[a-z]+)",
