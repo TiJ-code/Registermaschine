@@ -87,8 +87,16 @@ public final class ConcreteCompiler implements ICompiler {
     private ICompiledOperand parseUserValue(ConcreteOperandNode node, OperandConcept concept) {
         ICompiledOperand result;
         if (node.isRegister) {
-            result = new ConcreteCompiledOperand(OperandType.REGISTER, concept,
-                                                 Integer.parseInt(node.value().substring(1)));
+            int regIndex = Integer.parseInt(node.value().substring(1));
+
+            if (regIndex >= CoreConfig.REGISTERS) {
+                throw new SyntaxErrorException(String.format(
+                        "Invalid register 'r%d'. The machine is configured with only %d registers (r0 - r%d).",
+                        regIndex, CoreConfig.REGISTERS, CoreConfig.REGISTERS-1)
+                );
+            }
+
+            result = new ConcreteCompiledOperand(OperandType.REGISTER, concept, regIndex);
         } else {
             result = new ConcreteCompiledOperand(OperandType.IMMEDIATE, OperandConcept.OPERAND,
                                                  Integer.decode(node.value()));
