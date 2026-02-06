@@ -126,7 +126,7 @@ public final class ConcreteCompiler implements ICompiler {
                                 value);
                     }
 
-                    int addr = Integer.decode(value.substring(1));
+                    int addr = Integer.decode(value.substring(1)) - 1; // line number offset
                     return new ConcreteCompiledOperand(OperandType.IMMEDIATE, concept, addr);
                 } else {
                     if (!symbolTable.containsKey(value)) {
