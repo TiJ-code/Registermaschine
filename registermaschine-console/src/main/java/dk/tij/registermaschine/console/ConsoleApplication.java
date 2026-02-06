@@ -156,7 +156,7 @@ public class ConsoleApplication {
                     operands[j] = dis.readInt();
                 }
 
-                program.add(new ConcreteCompiledInstruction(opcode, operands));
+                //program.add(new ConcreteCompiledInstruction(opcode, operands));
             }
         }
 
@@ -177,9 +177,9 @@ public class ConsoleApplication {
                 dos.writeByte(instruction.opcode());
                 dos.writeByte(instruction.operands().length);
 
-                for (int operand : instruction.operands()) {
-                    dos.writeInt(operand);
-                }
+//                for (int operand : instruction.operands()) {
+//                    dos.writeInt(operand);
+//                }
             }
         }
 

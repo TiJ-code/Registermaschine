@@ -56,16 +56,15 @@
                 id="lda"
                 opcode="0x06"
                 description="Loads value from register A into accumulator"
-                handler="core.instructions.LoadFromAddressInstruction">
+                handler="core.instructions.MoveInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
         </instruction>
         <instruction
                 id="ldk"
                 opcode="0x07"
-                condition="core.conditions.EqualsZeroCondition"
                 description="Loads constant value into accumulator"
-                handler="core.instructions.LoadConstantValueInstruction">
+                handler="core.instructions.MoveInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="immediate" concept="operand"/>
         </instruction>
@@ -73,8 +72,9 @@
                 id="sta"
                 opcode="0x08"
                 description="Stores value of accumulator into register A"
-                handler="core.instructions.StoreToAddressInstruction">
+                handler="core.instructions.MoveInstruction">
             <operand type="register" concept="operand" implicitValue="r0"/>
+            <operand type="register" concept="result"/>
         </instruction>
         <instruction
                 id="inp"

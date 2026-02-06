@@ -1,8 +1,12 @@
 package dk.tij.registermaschine.core.instructions;
 
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
+import dk.tij.registermaschine.core.config.ConfigOperand;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
+
+import java.util.Arrays;
 
 public final class DivisionInstruction extends AbstractInstruction {
     public DivisionInstruction(byte opcode, int operandCount, ICondition condition) {
@@ -10,27 +14,49 @@ public final class DivisionInstruction extends AbstractInstruction {
     }
 
     @Override
-    public void executeInstruction(IExecutionContext context, int[] operands) {
-        int dividend = context.getAccumulator();
-        int divisor = operands[0];
+    public void validate(ICompiledOperand[] operands) {
+        super.validate(operands);
+        if (Arrays.stream(operands).noneMatch(o -> o.concept() == ConfigOperand.Concept.RESULT))
+            throw new RuntimeException(String.format("Instruction Handler %s expects 1 result operand",
+                    this.getClass().getSimpleName()));
+    }
 
-        if (divisor == 0) {
-            context.setExitCode((byte) 1);
-            context.stopExecution();
-            System.err.println("Runtime Error: Division by zero!");
-            return;
+    @Override
+    public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
+        ICompiledOperand destination = null;
+        boolean overflow = false;
+        Integer runningQuotient = null;
+
+        for (ICompiledOperand op : operands) {
+            if (op.concept() == ConfigOperand.Concept.RESULT) {
+                destination = op;
+                continue;
+            }
+
+            int currentValue = getValueFromOperand(context, op);
+
+            if (runningQuotient == null) {
+                runningQuotient = currentValue;
+            } else {
+                if (currentValue == 0) {
+                    System.err.println("Runtime Error: Division by zero!");
+                    context.setExitCode((byte) 1);
+                    context.stopExecution();
+                    return;
+                }
+
+                if (runningQuotient == Integer.MIN_VALUE && currentValue == 1) {
+                    overflow = true;
+                    runningQuotient = Integer.MIN_VALUE;
+                } else {
+                    runningQuotient /= currentValue;
+                }
+            }
         }
 
-        boolean overflow = (dividend == Integer.MAX_VALUE && divisor == -1);
-
-        int result;
-        if (overflow)
-            result = Integer.MIN_VALUE;
-        else
-            result = dividend / divisor;
-
-        context.setFlags(result < 0, result == 0, overflow);
-
-        context.setAccumulator(Integer.MIN_VALUE);
+        if (destination != null && runningQuotient != null) {
+            context.setFlags(runningQuotient < 0, runningQuotient == 0, overflow);
+            context.setRegister(destination.value(), runningQuotient);
+        }
     }
 }

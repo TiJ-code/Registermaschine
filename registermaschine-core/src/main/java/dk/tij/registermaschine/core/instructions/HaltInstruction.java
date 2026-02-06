@@ -1,5 +1,6 @@
 package dk.tij.registermaschine.core.instructions;
 
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
@@ -10,8 +11,8 @@ public final class HaltInstruction extends AbstractInstruction {
     }
 
     @Override
-    public void executeInstruction(IExecutionContext context, int[] operands) {
-        context.setExitCode((byte)operands[0]);
+    public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
+        context.setExitCode((byte)operands[0].value());
         context.stopExecution();
     }
 }

@@ -7,5 +7,9 @@ public record ConfigOperand(Type type, Concept concept, String value) {
     
     public enum Concept {
         RESULT, OPERAND, TARGET
-    } 
+    }
+
+    public boolean isImplicit() {
+        return value != null;
+    }
 }

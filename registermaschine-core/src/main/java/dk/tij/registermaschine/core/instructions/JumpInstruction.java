@@ -1,5 +1,6 @@
 package dk.tij.registermaschine.core.instructions;
 
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
@@ -11,7 +12,7 @@ public final class JumpInstruction extends AbstractInstruction {
     }
 
     @Override
-    public void executeInstruction(IExecutionContext context, int[] operands) {
-        context.setProgrammeCounter( operands[0] );
+    public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
+        context.setProgrammeCounter( operands[0].value() );
     }
 }

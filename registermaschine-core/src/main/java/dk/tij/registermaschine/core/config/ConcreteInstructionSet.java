@@ -14,18 +14,14 @@ public final class ConcreteInstructionSet implements IInstructionSet {
 
     @Override
     public void registerInstruction(ConfigInstruction configInstruction) {
-        String mnemonic = configInstruction.mnemonic();
-        String description = configInstruction.description();;
         byte opcode = configInstruction.opcode();
-        AbstractInstruction handler = configInstruction.handler();
 
         if (byOpcode.containsKey(opcode))
             throw new ExistingInstructionException("Opcode " + opcode + " is already registered!");
 
-        ConfigInstruction entry = new ConfigInstruction(mnemonic, description, opcode, null, handler);
-        instructions.add(entry);
-        byName.put(mnemonic.toLowerCase(), entry);
-        byOpcode.put(opcode, entry);
+        instructions.add(configInstruction);
+        byName.put(configInstruction.mnemonic().toLowerCase(), configInstruction);
+        byOpcode.put(opcode, configInstruction);
     }
 
     @Override
