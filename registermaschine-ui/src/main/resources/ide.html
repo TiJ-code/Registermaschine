@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>JASM IDE v1.5</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="components/editor.css">
-  <link rel="stylesheet" href="components/registers.css">
-  <link rel="stylesheet" href="components/instructions.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components/editor.css">
+  <link rel="stylesheet" href="css/components/registers.css">
+  <link rel="stylesheet" href="css/components/instructions.css">
 </head>
 <body>
 <div class="app-container">
@@ -30,23 +30,24 @@
 
     <div class="editor-section">
       <div id="active-line-highlight" class="active-line-bg"></div>
-      <div class="line-numbers" id="line-numbers">1</div>
-      <div id="code-editor"
+      <div class="line-numbers" id="line-numbers">1</div>-
+      <div id="editor"
            contenteditable="true"
-           spellcheck="false"
-           oninput="onCodeInput()"></div>
+           spellcheck="false">JMP @0x123
+peter:</div>
     </div>
 
     <section class="docs-panel" id="docs-panel">
       <div class="docs-header" onclick="toggleDocs()">
         <span>Instruction Set</span>
-        <span id="docs-arrow">▼</span>
+        <span id="docs-arrow">▲</span>
       </div>
       <div id="instruction-list" class="docs-content hidden">
       </div>
     </section>
   </main>
 </div>
-<script src="bridge.js"></script>
+<script src="js/bridge.js"></script>
+<script src="js/code-editor.js"></script>
 </body>
 </html>

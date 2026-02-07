@@ -1,11 +1,12 @@
 package dk.tij.registermaschine.ui;
 
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
-import dk.tij.registermaschine.core.runtime.ConcreteExecutionContext;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
-import dk.tij.registermaschine.ui.config.ConfigParser;
+import dk.tij.registermaschine.ui.listeners.InstructionParserListener;
+import dk.tij.registermaschine.ui.ui.JavaScriptBridge;
+import dk.tij.registermaschine.ui.utils.InstructionMapper;
 import javafx.application.Application;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
@@ -21,15 +22,14 @@ public class UiApplication extends Application {
     private WebEngine webEngine;
     private JSObject window;
 
+    private JavaScriptBridge jsBridge;
     private final IInstructionSet instructionSet;
-    private final ConcreteExecutionContext cpu;
     
     public UiApplication() {
+        CoreConfigParser.init();
+        CoreConfigParser.addListenerToTarget(CoreConfigParser.PARSER_INSTRUCTIONS, new InstructionParserListener());
         this.instructionSet = new ConcreteInstructionSet();
-        try {
-            CoreConfigParser.init(new ConfigParser());
-        } catch (Exception _) {}
-        this.cpu = new ConcreteExecutionContext();
+        CoreConfigParser.parseDefaultInstructionSet(instructionSet);
     }
 
     public static void externalLaunch(String[] args) {
@@ -67,22 +67,14 @@ public class UiApplication extends Application {
     }
 
     private void onWebViewLoaded() {
-        window = (JSObject) webEngine.executeScript("window");
+        jsBridge = new JavaScriptBridge((JSObject) webEngine.executeScript("window"));
 
-        window.call("initializeRegisters", cpu.getRegisterCount());
+        jsBridge.initialiseRegisters(CoreConfig.REGISTERS);
 
-        Object[] docs = instructionSet.getInstructions().stream()
-                .map(i -> {
-                    // Wrap in a standard HashMap so the bridge can access .get()
-                    var o = new java.util.HashMap<String, String>();
-                    o.put("name", i.mnemonic());
-                    o.put("description", i.description());
-                    return o;
-                })
-                .toArray();
+        var docs = InstructionMapper.toDocList(instructionSet);
+        jsBridge.initialiseDocumentation(docs);
 
-        window.call("initializeDocs", (Object) docs);
-
-        window.call("initializeRegisters", CoreConfig.REGISTERS);
+        var keywords = InstructionMapper.toKeywords(instructionSet);
+        jsBridge.initialiseKeywords(keywords);
     }
 }
