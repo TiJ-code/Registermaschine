@@ -2,7 +2,7 @@
   <configuration default="false" name="ApplicationLauncher" type="Application" factoryName="Application" nameIsGenerated="true">
     <option name="MAIN_CLASS_NAME" value="dk.tij.registermaschine.ui.ApplicationLauncher" />
     <module name="ui" />
-    <option name="VM_PARAMETERS" value="--add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.jsobject  --add-opens javafx.graphics/com.sun.glass.ui=ALL-UNNAMED  --add-opens javafx.graphics/com.sun.prism.impl=ALL-UNNAMED  --add-opens javafx.fxml/javafx.fxml=ALL-UNNAMED  --add-opens javafx.web/com.sun.webkit=ALL-UNNAMED  --enable-native-access=javafx.graphics,javafx.web" />
+    <option name="VM_PARAMETERS" value="--add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.web,jdk.jsobject  --add-opens javafx.graphics/com.sun.glass.ui=ALL-UNNAMED  --add-opens javafx.graphics/com.sun.prism.impl=ALL-UNNAMED  --add-opens javafx.fxml/javafx.fxml=ALL-UNNAMED  --add-opens javafx.web/com.sun.webkit=ALL-UNNAMED  --enable-native-access=javafx.graphics,javafx.web -Ddebug -Dui" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="dk.tij.registermaschine.ui.ui.*" />

@@ -21,20 +21,23 @@
 
   <main class="workspace">
     <nav class="toolbar">
-      <button class="btn btn-run" onclick="java.runCode()">▶ Run</button>
-      <button class="btn" onclick="java.stepCode()">↷ Step</button>
+      <button class="btn btn-run" onclick="runCode()">▶ Run</button>
+      <!--<button class="btn" onclick="java.stepCode()">↷ Step</button>-->
       <button class="btn" onclick="java.stopCode()">⏹ Stop</button>
       <div class="spacer"></div>
-      <button class="btn btn-outline" onclick="java.saveFile()">Save</button>
+      <!--<button class="btn btn-outline" onclick="java.saveFile()">Save</button>-->
     </nav>
 
     <div class="editor-section">
-      <div id="active-line-highlight" class="active-line-bg"></div>
       <div class="line-numbers" id="line-numbers">1</div>-
-      <div id="editor"
+      <div class="editor-stack">
+        <textarea id="editor-input" spellcheck="false"></textarea>
+        <div id="editor-highlight" aria-hidden="true"></div>
+      </div>
+      <!--<div id="editor"
            contenteditable="true"
            spellcheck="false">JMP @0x123
-peter:</div>
+peter:</div>-->
     </div>
 
     <section class="docs-panel" id="docs-panel">

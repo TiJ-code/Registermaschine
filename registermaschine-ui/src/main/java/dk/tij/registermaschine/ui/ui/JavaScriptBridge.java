@@ -9,6 +9,23 @@ public class JavaScriptBridge {
 
     public JavaScriptBridge(JSObject object) {
         this.window = object;
+        this.window.setMember("java", this);
+    }
+
+    public void println(String text) {
+        System.out.printf("[JS]: %s%n", text);
+    }
+
+    public void sendSourceCode(String sourceCode) {
+        println(sourceCode);
+    }
+
+    public void runProgram() {
+        println("running");
+    }
+
+    public void saveProgram() {
+
     }
 
     public void initialiseRegisters(int regCount) {

@@ -8,7 +8,13 @@ const instructionList = document.getElementById('instruction-list');
 const registerList = document.getElementById('register-list');
 
 // JAVA BRIDGE
+function println(text) {
+    window.java.println(String(text));
+}
+
+// JAVA BRIDGE
 function initialiseRegisters(count) {
+    println("initReg: start");
     registerList.innerHTML = '';
     for (let i = 0; i < count; i++) {
         const name = `R${i}`;
@@ -20,6 +26,7 @@ function initialiseRegisters(count) {
                 <span class="reg-value" id="val-${i}">0</span>
             </div>`;
     }
+    println("initReg: end");
 }
 
 // JAVA BRIDGE
@@ -42,6 +49,12 @@ function initialiseDocs(instructions) {
 // JAVA BRIDGE
 function initialiseKeywords(sentKeywords) {
     editor.updateKeywords(sentKeywords);
+}
+
+// JAVA BRIDGE
+function runCode() {
+    window.java.sendSourceCode("halloWelt");
+    window.java.runProgram();
 }
 
 // --- 3. EXECUTION HOOKS (Called by Java during runtime) ---
@@ -73,6 +86,7 @@ function toggleDocs() {
     const arrow = document.getElementById('docs-arrow');
     content.classList.toggle('hidden');
     arrow.innerText = content.classList.contains('hidden') ? "▲" : "▼";
+    println("toggleDocs");
 }
 
 // --- 4. CARET MANAGEMENT (The "Secret Sauce") ---
@@ -109,6 +123,7 @@ function createRange(node, chars, range) {
         range.selectNode(node);
         range.setStart(node, 0);
     }
+
     if (chars.count === 0) {
         range.setEnd(node, chars.count);
     } else if (node && chars.count > 0) {
@@ -121,7 +136,8 @@ function createRange(node, chars, range) {
             }
         } else {
             for (let lp = 0; lp < node.childNodes.length; lp++) {
-                range = createRange(node.childNodes[lp], chars, range);
+                let child = node.childNodes[lp];
+                range = createRange(child, chars, range);
                 if (chars.count === 0) break;
             }
         }
