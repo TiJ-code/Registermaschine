@@ -1,10 +1,21 @@
 package dk.tij.registermaschine.core.runtime.api;
 
-public interface IExecutionContext {
-    void addListener(IExecutionContextListener listener);
-    void removeListener(IExecutionContextListener listener);
+import dk.tij.registermaschine.core.runtime.ExecutionSnapshot;
 
-    int getRegisterCount();
+import java.util.HashSet;
+import java.util.Set;
+
+public interface IExecutionContext {
+    Set<IExecutionContextListener> listeners = new HashSet<>();
+
+    default void addListener(IExecutionContextListener listener) {
+        listeners.add(listener);
+    }
+
+    default void removeListener(IExecutionContextListener listener) {
+        listeners.remove(listener);
+    }
+
     int getRegister(int index);
     void setRegister(int index, int value);
 
@@ -30,4 +41,6 @@ public interface IExecutionContext {
 
     void output(int value);
     int input();
+
+    ExecutionSnapshot snapshotAndClearDirty();
 }
