@@ -44,8 +44,14 @@ public class Executor implements Runnable {
                 context.step();
 
                 AbstractInstruction handler = instructionSet.getHandler(instr.opcode());
-                if (handler.shouldExecute(context))
-                    handler.executeInstruction(context, instr.operands());
+                if (handler.shouldExecute(context)) {
+                    try {
+                        handler.executeInstruction(context, instr.operands());
+                    } catch (Exception e) {
+                        System.out.println("Execution interrupted during input, stopping!");
+                        break;
+                    }
+                }
 
 
                 long cycleTimeNs = System.nanoTime() - cycleStart;

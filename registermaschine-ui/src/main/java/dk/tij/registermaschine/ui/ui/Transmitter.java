@@ -49,7 +49,6 @@ public final class Transmitter {
     }
 
     public void notifyProgramFinished() {
-        System.out.println("nofication");
         Platform.runLater(() -> window.call("programFinished"));
     }
 }

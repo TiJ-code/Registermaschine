@@ -12,6 +12,10 @@ public final class InputInstruction extends AbstractInstruction {
 
     @Override
     public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
-        context.setRegister( operands[0].value(), context.input() );
+        try {
+            context.setRegister(operands[0].value(), context.input());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

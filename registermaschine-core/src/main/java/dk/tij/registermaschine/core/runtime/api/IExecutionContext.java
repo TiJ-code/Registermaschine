@@ -43,7 +43,7 @@ public interface IExecutionContext {
 
     void output(int value);
     void provideInput(int value);
-    int input();
+    int input() throws InterruptedException;
 
     ExecutionSnapshot snapshotAndClearDirty();
 }
