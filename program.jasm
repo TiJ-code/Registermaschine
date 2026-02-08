@@ -1,7 +1,9 @@
     ldk #1
     sta r1
     inp r0
-    jle @0x7
+loop:
+    jle ende
     sub r1
-    jmp @0x4
+    jmp loop
+ende:
     hlt #99

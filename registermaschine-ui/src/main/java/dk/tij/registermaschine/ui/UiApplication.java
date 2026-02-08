@@ -17,7 +17,6 @@ import javafx.stage.Stage;
 import netscape.javascript.JSObject;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
@@ -26,13 +25,12 @@ public class UiApplication extends Application {
     private static final String DEV_RESOURCES_PATH = "registermaschine-ui/src/main/resources/";
     private static boolean DEBUG_UI = false;
 
-    private Stage primaryStage;
     private WebEngine webEngine;
-    private JSObject window;
 
     private JavaScriptBridge jsBridge;
+    private SimulationController simulationController;
     private final IInstructionSet instructionSet;
-    
+
     public UiApplication() {
         CoreConfigParser.init();
         CoreConfigParser.addListenerToTarget(CoreConfigParser.PARSER_INSTRUCTIONS, new InstructionParserListener());
@@ -51,11 +49,9 @@ public class UiApplication extends Application {
 
         launch(args);
     }
-    
+
     @Override
     public void start(Stage stage) {
-        primaryStage = stage;
-
         Scene scene = new Scene(createWebView());
         stage.setScene(scene);
         stage.setTitle("JASM v2.0.0 - by @TiJ");
@@ -67,6 +63,12 @@ public class UiApplication extends Application {
             startFileWatcher();
 
         stage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        simulationController.handleStopRequest();
+        super.stop();
     }
 
     private WebView createWebView() {
@@ -93,13 +95,16 @@ public class UiApplication extends Application {
     private void onWebViewLoaded() {
         jsBridge = new JavaScriptBridge((JSObject) webEngine.executeScript("window"));
 
-        jsBridge.initialiseRegisters(CoreConfig.REGISTERS);
+        simulationController = new SimulationController(jsBridge);
+        jsBridge.setController(simulationController);
+
+        jsBridge.transmit().initialiseRegisters(CoreConfig.REGISTERS);
 
         var docs = InstructionMapper.toDocList(instructionSet);
-        jsBridge.initialiseDocumentation(docs);
+        jsBridge.transmit().initialiseDocumentation(docs);
 
         var keywords = InstructionMapper.toKeywords(instructionSet);
-        jsBridge.initialiseKeywords(keywords);
+        jsBridge.transmit().initialiseKeywords(keywords);
     }
 
     private void startFileWatcher() {
@@ -138,6 +143,7 @@ public class UiApplication extends Application {
             }
         });
 
+        watcher.setName("DEBUG - UI Filewatcher");
         watcher.setDaemon(true);
         watcher.start();
     }

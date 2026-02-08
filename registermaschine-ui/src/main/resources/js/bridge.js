@@ -62,6 +62,7 @@ function runProgram() {
     window.java.runProgram(editor.input.value.trim());
 }
 
+// JAVA BRIDGE
 function stopProgram() {
     window.java.stopProgram();
     editor.setEditable(true);
@@ -77,16 +78,6 @@ function updateRegister(index, value) {
     setTimeout(() => card.classList.remove('updated'), 600);
 }
 
-function updateRegistersBatch(updates) {
-    Object.entries(updates).forEach(([value, index]) => {
-        const valSpan = document.getElementById(`val-${index}`);
-        if (valSpan) {
-            valSpan.innerText = value;
-        }
-    });
-}
-
-
 // JAVA BRIDGE
 function updateOutput(value) {
     const outputEl = document.getElementById('io-output');
@@ -94,4 +85,19 @@ function updateOutput(value) {
 
     outputEl.classList.add('updated');
     setTimeout(() => outputEl.classList.remove('updated'), 600);
+}
+
+// JAVA BRIDGE
+function submitInput() {
+    const value = parseInt(document.getElementById("io-input").value);
+    window.java.provideInput(value);
+    document.getElementById("io-input").classList.add("disabled");
+    document.getElementById("io-input-submit").classList.add("disabled");
+}
+
+// JAVA BRIDGE
+function onInputRequested() {
+    document.getElementById("io-input").classList.remove("disabled");
+    document.getElementById("io-input-submit").classList.remove("disabled");
+    toggleSidebarSection('io-container', 'io-arrow');
 }

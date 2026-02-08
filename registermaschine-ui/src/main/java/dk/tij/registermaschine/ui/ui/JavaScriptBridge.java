@@ -1,42 +1,44 @@
 package dk.tij.registermaschine.ui.ui;
 
+import dk.tij.registermaschine.ui.SimulationController;
 import netscape.javascript.JSObject;
 
-import java.util.List;
-
 public class JavaScriptBridge {
-    private final JSObject window;
+    private final Transmitter transmitter;
+    private SimulationController controller;
 
     public JavaScriptBridge(JSObject object) {
-        this.window = object;
-        this.window.setMember("java", this);
+        object.setMember("java", this);
+        this.transmitter = new Transmitter(object);
+    }
+
+    public void setController(SimulationController controller) {
+        this.controller = controller;
     }
 
     public void println(String text) {
         System.out.printf("[JS]: %s%n", text);
     }
 
-    public void sendSourceCode(String sourceCode) {
-        println(sourceCode);
+    public void runProgram(String sourceCode) {
+        System.out.println(sourceCode);
+        if (controller != null) {
+            controller.handleRunRequest(sourceCode);
+            System.out.println("controller shenanigans");
+        }
     }
 
-    public void runProgram() {
-        println("running");
+    public void stopProgram() {
+        controller.handleStopRequest();
     }
 
-    public void saveProgram() {
-
+    public void provideInput(int value) {
+        if (controller != null) {
+            controller.provideInput(value);
+        }
     }
 
-    public void initialiseRegisters(int regCount) {
-        window.call("initialiseRegisters", regCount);
-    }
-
-    public void initialiseDocumentation(List<?> docs) {
-        window.call("initialiseDocs", (Object) docs.toArray());
-    }
-
-    public void initialiseKeywords(List<String> keywords) {
-        window.call("initialiseKeywords", (Object) keywords.toArray());
+    public Transmitter transmit() {
+        return transmitter;
     }
 }
