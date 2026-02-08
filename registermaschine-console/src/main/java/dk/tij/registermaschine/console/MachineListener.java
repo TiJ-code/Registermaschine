@@ -1,18 +1,21 @@
 package dk.tij.registermaschine.console;
 
+import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContextListener;
 
 import java.util.Scanner;
 
 public class MachineListener implements IExecutionContextListener {
     private final Scanner scanner;
-
-    public MachineListener() {
-        this.scanner = null;
-    }
+    private IExecutionContext context;
 
     public MachineListener(Scanner scanner) {
         this.scanner = scanner;
+    }
+
+    @Override
+    public void setContext(IExecutionContext ctx) {
+        this.context = ctx;
     }
 
     @Override
@@ -47,8 +50,7 @@ public class MachineListener implements IExecutionContextListener {
     }
 
     @Override
-    public Integer onInputRequested() {
-        if (scanner == null) return IExecutionContextListener.super.onInputRequested();
-        return Integer.decode(scanner.nextLine());
+    public void onInputRequested() {
+        context.provideInput(Integer.decode(scanner.nextLine()));
     }
 }
