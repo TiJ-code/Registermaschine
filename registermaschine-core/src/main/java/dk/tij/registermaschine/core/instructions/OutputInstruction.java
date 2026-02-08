@@ -12,6 +12,6 @@ public final class OutputInstruction extends AbstractInstruction {
 
     @Override
     public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
-        System.out.println( getValueFromOperand(context, operands[0]) );
+        context.output(getValueFromOperand(context, operands[0]));
     }
 }

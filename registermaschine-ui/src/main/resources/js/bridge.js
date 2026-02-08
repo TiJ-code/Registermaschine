@@ -3,7 +3,7 @@
  * Connects the HTML View to the Java Core logic
  */
 
-const lineNumbers = document.getElementById('line-numbers');
+let registerCount = 0;
 const instructionList = document.getElementById('instruction-list');
 const registerList = document.getElementById('register-list');
 
@@ -14,7 +14,7 @@ function println(text) {
 
 // JAVA BRIDGE
 function initialiseRegisters(count) {
-    println("initReg: start");
+    registerCount = count;
     registerList.innerHTML = '';
     for (let i = 0; i < count; i++) {
         const name = `R${i}`;
@@ -26,7 +26,6 @@ function initialiseRegisters(count) {
                 <span class="reg-value" id="val-${i}">0</span>
             </div>`;
     }
-    println("initReg: end");
 }
 
 // JAVA BRIDGE

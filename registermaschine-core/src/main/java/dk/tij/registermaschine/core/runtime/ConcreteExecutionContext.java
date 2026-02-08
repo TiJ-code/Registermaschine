@@ -199,4 +199,22 @@ public final class ConcreteExecutionContext implements IExecutionContext {
 
         return snapshot;
     }
+
+    @Override
+    public ExecutionSnapshot resetSnapshot() {
+        Map<Integer, Integer> dirtyRegs = HashMap.newHashMap(registers.length);
+        for (int i = 0; i < registers.length; i++) {
+            dirtyRegs.put(i, 0);
+        }
+
+        return new ExecutionSnapshot(
+                0,
+                dirtyRegs,
+                false,
+                true,
+                false,
+                (byte)0,
+                null
+        );
+    }
 }
