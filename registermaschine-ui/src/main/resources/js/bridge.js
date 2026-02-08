@@ -65,6 +65,11 @@ function runProgram() {
 // JAVA BRIDGE
 function stopProgram() {
     window.java.stopProgram();
+    programFinished();
+}
+
+// JAVA BRIDGE
+function programFinished() {
     editor.setEditable(true);
 }
 
@@ -87,17 +92,21 @@ function updateOutput(value) {
     setTimeout(() => outputEl.classList.remove('updated'), 600);
 }
 
+// shit for the docs
+const io_input = document.getElementById('io-input');
+const io_input_submit = document.getElementById("io-input-submit");
+
 // JAVA BRIDGE
 function submitInput() {
     const value = parseInt(document.getElementById("io-input").value);
     window.java.provideInput(value);
-    document.getElementById("io-input").classList.add("disabled");
-    document.getElementById("io-input-submit").classList.add("disabled");
+    io_input.classList.add("disabled");
+    io_input_submit.classList.add("disabled");
 }
 
 // JAVA BRIDGE
 function onInputRequested() {
-    document.getElementById("io-input").classList.remove("disabled");
-    document.getElementById("io-input-submit").classList.remove("disabled");
-    toggleSidebarSection('io-container', 'io-arrow');
+    io_input.classList.remove("disabled");
+    io_input_submit.classList.remove("disabled");
+    setSidebarSection('io-container', 'io-arrow', true);
 }

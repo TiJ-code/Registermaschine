@@ -16,63 +16,76 @@ import java.util.concurrent.TimeUnit;
 
 public class SimulationController {
     private final JavaScriptBridge bridge;
-    private final ConcreteExecutionContext context;
-    private final Executor runtime;
-    private ScheduledExecutorService uiScheduler;
-
     private final ConcreteInstructionSet set;
 
+    private ConcreteExecutionContext context;
+    private Executor runtime;
+    private ScheduledExecutorService uiScheduler;
+    private Thread emulationThread;
+
+
     public SimulationController(JavaScriptBridge bridge) {
+        if (bridge == null) throw new IllegalStateException("The JS Bridge cannot be null!!");
         this.bridge = bridge;
 
         this.set = new ConcreteInstructionSet();
 
         CoreConfigParser.init();
         CoreConfigParser.parseDefaultInstructionSet(set);
-
-        this.context = new ConcreteExecutionContext();
-        this.context.setInputRequestCallback(() -> {
-            bridge.transmit().requestInput();
-        });
-        this.runtime = new Executor(context, set);
-        this.uiScheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void handleRunRequest(String sourceCode) {
+        this.context = new ConcreteExecutionContext();
+        this.context.setInputRequestCallback(() -> bridge.transmit().requestInput());
+
+        this.runtime = new Executor(context, set);
+
         startUiLoop();
 
-        Thread emulationThread = new Thread(() -> {
-           try {
-               ICompiledProgram program = Pipeline.compile(sourceCode, set);
+        try {
+            ICompiledProgram program = Pipeline.compile(sourceCode, set);
+            runtime.setProgram(program);
 
-               runtime.setProgram(program);
-               runtime.setSpeed(20);
-               runtime.run();
-
-               bridge.stopProgram();
-           } catch (Exception e) {
-               Platform.runLater(() -> {
-                   e.printStackTrace();
-                   bridge.stopProgram();
-               });
-           }
-        });
-
-        emulationThread.setName("Emulator");
-        emulationThread.start();
+            emulationThread = new Thread(() -> {
+                runtime.run();
+                bridge.transmit().notifyProgramFinished();
+            }, "EmulatorThread");
+            emulationThread.start();
+        } catch (Exception e) {
+            Platform.runLater(() -> e.printStackTrace());
+        }
     }
 
     public void handleStopRequest() {
-        runtime.stop();
+        if (runtime != null) {
+            runtime.stop();;
+        }
+
+        if (emulationThread != null && emulationThread.isAlive() && Thread.currentThread() != emulationThread) {
+            try {
+                emulationThread.join();
+            } catch (InterruptedException _) {}
+        }
+
         stopUiLoop();
+
+        if (bridge != null) {
+            bridge.transmit().notifyProgramFinished();
+        }
     }
 
     public void provideInput(int value) {
-        context.provideInput(value);
+        if (context != null)
+            context.provideInput(value);
     }
 
     private void startUiLoop() {
+        if (uiScheduler == null || uiScheduler.isShutdown())
+            uiScheduler = Executors.newSingleThreadScheduledExecutor();
+
         uiScheduler.scheduleAtFixedRate(() -> {
+            if (context == null) return;
+
             ExecutionSnapshot snapshot = context.snapshotAndClearDirty();
 
             Platform.runLater(() -> {
@@ -82,6 +95,7 @@ public class SimulationController {
     }
 
     private void stopUiLoop() {
-        uiScheduler.shutdownNow();
+        if (uiScheduler != null && !uiScheduler.isShutdown())
+            uiScheduler.shutdownNow();
     }
 }
