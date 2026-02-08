@@ -1,5 +1,6 @@
 class CodeEditor {
     constructor(inputElement, highlightElement, keywords) {
+        this.container = document.getElementById('editor-stack');
         this.input = inputElement;
         this.highlightArea = highlightElement;
         this.lineNumberContainer = document.getElementById('line-numbers');
@@ -71,8 +72,7 @@ class CodeEditor {
         }
 
         // Add a trailing space fix for trailing newlines
-        const value = html + (text.endsWith('\n') ? "\n " : "");
-        this.highlightArea.innerHTML = value;
+        this.highlightArea.innerHTML = html + (text.endsWith('\n') ? "\n " : "");
     }
 
     escapeHtml(text) {
@@ -90,6 +90,20 @@ class CodeEditor {
         this.input.selectionStart = this.input.selectionEnd = start + text.length;
 
         this.render();
+    }
+
+    setEditable(editable) {
+        if (this.input.readOnly !== !editable) {
+            this.input.readOnly = !editable;
+
+            if (!editable) {
+                this.container.classList.add('editor-locked');
+                this.lineNumberContainer.classList.add('editor-locked');
+            } else {
+                this.container.classList.remove('editor-locked');
+                this.lineNumberContainer.classList.remove('editor-locked');
+            }
+        }
     }
 }
 

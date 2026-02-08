@@ -52,14 +52,23 @@ function initialiseKeywords(sentKeywords) {
 }
 
 // JAVA BRIDGE
-function runCode() {
-    window.java.sendSourceCode("halloWelt");
-    window.java.runProgram();
+function runProgram() {
+    if (!editor.input.value.trim()) {
+        println("empty source code");
+        return;
+    }
+
+    editor.setEditable(false);
+    window.java.runProgram(editor.input.value.trim());
 }
 
-// --- 3. EXECUTION HOOKS (Called by Java during runtime) ---
+function stopProgram() {
+    window.java.stopProgram();
+    editor.setEditable(true);
+}
 
-function updateRegisterUI(index, value) {
+// JAVA BRIDGE
+function updateRegister(index, value) {
     const card = document.getElementById(`reg-${index}`);
     const valSpan = document.getElementById(`val-${index}`);
 
@@ -68,79 +77,21 @@ function updateRegisterUI(index, value) {
     setTimeout(() => card.classList.remove('updated'), 600);
 }
 
-function highlightLine(pc) {
-    // Remove previous highlights
-    document.querySelectorAll('.executing-line').forEach(el => el.classList.remove('executing-line'));
-
-    // In contenteditable, lines are usually separated by <span> or text nodes.
-    // A robust way is to wrap the specific line in a class.
-    // (Simplified logic: assuming each line is a child of the editor)
-    const lines = editor.childNodes;
-    if (lines[pc]) {
-        lines[pc].classList.add('executing-line');
-    }
-}
-
-function toggleDocs() {
-    const content = document.getElementById('instruction-list');
-    const arrow = document.getElementById('docs-arrow');
-    content.classList.toggle('hidden');
-    arrow.innerText = content.classList.contains('hidden') ? "▲" : "▼";
-    println("toggleDocs");
-}
-
-// --- 4. CARET MANAGEMENT (The "Secret Sauce") ---
-
-function getCaretCharacterOffsetWithin(element) {
-    let caretOffset = 0;
-    const doc = element.ownerDocument || element.document;
-    const win = doc.defaultView || doc.parentWindow;
-    const sel = win.getSelection();
-    if (sel.rangeCount > 0) {
-        const range = win.getSelection().getRangeAt(0);
-        const preCaretRange = range.cloneRange();
-        preCaretRange.selectNodeContents(element);
-        preCaretRange.setEnd(range.endContainer, range.endOffset);
-        caretOffset = preCaretRange.toString().length;
-    }
-    return caretOffset;
-}
-
-function setCurrentCursorPosition(element, offset) {
-    if (offset < 0) return;
-    const selection = window.getSelection();
-    const range = createRange(element, { count: offset });
-    if (range) {
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }
-}
-
-function createRange(node, chars, range) {
-    if (!range) {
-        range = document.createRange();
-        range.selectNode(node);
-        range.setStart(node, 0);
-    }
-
-    if (chars.count === 0) {
-        range.setEnd(node, chars.count);
-    } else if (node && chars.count > 0) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            if (node.textContent.length < chars.count) {
-                chars.count -= node.textContent.length;
-            } else {
-                range.setEnd(node, chars.count);
-                chars.count = 0;
-            }
-        } else {
-            for (let lp = 0; lp < node.childNodes.length; lp++) {
-                let child = node.childNodes[lp];
-                range = createRange(child, chars, range);
-                if (chars.count === 0) break;
-            }
+function updateRegistersBatch(updates) {
+    Object.entries(updates).forEach(([value, index]) => {
+        const valSpan = document.getElementById(`val-${index}`);
+        if (valSpan) {
+            valSpan.innerText = value;
         }
-    }
-    return range;
+    });
+}
+
+
+// JAVA BRIDGE
+function updateOutput(value) {
+    const outputEl = document.getElementById('io-output');
+    outputEl.innerText = value;
+
+    outputEl.classList.add('updated');
+    setTimeout(() => outputEl.classList.remove('updated'), 600);
 }

@@ -2,6 +2,7 @@
     position: relative;
     flex: 1;
     background: var(--bg-dark);
+    transition: background-color 0.3s ease;
 }
 
 #editor-input, #editor-highlight {
@@ -50,41 +51,49 @@
     color: #858585;
     text-align: right;
     border-right: 1px solid var(--border);
-    font-family: var(--font-mono), monospace;
     font-size: 14px;
     line-height: 1.5;
     user-select: none;
+    transition: background-color 0.3s ease;
 }
 
-#editor {
-    flex: 1;
-    overflow: auto;
-    padding: 12px 16px;
-    outline: none;
-    white-space: pre;
-    line-height: 1.5;
-    font-family: var(--font-mono), monospace;
-    font-size: 14px;
-    white-space: pre;
-    border: none;
-    tab-size: 4;
+.editor-locked #editor-input {
+    cursor: not-allowed;
+}
 
-    /* Alternative: Simple active line style */
-    caret-color: var(--accent);
+.editor-locked {
+    opacity: 0.8;
+    background: #1a1a1a;
+    pointer-events: none;
 }
 
 /* Syntax Highlighting based on Java Token Types */
-.token-mnemonic { color: #569cd6; font-weight: bold; }
-.token-register { color: #9cdcfe; }
-.token-number   { color: #eb414f; }
-.token-label    { color: #96d85d; }
-.token-address  { color: #d2d11a; }
-.token-comment  { color: #6a9955; font-style: italic; }
-.token-operator { color: #d4d4d4; }
+.token-mnemonic {
+    color: #569cd6;
+    font-weight: bold;
+}
 
-/* The Line Highlight for PC */
-.executing-line {
-    background: rgba(255, 255, 0, 0.1);
-    box-shadow: inset 4px 0 0 #f1c40f;
-    display: block;
+.token-register {
+    color: #9cdcfe;
+}
+
+.token-number {
+    color: #eb414f;
+}
+
+.token-label {
+    color: #96d85d;
+}
+
+.token-address {
+    color: #d2d11a;
+}
+
+.token-comment {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.token-operator {
+    color: #d4d4d4;
 }

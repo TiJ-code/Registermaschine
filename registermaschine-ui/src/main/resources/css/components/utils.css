@@ -1,0 +1,90 @@
+.docs-hidden {
+    opacity: 0 !important;
+}
+
+.invisible {
+    display: none !important;
+}
+
+.disabled {
+    color: gray !important;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.triangle-right {
+    width: 10px;
+    height: 10px;
+    clip-path: polygon(100% 50%, 0% 0%, 0% 100%);
+    background: white;
+    display: block;
+}
+
+.triangle-up {
+    width: 10px;
+    height: 10px;
+    clip-path: polygon(100% 50%, 0% 0%, 0% 100%);
+    transform: rotate(-90deg);
+    background: white;
+    display: block;
+}
+
+.rectangle {
+    width: 10px;
+    height: 10px;
+    background: white;
+    display: block;
+}
+
+.circle {
+    width: 10px;
+    height: 10px;
+    clip-path: circle();
+    background: white;
+    color: black;
+    display: block;
+}
+
+.alert-notification {
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    background: var(--alert-bg);
+    position: relative;
+    display: inline-block;
+}
+
+.alert-notification::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 3px;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 7px;
+    background: var(--alert-fg);
+    border-radius: 1px;
+}
+
+.alert-notification::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 2px;
+    background: var(--alert-fg);
+    border-radius: 50%;
+    animation: alert-pulse 1.6s ease-out infinite;
+}
+
+.arrow {
+    display: inline-block;
+    transition: 0.3s ease-in-out;
+    user-select: none;
+}
+
+.arrow.rotated {
+    transform: rotate(-180deg);
+}

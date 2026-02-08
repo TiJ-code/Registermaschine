@@ -1,56 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>JASM IDE v1.5</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/components/editor.css">
-  <link rel="stylesheet" href="css/components/registers.css">
-  <link rel="stylesheet" href="css/components/instructions.css">
+    <meta charset="UTF-8">
+    <title>JASM IDE v1.5</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="app-container">
-  <aside class="sidebar">
-    <header>
-      <div class="status-dot" id="status-indicator"></div>
-      <h1>Registers</h1>
-    </header>
-    <div id="register-list" class="register-grid">
-    </div>
-  </aside>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!--
+        <header class="collapsible-sidebar-header disabled" onclick="toggleSidebarSection('execution-container', 'execution-arrow')">
+            <h2>Execution</h2>
+            <span id="execution-arrow" class="arrow">▼</span>
+        </header>
+        <div id="execution-container" class="collapsible-sidebar-content collapsed">
+        </div>-->
 
-  <main class="workspace">
-    <nav class="toolbar">
-      <button class="btn btn-run" onclick="runCode()">▶ Run</button>
-      <!--<button class="btn" onclick="java.stepCode()">↷ Step</button>-->
-      <button class="btn" onclick="java.stopCode()">⏹ Stop</button>
-      <div class="spacer"></div>
-      <!--<button class="btn btn-outline" onclick="java.saveFile()">Save</button>-->
-    </nav>
+        <header class="collapsible-sidebar-header" onclick="toggleSidebarSection('io-container', 'io-arrow')">
+            <h2>I/O</h2>
+            <span id="io-arrow" class="arrow">▼</span><!--▲-->
+        </header>
+        <div id="io-container" class="collapsible-sidebar-content collapsed">
+            <div class="io-panel">
+                <div class="io-group">
+                    <label for="io-input">INPUT</label>
+                    <div class="io-field-wrapper">
+                        <input type="number" id="io-input" placeholder="Enter value...">
+                        <button>&gt;</button>
+                    </div>
+                </div>
 
-    <div class="editor-section">
-      <div class="line-numbers" id="line-numbers">1</div>-
-      <div class="editor-stack">
-        <textarea id="editor-input" spellcheck="false"></textarea>
-        <div id="editor-highlight" aria-hidden="true"></div>
-      </div>
-      <!--<div id="editor"
-           contenteditable="true"
-           spellcheck="false">JMP @0x123
-peter:</div>-->
-    </div>
+                <div class="io-group">
+                    <label>OUTPUT</label>
+                    <div id="io-output" class="io-field-display"></div>
+                </div>
+            </div>
+        </div>
 
-    <section class="docs-panel" id="docs-panel">
-      <div class="docs-header" onclick="toggleDocs()">
-        <span>Instruction Set</span>
-        <span id="docs-arrow">▲</span>
-      </div>
-      <div id="instruction-list" class="docs-content hidden">
-      </div>
-    </section>
-  </main>
+        <!-- Title -->
+        <div class="register-container">
+            <header>
+                <h2>Registers</h2>
+            </header>
+            <div id="register-list" class="register-grid">
+            </div>
+        </div>
+
+    </aside>
+
+    <main class="workspace">
+        <!-- Toolbar -->
+        <nav class="toolbar">
+            <p>program.jasm</p>
+            <div class="spacer"></div>
+            <div class="btn btn-run" onclick="runProgram()">
+                <div class="triangle-right"></div>
+                <p>Run</p>
+            </div>
+            <!--<button class="btn" onclick="java.stepCode()">↷ Step</button>-->
+            <div class="btn" onclick="stopProgram()">
+                <div class="rectangle"></div>
+                <p>Stop</p>
+            </div>
+            <!--<button class="btn btn-outline" onclick="java.saveFile()">Save</button>-->
+        </nav>
+
+        <!-- Code Editor -->
+        <div class="editor-section">
+            <div class="line-numbers" id="line-numbers">1</div>
+            <div id="editor-stack" class="editor-stack">
+                <textarea id="editor-input" spellcheck="false"></textarea>
+                <div id="editor-highlight" aria-hidden="true"></div>
+            </div>
+        </div>
+
+        <!-- Instruction Documentation -->
+        <section class="docs-panel" id="docs-panel">
+            <div class="docs-header" onclick="toggleDocs()">
+                <span>Instruction Set</span>
+                <span id="docs-arrow" class="arrow">▲</span>
+            </div>
+            <div id="instruction-container" class="docs-container">
+                <div id="instruction-list" class="docs-content">
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 <script src="js/bridge.js"></script>
+<script src="js/script.js"></script>
 <script src="js/code-editor.js"></script>
+<script src="js/sidebar.js"></script>
 </body>
 </html>
