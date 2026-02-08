@@ -59,7 +59,8 @@ public class Executor {
             Thread.currentThread().interrupt();
         } finally {
             running = false;
-            context.stopExecution();
+            if (!context.isHalted())
+                context.stopExecution();
         }
     }
 

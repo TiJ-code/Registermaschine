@@ -10,10 +10,12 @@ public interface IExecutionContext {
 
     default void addListener(IExecutionContextListener listener) {
         listeners.add(listener);
+        listener.setContext(this);
     }
 
     default void removeListener(IExecutionContextListener listener) {
         listeners.remove(listener);
+        listener.setContext(null);
     }
 
     int getRegister(int index);
@@ -40,6 +42,7 @@ public interface IExecutionContext {
     int maxJumpCounter();
 
     void output(int value);
+    void provideInput(int value);
     int input();
 
     ExecutionSnapshot snapshotAndClearDirty();

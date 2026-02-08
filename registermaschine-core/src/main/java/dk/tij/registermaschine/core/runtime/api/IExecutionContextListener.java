@@ -1,6 +1,8 @@
 package dk.tij.registermaschine.core.runtime.api;
 
 public interface IExecutionContextListener {
+    void setContext(IExecutionContext ctx);
+
     void onExecutionStarted();
     void onExecutionStopped();
 
@@ -9,7 +11,5 @@ public interface IExecutionContextListener {
     void onExitCodeChanged(byte newValue);
     void onProgrammeCounterChanged(int newPc);
     void onOutput(int value);
-    default Integer onInputRequested() {
-        return null;
-    }
+    default void onInputRequested() {}
 }
