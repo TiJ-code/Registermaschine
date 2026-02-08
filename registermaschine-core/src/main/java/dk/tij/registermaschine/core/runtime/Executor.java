@@ -6,14 +6,16 @@ import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
-public class Executor {
+public class Executor implements Runnable {
     private static final long UNLIMITED_RATE_LIMIT_MS = 10;
+
+    private Thread currentThread;
 
     private final IExecutionContext context;
     private final IInstructionSet instructionSet;
     private ICompiledProgram program;
 
-    private boolean running;
+    private volatile boolean running;
     private long delayMs = UNLIMITED_RATE_LIMIT_MS;
 
     public Executor(IExecutionContext context, IInstructionSet instructionSet) {
@@ -27,11 +29,11 @@ public class Executor {
         this.program = program;
     }
 
+    @Override
     public void run() {
-        if (running) return;
-
         running = true;
         context.startExecution();
+        currentThread = Thread.currentThread();
 
         try {
             while (running && !context.isHalted() && context.getProgrammeCounter() < program.size()) {
@@ -59,6 +61,7 @@ public class Executor {
             Thread.currentThread().interrupt();
         } finally {
             running = false;
+            currentThread = null;
             if (!context.isHalted())
                 context.stopExecution();
         }
@@ -70,10 +73,13 @@ public class Executor {
     }
 
     public void setSpeed(int hertz) {
+        if (running) return;
         this.delayMs = Math.max(UNLIMITED_RATE_LIMIT_MS, 1000 / hertz);
     }
 
     public void stop() {
         this.running = false;
+        if (currentThread != null)
+            currentThread.interrupt();
     }
 }
