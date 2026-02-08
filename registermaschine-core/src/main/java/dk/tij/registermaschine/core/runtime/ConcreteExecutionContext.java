@@ -5,12 +5,17 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContextListener;
 import dk.tij.registermaschine.core.config.CoreConfig;
 
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public final class ConcreteExecutionContext implements IExecutionContext {
     private static final byte FLAG_RUNNING = 0b0001,
             FLAG_ZERO = 0b0010,
             FLAG_NEGATIVE = 0b0100,
             FLAG_OVERFLOW = 0b1000;
+
+    private final BlockingQueue<Integer> inputQueue = new LinkedBlockingQueue<>();
+    private Runnable inputRequestCallback;
 
     private final int[] registers;
     private int programmeCounter;
@@ -141,12 +146,28 @@ public final class ConcreteExecutionContext implements IExecutionContext {
 
     @Override
     public int input() {
-        for (IExecutionContextListener l : listeners) {
-            Integer value = l.onInputRequested();
-            if (value != null)
-                return value;
+        listeners.forEach(IExecutionContextListener::onInputRequested);
+        notifyInputRequested();
+
+        try {
+            return inputQueue.take();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Execution interrupted while waiting for input!");
         }
-        throw new UnsupportedOperationException("Input cannot not be provided by listeners");
+    }
+
+    public void provideInput(int value) {
+        inputQueue.offer(value);
+    }
+
+    private void notifyInputRequested() {
+        if (inputRequestCallback != null)
+            inputRequestCallback.run();
+    }
+
+    public void setInputRequestCallback(Runnable callback) {
+        this.inputRequestCallback = callback;
     }
 
     @Override
