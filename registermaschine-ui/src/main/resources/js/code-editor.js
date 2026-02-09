@@ -1,3 +1,6 @@
+const KEYCODE_TAB = 9;
+const KEYCODE_ENTER = 13;
+
 class CodeEditor {
     constructor(inputElement, highlightElement, keywords) {
         this.container = document.getElementById('editor-stack');
@@ -21,7 +24,7 @@ class CodeEditor {
 
         // Handle Tab & Enter
         this.input.addEventListener("keydown", (e) => {
-            if (e.key === "Tab") {
+            if (e.keyCode === KEYCODE_TAB) {
                 e.preventDefault();
                 const start = this.input.selectionStart;
                 const end = this.input.selectionEnd;
@@ -35,9 +38,10 @@ class CodeEditor {
                 renderingFunc();
             }
 
-            if (e.key === "Enter") {
+            if (e.keyCode === KEYCODE_ENTER) {
                 e.preventDefault();
                 this.insertTextAtCaret("\n");
+                this.ensureCaretVisible();
                 renderingFunc();
             }
         });
@@ -105,6 +109,32 @@ class CodeEditor {
             }
         }
     }
+
+    ensureCaretVisible() {
+        const textarea = this.input;
+        const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight);
+
+        const textBeforeCaret = textarea.value.substring(0, textarea.selectionStart);
+        const caretLine = textBeforeCaret.split('\n').length - 1;
+
+        const caretTop = caretLine * lineHeight;
+        const caretBottom = caretTop + lineHeight;
+
+        const scrollTop = textarea.scrollTop;
+        const scrollBottom = scrollTop + textarea.clientHeight;
+
+        if (caretTop < scrollTop + lineHeight) {
+            textarea.scrollTop = caretTop - lineHeight;
+        }
+        else if (caretBottom > scrollBottom - lineHeight) {
+            textarea.scrollTop = caretBottom - textarea.clientHeight + lineHeight;
+        }
+
+        this.highlightArea.scrollTop = textarea.scrollTop;
+        this.lineNumberContainer.scrollTop = textarea.scrollTop;
+    }
+
+
 }
 
 const editor = new CodeEditor(
