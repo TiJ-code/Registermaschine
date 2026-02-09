@@ -51,6 +51,9 @@ function initialiseKeywords(sentKeywords) {
     editor.updateKeywords(sentKeywords);
 }
 
+const runButton = document.getElementById("run-button");
+const stopButton = document.getElementById("stop-button");
+
 // JAVA BRIDGE
 function runProgram() {
     if (!editor.input.value.trim()) {
@@ -66,6 +69,9 @@ function runProgram() {
         if (card) card.classList.remove('updated');
     }
 
+    runButton.classList.add("disabled");
+    stopButton.classList.remove("disabled");
+
     editor.setEditable(false);
     window.java.runProgram(editor.input.value.trim());
 }
@@ -78,6 +84,8 @@ function stopProgram() {
 
 // JAVA BRIDGE
 function programFinished() {
+    runButton.classList.remove("disabled");
+    stopButton.classList.add("disabled");
     editor.setEditable(true);
 }
 

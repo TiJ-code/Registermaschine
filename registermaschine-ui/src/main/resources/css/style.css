@@ -91,6 +91,22 @@ body, html {
     background: #218838;
 }
 
+.btn-run.disabled {
+    background: #285932;
+}
+
+.btn-stop {
+    background: #eb414f;
+}
+
+.btn-stop:hover {
+    background: #8a1e25;
+}
+
+.btn-stop.disabled {
+    background: #5c181b;
+}
+
 .spacer {
     flex: 1;
 }
