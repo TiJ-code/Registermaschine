@@ -2,6 +2,7 @@
  * JASM IDE Bridge
  * Connects the HTML View to the Java Core logic
  */
+const __globalRegisterMap = new Map();
 
 let registerCount = 0;
 const instructionList = document.getElementById('instruction-list');
@@ -57,6 +58,14 @@ function runProgram() {
         return;
     }
 
+    for (let i = 0; i < registerCount; i++) {
+        const valSpan = document.getElementById(`val-${i}`);
+        const card = document.getElementById(`reg-${i}`);
+
+        if (valSpan) valSpan.innerText = "0";
+        if (card) card.classList.remove('updated');
+    }
+
     editor.setEditable(false);
     window.java.runProgram(editor.input.value.trim());
 }
@@ -86,6 +95,8 @@ function updateRegister(index, value) {
 function updateOutput(value) {
     const outputEl = document.getElementById('io-output');
     outputEl.innerText = value;
+
+    setSidebarSection('io-container', 'io-arrow', true);
 
     outputEl.classList.add('updated');
     setTimeout(() => outputEl.classList.remove('updated'), 600);

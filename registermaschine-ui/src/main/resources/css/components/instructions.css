@@ -23,7 +23,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 10px;
-    overflow: hidden;
+    overflow: auto;
     max-height: 200px;
     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }

@@ -41,7 +41,6 @@ public class SimulationController {
         this.runtime = new Executor(context, set);
 
         startUiLoop();
-        resetUI();
 
         try {
             ICompiledProgram program = Pipeline.compile(sourceCode, set);
@@ -98,11 +97,5 @@ public class SimulationController {
     private void stopUiLoop() {
         if (uiScheduler != null && !uiScheduler.isShutdown())
             uiScheduler.shutdownNow();
-    }
-
-    private void resetUI() {
-        if (context == null) return;
-
-        bridge.transmit().updateFromSnapshot(context.resetSnapshot());
     }
 }

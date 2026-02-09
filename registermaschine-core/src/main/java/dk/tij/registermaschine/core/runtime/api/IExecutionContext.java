@@ -46,5 +46,4 @@ public interface IExecutionContext {
     int input() throws InterruptedException;
 
     ExecutionSnapshot snapshotAndClearDirty();
-    ExecutionSnapshot resetSnapshot();
 }
