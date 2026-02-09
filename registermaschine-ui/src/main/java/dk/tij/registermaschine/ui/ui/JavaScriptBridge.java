@@ -20,10 +20,10 @@ public class JavaScriptBridge {
         System.out.printf("[JS]: %s%n", text);
     }
 
-    public void runProgram(String sourceCode) {
+    public void runProgram(String sourceCode, boolean useDebug) {
         System.out.println(sourceCode);
         if (controller != null) {
-            controller.handleRunRequest(sourceCode);
+            controller.handleRunRequest(sourceCode, useDebug);
             System.out.println("controller shenanigans");
         }
     }

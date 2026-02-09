@@ -34,11 +34,12 @@ public class SimulationController {
         CoreConfigParser.parseDefaultInstructionSet(set);
     }
 
-    public void handleRunRequest(String sourceCode) {
+    public void handleRunRequest(String sourceCode, boolean useDebug) {
         this.context = new ConcreteExecutionContext();
         this.context.setInputRequestCallback(() -> bridge.transmit().requestInput());
 
         this.runtime = new Executor(context, set);
+        if (useDebug) runtime.setSpeed(2);
 
         startUiLoop();
 

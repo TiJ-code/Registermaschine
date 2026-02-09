@@ -38,6 +38,17 @@ body, html {
     background: var(--bg-dark);
     color: var(--text);
     overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+textarea,
+input,
+[contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+    -ms-user-select: text;
 }
 
 .app-container {

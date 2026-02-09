@@ -27,3 +27,7 @@ function toggleDocs() {
     content.classList.toggle(class_instructions_visible);
     arrow.classList.toggle(class_arrow_rotation);
 }
+
+function toggleDebug(e) {
+    useDebug = e.checked;
+}

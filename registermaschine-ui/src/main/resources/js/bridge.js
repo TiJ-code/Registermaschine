@@ -2,11 +2,16 @@
  * JASM IDE Bridge
  * Connects the HTML View to the Java Core logic
  */
-const __globalRegisterMap = new Map();
-
-let registerCount = 0;
+let registerCount = 0, useDebug = false;
 const instructionList = document.getElementById('instruction-list');
 const registerList = document.getElementById('register-list');
+
+const runButton = document.getElementById("run-button");
+const stopButton = document.getElementById("stop-button");
+
+// shit for the docs
+const io_input = document.getElementById('io-input');
+const io_input_submit = document.getElementById("io-input-submit");
 
 // JAVA BRIDGE
 function println(text) {
@@ -51,9 +56,6 @@ function initialiseKeywords(sentKeywords) {
     editor.updateKeywords(sentKeywords);
 }
 
-const runButton = document.getElementById("run-button");
-const stopButton = document.getElementById("stop-button");
-
 // JAVA BRIDGE
 function runProgram() {
     if (!editor.input.value.trim()) {
@@ -73,7 +75,7 @@ function runProgram() {
     stopButton.classList.remove("disabled");
 
     editor.setEditable(false);
-    window.java.runProgram(editor.input.value.trim());
+    window.java.runProgram(editor.input.value.trim(), useDebug);
 }
 
 // JAVA BRIDGE
@@ -109,10 +111,6 @@ function updateOutput(value) {
     outputEl.classList.add('updated');
     setTimeout(() => outputEl.classList.remove('updated'), 600);
 }
-
-// shit for the docs
-const io_input = document.getElementById('io-input');
-const io_input_submit = document.getElementById("io-input-submit");
 
 // JAVA BRIDGE
 function submitInput() {
