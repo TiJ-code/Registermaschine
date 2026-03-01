@@ -45,6 +45,11 @@ public class MachineListener implements IExecutionContextListener {
     public void onProgrammeCounterChanged(int newPc) {}
 
     @Override
+    public void onMaxJumpsReached() {
+        System.out.println("Max Jumps Reached");
+    }
+
+    @Override
     public void onOutput(int value) {
         System.out.println("OUT: " + value);
     }

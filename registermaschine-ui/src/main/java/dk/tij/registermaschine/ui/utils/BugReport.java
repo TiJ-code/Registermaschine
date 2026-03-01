@@ -2,6 +2,8 @@ package dk.tij.registermaschine.ui.utils;
 
 import dk.tij.jissuesystem.JIssueSystem;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
 public final class BugReport {
@@ -12,9 +14,12 @@ public final class BugReport {
     static {
         String pat = null;
         try {
-            var is = BugReport.class.getResourceAsStream("/.env");
+            var is = BugReport.class.getResourceAsStream("/bug.env");
             if (is != null) {
-                pat = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim();
+                String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                content = new StringBuilder(content).reverse().toString();
+
+                pat = new String(Base64.getDecoder().decode(content), StandardCharsets.UTF_8);
                 is.close();
             }
         } catch (Exception _) {}

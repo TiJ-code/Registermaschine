@@ -91,7 +91,7 @@ public class ConsoleApplication {
     }
 
     static void printUsage() {
-        System.out.printf("%s %s%n", "Usage:", "./core ");
+        System.out.printf("%s %s%n", "Usage:", "./jcc ");
         System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o>", ": Compile source to binary");
         System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o> -r", ": Compile and run");
         System.out.printf("  %-30s%s%n", "-r <out.o>", ": Run binary file");

@@ -1,0 +1,117 @@
+name: Build Portables
+on:
+  push:
+    branches: [ rework/implementation ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+            script_ext: .bat
+          - os: ubuntu-latest
+            platform: linux-x64
+            script_ext: .sh
+          - os: macos-latest
+            platform: mac
+            script_ext: .sh
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Install local dependency
+        run: |
+          mvn install:install-file \
+            -Dfile=libs/jissuesystem-0.1.0.jar \
+            -DgroupId=dk.tij \
+            -DartifactId=jissuesystem \
+            -Dversion=0.1.0 \
+            -Dpackaging=jar
+        shell: bash
+
+      - name: Build project
+        run: mvn clean package -DskipTests
+
+      - name: Create Minimal JRE
+        run: |
+          jlink --add-modules java.base,java.desktop,java.scripting,java.logging,java.net.http,jdk.jsobject,jdk.xml.dom,jdk.crypto.ec,jdk.unsupported \
+                --output jre-min --strip-debug --no-header-files --no-man-pages
+        shell: bash
+
+      # --- BUILD UI BUNDLE ---
+      - name: Prepare UI Bundle
+        run: |
+            mkdir -p ui-bundle/jre
+            
+            # Find the JAR file (avoids hardcoding version numbers)
+            # We search for the largest JAR to avoid picking up the small 'original' jar
+            cp $(ls -S registermaschine-ui/target/*.jar | head -n 1) ui-bundle/app.jar
+            
+            # Copy JRE content
+            cp -r jre-min/* ui-bundle/jre/
+            
+            # Copy the script
+            cp registermaschine-ui/src/main/resources/bin/start-ui${{ matrix.script_ext }} ui-bundle/start${{ matrix.script_ext }}
+            
+            # Permissions
+            if [ "${{ matrix.os }}" != "windows-latest" ]; then
+              chmod +x ui-bundle/start${{ matrix.script_ext }}
+              chmod -R +x ui-bundle/jre/bin/
+            fi
+        shell: bash
+
+      - name: Package UI Zip
+        uses: thedoctor0/zip-release@main
+        with:
+          type: 'zip'
+          filename: ../registermaschine-ui-${{ matrix.platform }}.zip
+          directory: ui-bundle
+          path: '.'
+
+      # --- BUILD CONSOLE BUNDLE ---
+      - name: Prepare Console Bundle
+        run: |
+            mkdir -p console-bundle/jre
+          
+            # Find the JAR file (avoids hardcoding version numbers)
+            # We search for the largest JAR to avoid picking up the small 'original' jar
+            cp $(ls -S registermaschine-console/target/*.jar | head -n 1) console-bundle/app.jar
+          
+            # Copy JRE content
+            cp -r jre-min/* console-bundle/jre/
+          
+            # Copy the script
+            cp registermaschine-console/src/main/resources/bin/start-console${{ matrix.script_ext }} console-bundle/start${{ matrix.script_ext }}
+          
+            if [ "${{ matrix.os }}" != "windows-latest" ]; then
+              chmod +x console-bundle/start${{ matrix.script_ext }}
+              chmod -R +x console-bundle/jre/bin/
+            fi
+        shell: bash
+
+      - name: Package Console Zip
+        uses: thedoctor0/zip-release@main
+        with:
+          type: 'zip'
+          filename: ../registermaschine-console-${{ matrix.platform }}.zip
+          directory: console-bundle
+          path: '.'
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries-${{ matrix.platform }}
+          path: "*.zip"
