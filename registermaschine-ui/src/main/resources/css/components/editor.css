@@ -3,7 +3,7 @@
     flex: 1;
     background: var(--bg-dark);
     transition: background-color 0.3s ease;
-    overflow: auto;
+    overflow: hidden;
     min-height: 0;
     scroll-behavior: smooth;
 }
@@ -81,6 +81,20 @@
     opacity: 0.8;
     background: #1a1a1a;
     pointer-events: none;
+}
+
+.current-line-highlight {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+}
+
+.editor-locked .current-line-highlight {
+    display: none !important;
 }
 
 /* Syntax Highlighting based on Java Token Types */

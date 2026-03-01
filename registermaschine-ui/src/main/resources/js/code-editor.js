@@ -1,6 +1,8 @@
 const KEYCODE_TAB = 9;
 const KEYCODE_ENTER = 13;
 const KEYCODE_BACKSPACE = 8;
+const KEYCODE_ARROW_UP = 33;
+const KEYCODE_END = 40;
 
 class CodeEditor {
     constructor(inputElement, highlightElement, keywords) {
@@ -8,6 +10,7 @@ class CodeEditor {
         this.input = inputElement;
         this.highlightArea = highlightElement;
         this.lineNumberContainer = document.getElementById('line-numbers');
+        this.lineHighlight = document.getElementById('current-line-highlight');
 
         this.lastSavedContent = "";
         this.isDirty = false;
@@ -15,21 +18,35 @@ class CodeEditor {
 
         this.updateKeywords(keywords);
 
+        this.input.addEventListener("click", () => this.updateLineHighlight());
+        this.input.addEventListener("keyup", (e) => {
+            if (e.keyCode >= KEYCODE_ARROW_UP && e.keyCode <= KEYCODE_END) {
+                this.updateLineHighlight();
+            }
+        });
+
+        this.input.addEventListener("focus", ()=> this.lineHighlight.style.display = 'block');
+        this.input.addEventListener("blur", ()=> this.lineHighlight.style.display = 'none');
+
         // Sync scrolling
         this.input.addEventListener("scroll", () => {
             this.highlightArea.scrollTop = this.input.scrollTop;
             this.highlightArea.scrollLeft = this.input.scrollLeft;
             this.lineNumberContainer.scrollTop = this.input.scrollTop;
+            this.updateLineHighlight();
         });
 
         // Handle typing
         this.input.addEventListener("input", () => {
             this.render();
             this.checkDirtyStatus();
+            this.updateLineHighlight();
         });
 
         // Handle Tab & Enter
         this.input.addEventListener("keydown", (e) => {
+            this.updateLineHighlight();
+
             if (e.ctrlKey && !e.shiftKey && e.keyCode === KEYCODE_BACKSPACE) {
                 e.preventDefault();
                 this.handleCtrlBackspace();
@@ -82,6 +99,7 @@ class CodeEditor {
 
         // Add a trailing space fix for trailing newlines
         this.highlightArea.innerHTML = html + (text.endsWith('\n') ? "\n " : "");
+        this.updateLineHighlight();
     }
 
     escapeHtml(text) {
@@ -100,6 +118,28 @@ class CodeEditor {
 
         this.render();
         this.checkDirtyStatus();
+        this.updateLineHighlight();
+    }
+
+    updateLineHighlight() {
+        const textarea = this.input;
+        const highlightLayer = this.highlightArea; // #editor-highlight
+
+        const textBeforeCaret = textarea.value.substring(0, textarea.selectionStart);
+        const lineIndex = textBeforeCaret.split('\n').length - 1;
+
+        const style = window.getComputedStyle(highlightLayer);
+        const lineHeight = parseFloat(style.lineHeight);
+        const paddingTop = parseFloat(style.paddingTop);
+
+        const topPosition = (paddingTop + (lineIndex * lineHeight)) - textarea.scrollTop - (lineIndex > 0 ? 2 : 0);
+
+        this.lineHighlight.style.top = `${topPosition}px`;
+        this.lineHighlight.style.height = `${lineHeight}px`;
+
+        this.lineHighlight.style.display = (document.activeElement === textarea &&
+            topPosition >= 0 &&
+            topPosition < textarea.clientHeight) ? 'block' : 'none';
     }
 
     setEditable(editable) {
