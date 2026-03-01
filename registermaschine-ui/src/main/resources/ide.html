@@ -7,23 +7,52 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-    <header hidden="hidden">
+    <div id="bug-modal" class="modal-background">
+        <div class="modal">
+            <div class="modal-header">
+                <h1>Report a Bug</h1>
+                <p>Help to improve Registermaschine</p>
+            </div>
+
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="bug-title">Title</label>
+                    <input id="bug-title" type="text" placeholder="e.g. Error loading file">
+                </div>
+                <div class="input-group">
+                    <label for="bug-description">Description</label>
+                    <textarea id="bug-description" rows="5" placeholder="What happened? What were the steps?"></textarea>
+                </div>
+            </div>
+            <div class="modal-disclaimer">
+                <span>Information about your device (e.g. OS, Java-Version) are automatically appended to your description!</span>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="toggleModal('bug-modal', false)">Cancel</button>
+                <button id="submit-bug-button" class="btn-primary" onclick="submitBugReport()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
         <button class="btn" onclick="fileAction(FileActions.NEW)">New</button>
         <button class="btn" onclick="fileAction(FileActions.SAVE)">Save</button>
         <button class="btn" onclick="fileAction(FileActions.SAVE_AS)">Save As</button>
         <button class="btn" onclick="fileAction(FileActions.LOAD)">Load</button>
+        <div class="spacer"></div>
+        <button id="bug-button" class="bug" onclick="toggleModal('bug-modal', true)"></button>
     </header>
 
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <!--
             <header class="collapsible-sidebar-header disabled" onclick="toggleSidebarSection('execution-container', 'execution-arrow')">
                 <h2>Execution</h2>
                 <span id="execution-arrow" class="arrow">▼</span>
             </header>
             <div id="execution-container" class="collapsible-sidebar-content collapsed">
-            </div>-->
+            </div>
 
             <header class="collapsible-sidebar-header" onclick="toggleSidebarSection('io-container', 'io-arrow')">
                 <h2>I/O</h2>

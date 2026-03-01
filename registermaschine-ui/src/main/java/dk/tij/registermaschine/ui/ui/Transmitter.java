@@ -76,4 +76,14 @@ public final class Transmitter {
     public void confirmFileAction() {
         Platform.runLater(() -> window.call("onFileActionConfirmed"));
     }
+
+    @ToUi
+    public void toggleBugButton(boolean active) {
+        Platform.runLater(() -> window.call("toggleBugButton", active));
+    }
+
+    @ToUi
+    public void closeBugModal() {
+        Platform.runLater(() -> window.call("toggleModal", "bug-modal", false));
+    }
 }

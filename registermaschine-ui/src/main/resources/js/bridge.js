@@ -152,3 +152,13 @@ function setFileName(fileName) {
 function onFileActionConfirmed() {
     editor.markClean();
 }
+
+// FROM JAVA
+function toggleBugButton(active) {
+    document.getElementById("submit-bug-button").disabled = !active;
+}
+
+// TO JAVA
+function sendBugReport(title, description) {
+    window.java?.reportBug(title, description);
+}

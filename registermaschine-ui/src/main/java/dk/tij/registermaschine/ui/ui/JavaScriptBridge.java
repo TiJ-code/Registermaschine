@@ -3,7 +3,9 @@ package dk.tij.registermaschine.ui.ui;
 import dk.tij.registermaschine.ui.SimulationController;
 import dk.tij.registermaschine.ui.annotations.ToJava;
 import dk.tij.registermaschine.ui.annotations.ToUi;
+import dk.tij.registermaschine.ui.utils.BugReport;
 import dk.tij.registermaschine.ui.utils.FileHandler;
+import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
 import java.io.IOException;
@@ -94,6 +96,16 @@ public class JavaScriptBridge {
             transmit().setFileName(fileHandler.getCurrentFileName());
             transmit().confirmFileAction();
         }
+    }
+
+    @ToJava
+    public void reportBug(String title, String description) {
+        transmit().toggleBugButton(false);
+        BugReport.report(title, description)
+                .thenAccept(_ -> {
+                    transmit().toggleBugButton(true);
+                    transmit().closeBugModal();
+                });
     }
 
     @ToUi

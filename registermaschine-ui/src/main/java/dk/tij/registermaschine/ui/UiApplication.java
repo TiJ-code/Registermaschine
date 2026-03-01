@@ -10,6 +10,8 @@ import dk.tij.registermaschine.ui.utils.FileHandler;
 import dk.tij.registermaschine.ui.utils.InstructionMapper;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
@@ -70,7 +72,7 @@ public class UiApplication extends Application {
         stage.setTitle("JASM v2.0.0 - by @TiJ");
         stage.setResizable(true);
         stage.setMinWidth(640);
-        stage.setMinHeight(360);
+        stage.setMinHeight(600);
 
         if (DEBUG_UI)
             startFileWatcher();
