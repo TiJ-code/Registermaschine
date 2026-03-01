@@ -21,17 +21,18 @@ function println(text) {
 // JAVA BRIDGE
 function initialiseRegisters(count) {
     registerCount = count;
-    registerList.innerHTML = '';
-    for (let i = 0; i < count; i++) {
-        const name = `R${i}`;
-        const className = "reg-card";
 
-        registerList.innerHTML += `
-            <div class="${className}" id="reg-${i}">
-                <span class="reg-name">${name}</span>
+    const cards = [];
+    for (let i = 0; i < count; i++) {
+        cards.push(`
+            <div class="reg-card" id="reg-${i}">
+                <span class="reg-name">R${i}</span>
                 <span class="reg-value" id="val-${i}">0</span>
-            </div>`;
+            </div>`
+        );
     }
+
+    registerList.innerHTML = cards.join('');
 }
 
 // JAVA BRIDGE
@@ -39,16 +40,16 @@ function initialiseDocs(instructions) {
     // instructions: [ {name: "ADD", desc: "Adds value to ACCU"}, ... ]
     const insArray = Array.isArray(instructions) ? instructions : Array.from(instructions);
 
-    instructionList.innerHTML = insArray.map(ins => {
-        let name = ins.name().toUpperCase();
-        let desc = ins.description();
-
-    return `
-        <div class="instr-item">
-            <span class="instr-name">${name}</span>
-            <span class="instr-desc">${desc}</span>
-        </div>
-    `;}).join('');
+    const cards = [];
+    for (let i = 0; i < insArray.length; i++) {
+        cards.push(`
+            <div class="instr-item">
+                <span class="instr-name">${insArray[i].name().toUpperCase()}</span>
+                <span class="instr-desc">${insArray[i].description()}</span>
+            </div>
+        `);
+    }
+    instructionList.innerHTML = cards.join('');
 }
 
 // JAVA BRIDGE
@@ -93,12 +94,15 @@ function programFinished() {
 
 // JAVA BRIDGE
 function updateRegister(index, value) {
-    const card = document.getElementById(`reg-${index}`);
     const valSpan = document.getElementById(`val-${index}`);
+    if (!valSpan) return;
 
     valSpan.innerText = value;
+
+    const card = valSpan.parentElement;
+    card.classList.remove('updated');
+    void card.offsetWidth;
     card.classList.add('updated');
-    setTimeout(() => card.classList.remove('updated'), 600);
 }
 
 // JAVA BRIDGE
@@ -142,4 +146,9 @@ const filenameDisplay = document.getElementById("filename-display");
 function setFileName(fileName) {
     globalCurrentFileName = fileName;
     filenameDisplay.innerText = globalCurrentFileName;
+}
+
+// FROM JAVA
+function onFileActionConfirmed() {
+    editor.markClean();
 }

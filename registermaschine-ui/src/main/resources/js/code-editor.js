@@ -22,38 +22,25 @@ class CodeEditor {
         });
 
         // Handle typing
-        const renderingFunc = () => {
+        this.input.addEventListener("input", () => {
             this.render();
             this.checkDirtyStatus();
-        };
-        this.input.addEventListener("input", renderingFunc);
-        this.input.addEventListener("keyup", renderingFunc);
+        });
 
         // Handle Tab & Enter
         this.input.addEventListener("keydown", (e) => {
             if (e.keyCode === KEYCODE_TAB) {
                 e.preventDefault();
-                const start = this.input.selectionStart;
-                const end = this.input.selectionEnd;
-
-                // Set textarea value to: text before caret + tab + text after caret
-                this.input.value = this.input.value.substring(0, start) +
-                    "    " + this.input.value.substring(end);
-
-                // Put caret at right position again
-                this.input.selectionStart = this.input.selectionEnd = start + 4;
-                renderingFunc();
+                this.insertTextAtCaret("    ");
             }
-
             if (e.keyCode === KEYCODE_ENTER) {
                 e.preventDefault();
                 this.insertTextAtCaret("\n");
                 this.ensureCaretVisible();
-                renderingFunc();
             }
         });
 
-        renderingFunc();
+        this.render();
     }
 
     updateKeywords(keywordArray) {
@@ -70,11 +57,13 @@ class CodeEditor {
     render() {
         let text = this.input.value;
 
+        const linesCount = text.split('\n').length;
+
         // Update Line Numbers
-        const lines = text.split('\n').length;
-        let numbersHtml = "";
-        for (let i = 1; i <= lines; i++) numbersHtml += `<div>${i}</div>`;
-        this.lineNumberContainer.innerHTML = numbersHtml;
+        if (this.currentLineCount !== linesCount) {
+            this.lineNumberContainer.innerHTML = '<div></div>'.repeat(linesCount);
+            this.currentLineCount = linesCount;
+        }
 
         // Syntax Highlighting
         let html = this.escapeHtml(text);
@@ -101,6 +90,7 @@ class CodeEditor {
         this.input.selectionStart = this.input.selectionEnd = start + text.length;
 
         this.render();
+        this.checkDirtyStatus();
     }
 
     setEditable(editable) {

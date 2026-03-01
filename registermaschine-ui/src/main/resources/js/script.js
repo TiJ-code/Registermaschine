@@ -1,31 +1,14 @@
-const __globalDocsElements = new Map();
+const UI = {
+    docsContainer: document.getElementById('instruction-container'),
+    docsArrow: document.getElementById('docs-arrow'),
+    ioOutput: document.getElementById('io-output')
+}
 
 function toggleDocs() {
-    const id_instruction_container = 'instruction-container';
-    const id_instruction_arrow = 'docs-arrow';
-    const class_instructions_visible = 'docs-visible';
-    const class_arrow_rotation = 'rotated';
+    if (!UI.docsContainer) return;
 
-    let content, arrow;
-
-    if (__globalDocsElements.has(id_instruction_container))
-        content = __globalDocsElements.get(id_instruction_container);
-    else {
-        content = document.getElementById(id_instruction_container);
-        if (!content) return;
-        __globalDocsElements.set(id_instruction_container, content);
-    }
-
-    if (__globalDocsElements.has(id_instruction_arrow))
-        arrow = __globalDocsElements.get(id_instruction_arrow);
-    else {
-        arrow = document.getElementById(id_instruction_arrow);
-        if (!arrow) return;
-        __globalDocsElements.set(id_instruction_arrow, arrow);
-    }
-
-    content.classList.toggle(class_instructions_visible);
-    arrow.classList.toggle(class_arrow_rotation);
+    UI.docsContainer.classList.toggle('docs-visible');
+    UI.docsArrow.classList.toggle('rotated');
 }
 
 function toggleDebug(e) {

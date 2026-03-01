@@ -58,6 +58,7 @@ public class JavaScriptBridge {
         if (fileHandler != null) {
             fileHandler.save(content);
             transmit().setFileName(fileHandler.getCurrentFileName());
+            transmit().confirmFileAction();
         }
     }
 
@@ -66,6 +67,7 @@ public class JavaScriptBridge {
         if (fileHandler != null) {
             fileHandler.saveAs(content);
             transmit().setFileName(fileHandler.getCurrentFileName());
+            transmit().confirmFileAction();
         }
     }
 
@@ -77,6 +79,7 @@ public class JavaScriptBridge {
             optCode.ifPresent(code -> {
                 transmit().sendLoadedCode(code);
                 transmit().setFileName(fileHandler.getCurrentFileName());
+                transmit().confirmFileAction();
             });
         }
     }
@@ -87,7 +90,9 @@ public class JavaScriptBridge {
             if (content != null && !content.isBlank())
                 fileHandler.save(content);
             fileHandler.createNew();
+            transmit().sendLoadedCode("");
             transmit().setFileName(fileHandler.getCurrentFileName());
+            transmit().confirmFileAction();
         }
     }
 

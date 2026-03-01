@@ -10,15 +10,12 @@ function fileAction(fileAction) {
     switch (fileAction) {
         case FileActions.NEW:
             window.java?.newDocument(currentCode);
-            editor.markClean();
             break;
         case FileActions.SAVE:
             window.java?.saveFile(currentCode);
-            editor.markClean();
             break;
         case FileActions.SAVE_AS:
             window.java?.saveAsFile(currentCode);
-            editor.markClean();
             break;
         case FileActions.LOAD:
             window.java?.loadFile();

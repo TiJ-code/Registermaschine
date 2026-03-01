@@ -71,4 +71,9 @@ public final class Transmitter {
     public void setFileName(String fileName) {
         Platform.runLater(() -> window.call("setFileName", fileName));
     }
+
+    @ToUi
+    public void confirmFileAction() {
+        Platform.runLater(() -> window.call("onFileActionConfirmed"));
+    }
 }

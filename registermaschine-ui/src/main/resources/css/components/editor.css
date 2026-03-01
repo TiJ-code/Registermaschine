@@ -49,6 +49,7 @@
 }
 
 .line-numbers {
+    counter-reset: line;
     width: 45px;
     padding: 12px 5px;
     background: var(--bg-dark);
@@ -60,9 +61,16 @@
     user-select: none;
     transition: background-color 0.3s ease;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+}
+
+.line-numbers div {
+    counter-increment: line;
+    height: 1.5em;
+}
+
+.line-numbers div::before {
+    content: counter(line);
+    display: block;
 }
 
 .editor-locked #editor-input {
