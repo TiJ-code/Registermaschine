@@ -111,7 +111,7 @@
 .toggle {
     position: absolute;
     inset: 0;
-    background: var(--panel-bg);
+    background: var(--alert-bg);
     border-radius: 999px;
     cursor: pointer;
     transition: background 0.25s ease;

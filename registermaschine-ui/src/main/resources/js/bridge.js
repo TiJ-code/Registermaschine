@@ -40,8 +40,8 @@ function initialiseDocs(instructions) {
     const insArray = Array.isArray(instructions) ? instructions : Array.from(instructions);
 
     instructionList.innerHTML = insArray.map(ins => {
-        let name = ins.get("name").toUpperCase();
-        let desc = ins.get("description");
+        let name = ins.name().toUpperCase();
+        let desc = ins.description();
 
     return `
         <div class="instr-item">
@@ -114,7 +114,9 @@ function updateOutput(value) {
 
 // JAVA BRIDGE
 function submitInput() {
-    const value = parseInt(document.getElementById("io-input").value);
+    const value = parseInt(io_input.value);
+    if (isNaN(value)) return;
+
     window.java.provideInput(value);
     io_input.classList.add("disabled");
     io_input_submit.classList.add("disabled");
@@ -122,7 +124,19 @@ function submitInput() {
 
 // JAVA BRIDGE
 function onInputRequested() {
+    io_input.value = '';
     io_input.classList.remove("disabled");
     io_input_submit.classList.remove("disabled");
     setSidebarSection('io-container', 'io-arrow', true);
+}
+
+// FROM JAVA
+function loadCode(loadedCode) {
+    editor.input.value = loadedCode;
+    editor.render();
+}
+
+// FROM JAVA
+function setFileName(fileName) {
+    document.getElementById("filename-display").innerText = fileName;
 }

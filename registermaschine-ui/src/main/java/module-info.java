@@ -7,4 +7,5 @@ module dk.tij.registermaschine.ui {
 
     opens dk.tij.registermaschine.ui to javafx.fxml, javafx.graphics;
     opens dk.tij.registermaschine.ui.ui to javafx.fxml, javafx.graphics, javafx.web;
+    opens dk.tij.registermaschine.ui.utils to javafx.web;
 }

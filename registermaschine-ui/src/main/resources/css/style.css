@@ -3,6 +3,7 @@
 @import "components/instructions.css";
 @import "components/utils.css";
 @import "components/sidebar.css";
+@import "components/files.css";
 
 :root {
     --bg-dark: #1e1e1e;
@@ -21,6 +22,8 @@
 
     --alert-bg: #eb414f;
     --alert-fg: white;
+
+    --topbar-height: 40px;
 
     font-family: var(--font-mono), monospace;
 }
@@ -43,6 +46,14 @@ body, html {
     -ms-user-select: none;
 }
 
+body > header {
+    height: var(--topbar-height);
+    background: #333333;
+    display: flex;
+    padding: 8px;
+    gap: 8px;
+}
+
 textarea,
 input,
 [contenteditable="true"] {
@@ -53,7 +64,7 @@ input,
 
 .app-container {
     display: flex;
-    height: 100vh;
+    height: calc(100vh - var(--topbar-height));
 }
 
 .workspace {
@@ -64,11 +75,12 @@ input,
 
 .toolbar {
     height: 45px;
-    background: #333;
+    background: var(--panel-bg);
     display: flex;
     align-items: center;
     padding: 0 10px;
     gap: 8px;
+    flex-wrap: nowrap;
 }
 
 .btn {
@@ -116,6 +128,34 @@ input,
 
 .btn-stop.disabled {
     background: #5c181b;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-outline:hover {
+    background: var(--accent);
+    color: var(--bg-dark);
+}
+
+
+.btn-outline:active {
+    background: var(--accent-darker);
+    color: var(--bg-dark);
+    border-color: var(--accent-darker);
+}
+
+.btn-outline.disabled {
+    background: transparent;
+    color: #555;
+    border-color: #555;
+    cursor: not-allowed;
 }
 
 .spacer {

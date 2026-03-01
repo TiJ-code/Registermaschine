@@ -1,5 +1,6 @@
 .sidebar {
     width: min(40%, 450px);
+    min-width: 250px;
     background: var(--panel-bg);
     border-right: 1px solid var(--border);
     display: flex;

@@ -1,67 +1,29 @@
-const __globalSidebarElements = new Map();
+const class_sidebar_collapsed = "collapsed";
+const class_sidebar_arrow_rotation = "rotated";
 
 function toggleSidebarSection(containerId, arrowId) {
-    const class_collapsed = "collapsed";
-    const class_arrow_rotation = "rotated";
+    const container = document.getElementById(containerId);
+    const arrow = document.getElementById(arrowId);
 
-    let container, arrow;
-
-    if (__globalSidebarElements.has(containerId))
-        container = __globalSidebarElements.get(containerId)
-    else {
-        container = document.getElementById(containerId);
-        if (!container) return;
-        __globalSidebarElements.set(containerId, container);
-    }
-
-    if (__globalSidebarElements.has(arrowId))
-        arrow = __globalSidebarElements.get(arrowId)
-    else {
-        arrow = document.getElementById(arrowId);
-        if (!arrow) return;
-        __globalSidebarElements.set(arrowId, arrow);
-    }
-
-    if (container.classList.contains(class_collapsed))
+    if (container.classList.contains(class_sidebar_collapsed))
         container.style.maxHeight = container.scrollHeight + "px";
     else
         container.style.maxHeight = "0px";
-    container.classList.toggle(class_collapsed);
 
-    arrow.classList.toggle(class_arrow_rotation);
+    container.classList.toggle(class_sidebar_collapsed);
+    arrow.classList.toggle(class_sidebar_arrow_rotation);
 }
 
 function setSidebarSection(containerId, arrowId, visible) {
-    const class_collapsed = "collapsed";
-    const class_arrow_rotation = "rotated";
-
-    let container, arrow;
-
-    if (__globalSidebarElements.has(containerId))
-        container = __globalSidebarElements.get(containerId)
-    else {
-        container = document.getElementById(containerId);
-        if (!container) return;
-        __globalSidebarElements.set(containerId, container);
-    }
-
-    if (__globalSidebarElements.has(arrowId))
-        arrow = __globalSidebarElements.get(arrowId)
-    else {
-        arrow = document.getElementById(arrowId);
-        if (!arrow) return;
-        __globalSidebarElements.set(arrowId, arrow);
-    }
-
+    const container = document.getElementById(containerId);
+    const arrow = document.getElementById(arrowId);
 
     if (visible) {
-        container.classList.remove(class_collapsed);
-        container.style.maxHeight = container.scrollHeight + "px";
-        arrow.classList.remove(class_arrow_rotation);
+        container.classList.toggle(class_sidebar_collapsed, false);
+        arrow.classList.toggle(class_sidebar_arrow_rotation, false);
     } else {
-        container.classList.add(class_collapsed);
-        container.style.maxHeight = "0px";
-        arrow.classList.add(class_arrow_rotation);
+        container.classList.toggle(class_sidebar_collapsed, true);
+        arrow.classList.toggle(class_sidebar_arrow_rotation, true);
     }
 }
 

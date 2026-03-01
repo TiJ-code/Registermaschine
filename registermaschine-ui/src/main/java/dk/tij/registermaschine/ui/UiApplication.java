@@ -6,6 +6,7 @@ import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.config.ConcreteInstructionSet;
 import dk.tij.registermaschine.ui.listeners.InstructionParserListener;
 import dk.tij.registermaschine.ui.ui.JavaScriptBridge;
+import dk.tij.registermaschine.ui.utils.FileHandler;
 import dk.tij.registermaschine.ui.utils.InstructionMapper;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -23,13 +24,17 @@ import java.util.Objects;
 
 public class UiApplication extends Application {
     private static final String DEV_RESOURCES_PATH = "registermaschine-ui/src/main/resources/";
-    private static boolean DEBUG_UI = false;
+    public static boolean DEBUG = false;
+    public static boolean DEBUG_PARSING = false;
+    public static boolean DEBUG_UI = false;
 
     private WebEngine webEngine;
 
     private JavaScriptBridge jsBridge;
     private SimulationController simulationController;
     private final IInstructionSet instructionSet;
+
+    private FileHandler fileHandler;
 
     public UiApplication() {
         CoreConfigParser.init();
@@ -39,12 +44,18 @@ public class UiApplication extends Application {
     }
 
     public static void externalLaunch(String[] args) {
-        boolean debug = System.getProperty("debug") != null;
-        boolean ui = System.getProperty("ui") != null;
+        DEBUG = System.getProperty("debug") != null;
+        DEBUG_UI = DEBUG && System.getProperty("ui") != null;
+        DEBUG_PARSING = DEBUG  && System.getProperty("parsing") != null;
 
-        if (debug && ui) {
-            DEBUG_UI = true;
-            System.out.println("[System] UI Debug mode activated...");
+        if (DEBUG) {
+            System.out.println("[System] Debug mode activated...");
+        }
+        if (DEBUG_UI) {
+            System.out.println("[System] Debugging UI...");
+        }
+        if (DEBUG_PARSING) {
+            System.out.println("[System] Debugging Parsing...");
         }
 
         launch(args);
@@ -52,6 +63,8 @@ public class UiApplication extends Application {
 
     @Override
     public void start(Stage stage) {
+        fileHandler = new FileHandler(stage);
+
         Scene scene = new Scene(createWebView());
         stage.setScene(scene);
         stage.setTitle("JASM v2.0.0 - by @TiJ");
@@ -97,6 +110,7 @@ public class UiApplication extends Application {
 
         simulationController = new SimulationController(jsBridge);
         jsBridge.setController(simulationController);
+        jsBridge.setFileHandler(fileHandler);
 
         jsBridge.transmit().initialiseRegisters(CoreConfig.REGISTERS);
 

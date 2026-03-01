@@ -8,14 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public final class InstructionMapper {
-    public static List<Map<String, String>> toDocList(IInstructionSet set) {
+    public static List<InstructionDefinition> toDocList(IInstructionSet set) {
         return set.getInstructions().stream()
-                .map(i -> {
-                    Map<String, String> map = new HashMap<>();
-                    map.put("name", i.mnemonic());
-                    map.put("description", i.description());
-                    return map;
-                })
+                .map(i -> new InstructionDefinition(i.mnemonic(), i.description()))
                 .toList();
     }
 
@@ -24,4 +19,6 @@ public final class InstructionMapper {
                 .map(ConfigInstruction::mnemonic)
                 .toList();
     }
+
+    public record InstructionDefinition(String name, String description) {}
 }
