@@ -8,6 +8,10 @@ class CodeEditor {
         this.highlightArea = highlightElement;
         this.lineNumberContainer = document.getElementById('line-numbers');
 
+        this.lastSavedContent = "";
+        this.isDirty = false;
+        this.onDirtyChange = null;
+
         this.updateKeywords(keywords);
 
         // Sync scrolling
@@ -18,7 +22,10 @@ class CodeEditor {
         });
 
         // Handle typing
-        const renderingFunc = () => this.render();
+        const renderingFunc = () => {
+            this.render();
+            this.checkDirtyStatus();
+        };
         this.input.addEventListener("input", renderingFunc);
         this.input.addEventListener("keyup", renderingFunc);
 
@@ -134,7 +141,38 @@ class CodeEditor {
         this.lineNumberContainer.scrollTop = textarea.scrollTop;
     }
 
+    checkDirtyStatus() {
+        const currentContent = this.code;
+        const currentlyDirty = currentContent !== this.lastSavedContent;
 
+        if (currentlyDirty !== this.isDirty) {
+            this.isDirty = currentlyDirty;
+            if (this.onDirtyChange) {
+                this.onDirtyChange(this.isDirty);
+            }
+        }
+    }
+
+    markClean() {
+        this.lastSavedContent = this.code;
+        this.isDirty = false;
+        if (this.onDirtyChange) {
+            this.onDirtyChange(false);
+        }
+    }
+
+    set onDirtyCallback(callback) {
+        this.onDirtyChange = callback;
+    }
+
+    set code(newCode) {
+        this.input.value = newCode;
+        this.render();
+    }
+
+    get code() {
+        return this.input.value || "";
+    }
 }
 
 const editor = new CodeEditor(

@@ -75,7 +75,7 @@ function runProgram() {
     stopButton.classList.remove("disabled");
 
     editor.setEditable(false);
-    window.java.runProgram(editor.input.value.trim(), useDebug);
+    window.java.runProgram(editor.code.trim(), useDebug);
 }
 
 // JAVA BRIDGE
@@ -132,11 +132,14 @@ function onInputRequested() {
 
 // FROM JAVA
 function loadCode(loadedCode) {
-    editor.input.value = loadedCode;
-    editor.render();
+    editor.code = loadedCode;
+    editor.markClean();
 }
 
+let globalCurrentFileName = "";
+const filenameDisplay = document.getElementById("filename-display");
 // FROM JAVA
 function setFileName(fileName) {
-    document.getElementById("filename-display").innerText = fileName;
+    globalCurrentFileName = fileName;
+    filenameDisplay.innerText = globalCurrentFileName;
 }

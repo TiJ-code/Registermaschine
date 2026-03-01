@@ -25,6 +25,7 @@ public class JavaScriptBridge {
 
     public void setFileHandler(FileHandler fileHandler) {
         this.fileHandler = fileHandler;
+        transmit().setFileName(fileHandler.getCurrentFileName());
     }
 
     @ToJava

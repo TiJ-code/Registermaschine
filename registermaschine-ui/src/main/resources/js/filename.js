@@ -10,15 +10,17 @@ function fileAction(fileAction) {
     switch (fileAction) {
         case FileActions.NEW:
             window.java?.newDocument(currentCode);
+            editor.markClean();
             break;
         case FileActions.SAVE:
             window.java?.saveFile(currentCode);
+            editor.markClean();
             break;
         case FileActions.SAVE_AS:
             window.java?.saveAsFile(currentCode);
+            editor.markClean();
             break;
         case FileActions.LOAD:
-            println("trying to load new file\ncurrent code: " + currentCode);
             window.java?.loadFile();
             break;
         default:
@@ -26,3 +28,9 @@ function fileAction(fileAction) {
             break;
     }
 }
+
+function updateFilename(isDirty) {
+    const indicator = isDirty ? "*" : "";
+    filenameDisplay.innerText = `${globalCurrentFileName}${indicator}`;
+}
+editor.onDirtyCallback = updateFilename;
