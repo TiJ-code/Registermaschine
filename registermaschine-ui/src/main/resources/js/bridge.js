@@ -171,8 +171,11 @@ function toast(title, message, type) {
     showAlert(title, message, type);
 }
 
+const programmeCounter = document.getElementById("exe-pc");
 // FROM JAVA
 function updateExecutionState(pc) {
+    programmeCounter.value = pc;
+
     if (useDebug && editor.lineMap) {
         const actualLine = editor.lineMap[pc];
 

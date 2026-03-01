@@ -50,11 +50,19 @@
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <header class="collapsible-sidebar-header disabled" onclick="toggleSidebarSection('execution-container', 'execution-arrow')">
+            <header class="collapsible-sidebar-header" onclick="toggleSidebarSection('execution-container', 'execution-arrow')">
                 <h2>Execution</h2>
                 <span id="execution-arrow" class="arrow">▼</span>
             </header>
             <div id="execution-container" class="collapsible-sidebar-content collapsed">
+                <div class="io-panel">
+                    <div class="io-group">
+                        <label for="exe-pc">PC</label>
+                        <div class="io-field-wrapper">
+                            <input id="exe-pc" class="styled-input" disabled value="0">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <header class="collapsible-sidebar-header" onclick="toggleSidebarSection('io-container', 'io-arrow')">
