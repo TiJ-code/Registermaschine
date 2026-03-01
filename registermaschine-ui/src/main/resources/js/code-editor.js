@@ -11,6 +11,7 @@ class CodeEditor {
         this.highlightArea = highlightElement;
         this.lineNumberContainer = document.getElementById('line-numbers');
         this.lineHighlight = document.getElementById('current-line-highlight');
+        this.executionHighlight = document.getElementById('execution-line-highlight');
 
         this.lastSavedContent = "";
         this.isDirty = false;
@@ -154,6 +155,46 @@ class CodeEditor {
                 this.lineNumberContainer.classList.remove('editor-locked');
             }
         }
+    }
+
+    setExecutionLine(lineIndex) {
+        if (lineIndex === null || lineIndex < 0) {
+            this.executionHighlight.style.display = 'none';
+            return;
+        }
+
+        const style = window.getComputedStyle(this.highlightArea);
+        const lineHeight = parseFloat(style.lineHeight);
+        const paddingTop = parseFloat(style.paddingTop);
+
+        const topPosition = (paddingTop + (lineIndex * lineHeight)) - this.input.scrollTop - (lineIndex > 0 ? 2 : 0);
+
+        this.executionHighlight.style.top = `${topPosition}px`;
+        this.executionHighlight.style.height = `${lineHeight}px`;
+        this.executionHighlight.style.display = 'block';
+    }
+
+    generateLineMap() {
+        const lines = this.input.value.split('\n');
+        const pcToLineMap = {};
+        let currentPC = 0;
+
+        for (let  i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+
+            if (line === "" || line.startsWith(";")) {
+                continue;
+            }
+
+            if (line.endsWith(":") && line.split(' ').length === 1) {
+                continue;
+            }
+
+            pcToLineMap[currentPC] = i;
+            currentPC++;
+        }
+        this.lineMap = pcToLineMap;
+        return pcToLineMap;
     }
 
     ensureCaretVisible() {

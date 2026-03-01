@@ -64,6 +64,8 @@ function runProgram() {
         return;
     }
 
+    editor.generateLineMap();
+
     for (let i = 0; i < registerCount; i++) {
         const valSpan = document.getElementById(`val-${i}`);
         const card = document.getElementById(`reg-${i}`);
@@ -90,6 +92,7 @@ function programFinished() {
     runButton.classList.remove("disabled");
     stopButton.classList.add("disabled");
     editor.setEditable(true);
+    editor.setExecutionLine(null);
 }
 
 // JAVA BRIDGE
@@ -166,4 +169,15 @@ function sendBugReport(title, description) {
 // FROM JAVA
 function toast(title, message, type) {
     showAlert(title, message, type);
+}
+
+// FROM JAVA
+function updateExecutionState(pc) {
+    if (useDebug && editor.lineMap) {
+        const actualLine = editor.lineMap[pc];
+
+        if (actualLine !== undefined) {
+            editor.setExecutionLine(actualLine);
+        }
+    }
 }

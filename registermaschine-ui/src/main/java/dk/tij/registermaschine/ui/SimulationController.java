@@ -53,6 +53,7 @@ public class SimulationController {
             emulationThread = new Thread(() -> {
                 runtime.run();
                 bridge.transmit().notifyProgramFinished();
+                handleStopRequest();
             }, "EmulatorThread");
             emulationThread.start();
         } catch (Exception e) {
@@ -95,6 +96,7 @@ public class SimulationController {
 
             Platform.runLater(() -> {
                 bridge.transmit().updateFromSnapshot(snapshot);
+                bridge.transmit().highlightLine(snapshot.programmeCounter());
             });
         }, 0, 33, TimeUnit.MILLISECONDS);
     }

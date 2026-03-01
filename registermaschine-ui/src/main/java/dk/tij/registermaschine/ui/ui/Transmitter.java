@@ -92,4 +92,9 @@ public final class Transmitter {
     public void toast(String title, String message, AlertTypes types) {
         Platform.runLater(() -> window.call("toast", title, message, types.toString()));
     }
+
+    @ToUi
+    public void highlightLine(int pc) {
+        Platform.runLater(() -> window.call("updateExecutionState", pc));
+    }
 }

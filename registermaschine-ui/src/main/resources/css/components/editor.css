@@ -93,6 +93,16 @@
     display: none;
 }
 
+.execution-line-highlight {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 122, 204, 0.25);
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+}
+
 .editor-locked .current-line-highlight {
     display: none !important;
 }
