@@ -3,6 +3,7 @@ package dk.tij.registermaschine.ui.ui;
 import dk.tij.registermaschine.core.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.ui.annotations.ToJava;
 import dk.tij.registermaschine.ui.annotations.ToUi;
+import dk.tij.registermaschine.ui.utils.AlertTypes;
 import javafx.application.Platform;
 import netscape.javascript.JSObject;
 
@@ -85,5 +86,10 @@ public final class Transmitter {
     @ToUi
     public void closeBugModal() {
         Platform.runLater(() -> window.call("toggleModal", "bug-modal", false));
+    }
+
+    @ToUi
+    public void toast(String title, String message, AlertTypes types) {
+        Platform.runLater(() -> window.call("toast", title, message, types.toString()));
     }
 }

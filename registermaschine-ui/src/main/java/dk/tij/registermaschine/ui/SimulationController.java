@@ -7,7 +7,9 @@ import dk.tij.registermaschine.core.config.CoreConfigParser;
 import dk.tij.registermaschine.core.runtime.ConcreteExecutionContext;
 import dk.tij.registermaschine.core.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.core.runtime.Executor;
+import dk.tij.registermaschine.ui.listeners.ExecutionListener;
 import dk.tij.registermaschine.ui.ui.JavaScriptBridge;
+import dk.tij.registermaschine.ui.utils.AlertTypes;
 import javafx.application.Platform;
 
 import java.util.concurrent.Executors;
@@ -36,6 +38,7 @@ public class SimulationController {
 
     public void handleRunRequest(String sourceCode, boolean useDebug) {
         this.context = new ConcreteExecutionContext();
+        this.context.addListener(new ExecutionListener(bridge));
         this.context.setInputRequestCallback(() -> bridge.transmit().requestInput());
 
         this.runtime = new Executor(context, set);
@@ -53,7 +56,8 @@ public class SimulationController {
             }, "EmulatorThread");
             emulationThread.start();
         } catch (Exception e) {
-            Platform.runLater(() -> e.printStackTrace());
+            bridge.transmit().toast(e.getClass().getSimpleName(), e.getMessage(), AlertTypes.ERROR);
+            Platform.runLater(bridge::stopProgram);
         }
     }
 

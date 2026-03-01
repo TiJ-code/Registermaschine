@@ -60,7 +60,7 @@ function initialiseKeywords(sentKeywords) {
 // JAVA BRIDGE
 function runProgram() {
     if (!editor.input.value.trim()) {
-        println("empty source code");
+        toast("Nothing to Compile", "No source code in editor", AlertTypes.WARNING);
         return;
     }
 
@@ -161,4 +161,9 @@ function toggleBugButton(active) {
 // TO JAVA
 function sendBugReport(title, description) {
     window.java?.reportBug(title, description);
+}
+
+// FROM JAVA
+function toast(title, message, type) {
+    showAlert(title, message, type);
 }

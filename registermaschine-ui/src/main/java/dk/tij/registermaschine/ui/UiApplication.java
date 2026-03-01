@@ -39,6 +39,8 @@ public class UiApplication extends Application {
     private FileHandler fileHandler;
 
     public UiApplication() {
+        CoreConfigParser.setCustomRootPath(FileHandler.DEFAULT_PATH);
+
         CoreConfigParser.init();
         CoreConfigParser.addListenerToTarget(CoreConfigParser.PARSER_INSTRUCTIONS, new InstructionParserListener());
         this.instructionSet = new ConcreteInstructionSet();

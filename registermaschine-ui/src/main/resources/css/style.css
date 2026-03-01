@@ -5,6 +5,7 @@
 @import "components/sidebar.css";
 @import "components/files.css";
 @import "components/modal.css";
+@import "components/toast.css";
 
 :root {
     --bg-dark: #1e1e1e;

@@ -10,8 +10,8 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 public final class FileHandler {
-    private static final Path DEFAULT_PATH = Path.of(System.getProperty("user.home"), "jasm");
-    private static final String jasmFileExtension = ".jasm";
+    public static final Path DEFAULT_PATH = Path.of(System.getProperty("user.home"), "jasm");
+    public static final String JASM_FILE_EXTENSION = ".jasm";
 
     private final Stage primaryStage;
     private final FileChooser fileChooser;
@@ -31,7 +31,7 @@ public final class FileHandler {
 
         fileChooser.setInitialDirectory(DEFAULT_PATH.toFile());
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Java ASM Files", "*" + jasmFileExtension)
+                new FileChooser.ExtensionFilter("Java ASM Files", "*" + JASM_FILE_EXTENSION)
         );
     }
 
@@ -72,8 +72,8 @@ public final class FileHandler {
         File file = fileChooser.showSaveDialog(primaryStage);
 
         if (file != null) {
-            if (!file.getName().endsWith(jasmFileExtension)) {
-                file = new File(file.getAbsolutePath() + jasmFileExtension);
+            if (!file.getName().endsWith(JASM_FILE_EXTENSION)) {
+                file = new File(file.getAbsolutePath() + JASM_FILE_EXTENSION);
             }
 
             try {

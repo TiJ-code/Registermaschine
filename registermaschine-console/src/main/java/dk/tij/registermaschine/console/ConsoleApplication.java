@@ -68,7 +68,7 @@ public class ConsoleApplication {
                 ICompiledProgram singleStep = Pipeline.compileWithGlobal(line);
 
                 exec.setProgram(singleStep);
-                cpu.setProgrammeCounter(0);
+                cpu.resetProgrammeCounter();
                 exec.run();
 
                 if (cpu.isHalted()) {
