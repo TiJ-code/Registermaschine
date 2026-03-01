@@ -10,6 +10,7 @@ public interface IExecutionContextListener {
     void onFlagChanged(boolean negative, boolean zero, boolean overflow);
     void onExitCodeChanged(byte newValue);
     void onProgrammeCounterChanged(int newPc);
+    void onMaxJumpsReached();
     void onOutput(int value);
     default void onInputRequested() {}
 }

@@ -20,7 +20,7 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     private final int[] registers;
     private int programmeCounter;
 
-    private byte jumpCounter;
+    private int jumpCounter;
     private byte exitCode;
     private byte flags;
 
@@ -68,7 +68,12 @@ public final class ConcreteExecutionContext implements IExecutionContext {
 
     @Override
     public void setProgrammeCounter(int pc) {
-        if (jumpCounter >= maxJumpCounter()) return;
+        incJumpCounter();
+        if (jumpCounter >= maxJumpCounter()) {
+            listeners.forEach(IExecutionContextListener::onMaxJumpsReached);
+            stopExecution();
+            return;
+        }
         programmeCounter = pc;
         dirtyPc = true;
         listeners.forEach(l -> l.onProgrammeCounterChanged(pc));
