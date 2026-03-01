@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public final class CoreConfigParser {
@@ -28,6 +29,8 @@ public final class CoreConfigParser {
     private static final String CONFIGURATION_FILE = "configuration.jxml",
                                 DEFAULT_CONDITION_MACROS_FILE = "core_condition_macros.jxml",
                                 DEFAULT_INSTRUCTION_SET_FILE = "default.instructions.jxml";
+
+    private static Path ROOT_PATH = null;
 
     private static volatile boolean coreConfigParsed = false;
     private static final Object INIT_LOCK = new Object();
@@ -104,13 +107,21 @@ public final class CoreConfigParser {
             INSTRUCTION_PARSER.addListener(listener);
     }
 
+    public static void setCustomRootPath(Path customPath) {
+        ROOT_PATH = customPath;
+    }
+
     private static void copyDefaultFiles() {
         List<String> userEditableFiles = List.of(
                 CONFIGURATION_FILE, DEFAULT_INSTRUCTION_SET_FILE
         );
 
         for (String fileName : userEditableFiles) {
-            File targetFile = new File(fileName);
+            File targetFile;
+            if (ROOT_PATH != null)
+                targetFile = new File(Path.of(ROOT_PATH.toString(), fileName).toUri());
+            else
+                targetFile = new File(fileName);
 
             if (!targetFile.exists()) {
                 try (InputStream is = CoreConfigParser.class.getClassLoader().getResourceAsStream(fileName)) {
@@ -129,7 +140,12 @@ public final class CoreConfigParser {
 
     private static InputStream getSmartStream(String fileName, boolean onlyInternal) throws FileNotFoundException {
         if (!onlyInternal) {
-            File localFile = new File(fileName);
+            File localFile;
+            if (ROOT_PATH != null)
+                localFile = new File(Path.of(ROOT_PATH.toString(), fileName).toUri());
+            else
+                localFile = new File(fileName);
+
             if (localFile.exists()) {
                 return new FileInputStream(localFile);
             }
