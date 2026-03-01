@@ -1,5 +1,6 @@
 const KEYCODE_TAB = 9;
 const KEYCODE_ENTER = 13;
+const KEYCODE_BACKSPACE = 8;
 
 class CodeEditor {
     constructor(inputElement, highlightElement, keywords) {
@@ -29,10 +30,18 @@ class CodeEditor {
 
         // Handle Tab & Enter
         this.input.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && !e.shiftKey && e.keyCode === KEYCODE_BACKSPACE) {
+                e.preventDefault();
+                this.handleCtrlBackspace();
+                return;
+            }
+
             if (e.keyCode === KEYCODE_TAB) {
                 e.preventDefault();
                 this.insertTextAtCaret("    ");
+                return;
             }
+
             if (e.keyCode === KEYCODE_ENTER) {
                 e.preventDefault();
                 this.insertTextAtCaret("\n");
@@ -162,6 +171,42 @@ class CodeEditor {
 
     get code() {
         return this.input.value || "";
+    }
+
+    handleCtrlBackspace() {
+        const start = this.input.selectionStart;
+        const end = this.input.selectionEnd;
+        const text = this.code;
+
+        if (start !== end) {
+            this.input.value = text.substring(0, start) + text.substring(end);
+            this.input.selectionStart = this.input.selectionEnd = start;
+            this.render();
+            return;
+        }
+
+        const beforeCaret = text.substring(0, start);
+        const lastNewLine = beforeCaret.lastIndexOf('\n');
+        const lineStart = lastNewLine + 1;
+        const textInLineBeforeCaret = text.substring(lineStart, start);
+
+        const trimmedLineFragment = textInLineBeforeCaret.trimEnd();
+        const lastSpaceInLine = trimmedLineFragment.lastIndexOf(' ');
+
+        let deleteTo;
+
+        if (textInLineBeforeCaret.trim() === "") {
+            deleteTo = lineStart;
+        } else if (lastSpaceInLine === -1) {
+            deleteTo = lineStart;
+        } else {
+            deleteTo = lineStart + lastSpaceInLine;
+        }
+
+        this.input.value = text.substring(0, deleteTo) + text.substring(start);
+        this.input.selectionStart = this.input.selectionEnd = deleteTo;
+
+        this.render();
     }
 }
 
