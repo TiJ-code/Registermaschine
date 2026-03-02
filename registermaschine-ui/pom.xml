@@ -11,7 +11,6 @@
     </parent>
     <name>Registermaschine UI</name>
     <version>2.0.0</version>
-
     <artifactId>ui</artifactId>
 
     <properties>
@@ -19,13 +18,14 @@
         <maven.compiler.target>25</maven.compiler.target>
         <javafx.version>23.0.1</javafx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <registermaschine-core.version>0.9.0</registermaschine-core.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>dk.tij.registermaschine</groupId>
             <artifactId>core</artifactId>
-            <version>0.9.0</version>
+            <version>${registermaschine-core.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

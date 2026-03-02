@@ -14,6 +14,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -75,6 +76,9 @@ public class UiApplication extends Application {
         stage.setResizable(true);
         stage.setMinWidth(640);
         stage.setMinHeight(600);
+
+        stage.setIconified(true);
+        stage.getIcons().add(new Image(Objects.requireNonNull(UiApplication.class.getResourceAsStream("/icon.png"))));
 
         if (DEBUG_UI)
             startFileWatcher();

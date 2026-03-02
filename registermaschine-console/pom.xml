@@ -10,20 +10,21 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <name>Registermaschine Console</name>
-
+    <version>1.0.0</version>
     <artifactId>console</artifactId>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <registermaschine-core.version>0.9.0</registermaschine-core.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>dk.tij.registermaschine</groupId>
             <artifactId>core</artifactId>
-            <version>0.9.0</version>
+            <version>${registermaschine-core.version}</version>
         </dependency>
     </dependencies>
 
