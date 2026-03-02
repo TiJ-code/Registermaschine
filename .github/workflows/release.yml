@@ -1,0 +1,160 @@
+name: Coordinated Multi-Module Release
+
+on:
+  push:
+    tags:
+      - 'core-v*'
+      - 'ui-v*'
+      - 'console-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare-versions:
+    name: Set Module Versions
+    runs-on: ubuntu-latest
+    outputs:
+      core_version: ${{ steps.versions.outputs.core }}
+      ui_version: ${{ steps.versions.outputs.ui }}
+      console_version: ${{ steps.versions.outputs.console }}
+      release_type: ${{ steps.versions.outputs.type }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse Tag & Determine Versions
+        id: versions
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          echo "Original tag: $TAG"
+
+          # Read current POM versions
+          CORE_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -pl registermaschine-core)
+          UI_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -pl registermaschine-ui)
+          CONSOLE_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -pl registermaschine-console)
+
+          CORE_MAJOR=${CORE_VER%%.*}
+          CORE_MINOR=$(echo $CORE_VER | cut -d. -f2)
+          CORE_PATCH=$(echo $CORE_VER | cut -d. -f3)
+
+          UI_MAJOR=${UI_VER%%.*}
+          UI_MINOR=$(echo $UI_VER | cut -d. -f2)
+          UI_PATCH=$(echo $UI_VER | cut -d. -f3)
+
+          CONSOLE_MAJOR=${CONSOLE_VER%%.*}
+          CONSOLE_MINOR=$(echo $CONSOLE_VER | cut -d. -f2)
+          CONSOLE_PATCH=$(echo $CONSOLE_VER | cut -d. -f3)
+
+          NEW_CORE=$CORE_VER
+          NEW_UI=$UI_VER
+          NEW_CONSOLE=$CONSOLE_VER
+          TYPE="independent"
+
+          if [[ "$TAG" == core-v* ]]; then
+            # Core release: bump core, then ui/console major
+            NEW_CORE=${TAG#core-v}
+            NEW_UI=$(( ${NEW_CORE%%.*} + 1 )).0.0
+            NEW_CONSOLE=${NEW_CORE%%.*}.0.0
+            TYPE="core-driven"
+          elif [[ "$TAG" == ui-v* ]]; then
+            NEW_UI=${TAG#ui-v}
+            TYPE="ui"
+          elif [[ "$TAG" == console-v* ]]; then
+            NEW_CONSOLE=${TAG#console-v}
+            TYPE="console"
+          fi
+
+          echo "core=$NEW_CORE" >> $GITHUB_OUTPUT
+          echo "ui=$NEW_UI" >> $GITHUB_OUTPUT
+          echo "console=$NEW_CONSOLE" >> $GITHUB_OUTPUT
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build Modules
+    runs-on: ubuntu-latest
+    needs: prepare-versions
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update POM Versions
+        run: |
+          mvn versions:set -DnewVersion=${{ needs.prepare-versions.outputs.core }} -pl registermaschine-core -DgenerateBackupPoms=false
+          mvn versions:set -DnewVersion=${{ needs.prepare-versions.outputs.ui }} -pl registermaschine-ui -DgenerateBackupPoms=false
+          mvn versions:set -DnewVersion=${{ needs.prepare-versions.outputs.console }} -pl registermaschine-console -DgenerateBackupPoms=false
+
+      - name: Build All Modules
+        run: mvn clean package -DskipTests
+
+      - name: Prepare Bundles
+        run: |
+          for MOD in core ui console; do
+            mkdir -p bundle-$MOD
+            cp registermaschine-$MOD/target/*.jar bundle-$MOD/
+            if [[ "$MOD" != "core" ]]; then
+              jlink --add-modules java.base,java.desktop,java.scripting,java.logging,java.net.http,jdk.jsobject,jdk.xml.dom,jdk.crypto.ec,jdk.unsupported \
+                    --output jre-min --strip-debug --no-header-files --no-man-pages
+              cp -r jre-min bundle-$MOD/jre/
+              if [[ "$MOD" == "ui" ]]; then
+                cp registermaschine-ui/src/main/resources/bin/start.sh bundle-$MOD/start.sh || true
+                cp registermaschine-ui/src/main/resources/bin/start.bat bundle-$MOD/start.bat || true
+              else
+                cp registermaschine-console/src/main/resources/bin/start.sh bundle-$MOD/jcc.sh || true
+                cp registermaschine-console/src/main/resources/bin/start.bat bundle-$MOD/jcc.bat || true
+              fi
+            fi
+            zip -r bundle-$MOD.zip bundle-$MOD
+          done
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-module-bundles
+          path: bundle-*.zip
+
+  release:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          body: automated multi-module release
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'dev') }}
+
+      - name: Upload Module Bundles
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bundle-core.zip
+          asset_name: core-v${{ needs.prepare-versions.outputs.core }}.zip
+          asset_content_type: application/zip
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bundle-ui.zip
+          asset_name: ui-v${{ needs.prepare-versions.outputs.ui }}.zip
+          asset_content_type: application/zip
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bundle-console.zip
+          asset_name: console-v${{ needs.prepare-versions.outputs.console }}.zip
+          asset_content_type: application/zip
