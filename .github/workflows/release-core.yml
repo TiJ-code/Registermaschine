@@ -1,0 +1,99 @@
+name: Core Release
+on:
+  push:
+    tags:
+      - 'core-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Install local jissuesystem
+        run: |
+          mvn install:install-file \
+            -Dfile=libs/jissuesystem-0.1.0.jar \
+            -DgroupId=dk.tij \
+            -DartifactId=jissuesystem \
+            -Dversion=0.1.0 \
+            -Dpackaging=jar
+
+      - name: Update Core Version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          
+          TAG=${GITHUB_REF_NAME#refs/tags/core-v}
+          mvn versions:set -DnewVersion=$TAG -pl registermaschine-core -DgenerateBackupPoms=false
+          
+          git add registermaschine-core/pom.xml
+          git commit -m "[ACTION] update core version to $TAG"
+
+      - name: Update Core Lib Version In Console & UI
+        run: |
+          TAG=${GITHUB_REF_NAME#refs/tags/core-v}
+          MODULE_LIST="ui console"
+          
+          for MOD in $MODULE_LIST; do
+            mvn versions:set-property \
+              -Dproperty=registermaschine-core.version \
+              -DnewVersion=$TAG \
+              -pl registermaschine-$MOD \
+              -DgenerateBackupPoms=false
+          
+            echo "Updating $MOD dependecy on core version to $TAG"
+          
+            git add registermaschine-$MOD/pom.xml
+          done
+          
+          git commit -m "[ACTION] update core dependency version in [$MODULE_LIST] to $TAG"
+          git push origin main
+
+      - name: Build Core
+        run: mvn -B clean package -pl registermaschine-core -DskipTests
+
+      - name: Create Next UI & Console Tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CORE_VER=${GITHUB_REF_NAME#refs/tags/core-v}
+          CORE_MAJOR=${CORE_VER%%.*}
+          CORE_MINOR=$(echo $CORE_VER | cut -d. -f2)
+          CORE_PATCH=$(echo $CORE_VER | cut -d. -f3)
+          
+          CORE_LAST=$(git tag --list "core-v*" | sort -V | tail -n 2 | head -n 1 | sed 's/core-v//')
+          CORE_LAST_MAJOR=${CORE_LAST%%.*}
+          CORE_LAST_MINOR=$(echo $CORE_LAST | cut -d. -f2)
+          
+          UI_LAST=$(git tag --list "ui-v*" | sort -V | tail -n1 | sed 's/ui-v//')
+          CONSOLE_LAST=$(git tag --list "console-v*" | sort -V | tail -n1 | sed 's/console-v//')
+          
+          UI_MAJOR=${UI_LAST%%.*}
+          UI_MINOR=$(echo $UI_LAST | cut -d. -f2)
+          CONSOLE_MAJOR=${CONSOLE_LAST%%.*}
+          CONSOLE_MINOR=$(echo $CONSOLE_LAST | cut -d. -f2)
+          
+          if [ "$CORE_MAJOR" -gt "$CORE_LAST_MAJOR" ]; then
+            UI_NEXT=$((UI_MAJOR + 1)).0.0
+            CONSOLE_NEXT=$((CONSOLE_MAJOR + 1)).0.0
+          else
+            UI_NEXT=$UI_MAJOR.$((UI_MINOR + 1)).0
+            CONSOLE_NEXT=$CONSOLE_MAJOR.$((CONSOLE_MINOR + 1)).0
+          fi
+          
+          git tag ui-v$UI_NEXT
+          git tag console-v$CONSOLE_NEXT
+          git push origin ui-v$UI_NEXT console-v$CONSOLE_NEXT

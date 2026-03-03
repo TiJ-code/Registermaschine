@@ -1,0 +1,111 @@
+name: Multi-Module Release
+on:
+  workflow_run:
+    workflows: ["Core Release"]
+    types:
+      - completed
+
+  push:
+    tags:
+      - 'ui-v*'
+      - 'console-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Install local jissuesystem
+        run: |
+          mvn install:install-file \
+            -Dfile=libs/jissuesystem-0.1.0.jar \
+            -DgroupId=dk.tij \
+            -DartifactId=jissuesystem \
+            -Dversion=0.1.0 \
+            -Dpackaging=jar
+
+      - name: Determine Latest Versions
+        id: versions
+        run: |
+            CORE_VER=$(git tag -l 'core-v*' --sort=-v:refname | head -n1 | sed 's/core-v//')
+            UI_VER=$(git tag -l 'ui-v*' --sort=-v:refname | head -n1 | sed 's/ui-v//')
+            CONSOLE_VER=$(git tag -l 'console-v*' --sort=-v:refname | head -n1 | sed 's/console-v//')
+            echo "core=$CORE_VER" >> $GITHUB_OUTPUT
+            echo "ui=$UI_VER" >> $GITHUB_OUTPUT
+            echo "console=$CONSOLE_VER" >> $GITHUB_OUTPUT
+            echo "name=Core $CORE_VER - UI $UI_VER - Console $CONSOLE_VER" >> $GITHUB_OUTPUT
+
+      - name: Build All Modules
+        run: mvn -B -U clean package -DskipTests
+
+      - name: Prepare Bundles
+        run: |
+                for MOD in core ui console; do
+                  mkdir -p bundle-$MOD
+                  cp registermaschine-$MOD/target/*.jar bundle-$MOD/
+                  # UI & Console get JRE
+                  if [[ "$MOD" != "core" ]]; then
+                    jlink --add-modules java.base,java.desktop,java.scripting,java.logging,java.net.http,jdk.jsobject,jdk.xml.dom,jdk.crypto.ec,jdk.unsupported \
+                          --output bundle-$MOD/jre --strip-debug --no-header-files --no-man-pages
+                    if [[ "$MOD" == "ui" ]]; then
+                      cp registermaschine-ui/src/main/resources/bin/start.sh bundle-$MOD/start.sh || true
+                      cp registermaschine-ui/src/main/resources/bin/start.bat bundle-$MOD/start.bat || true
+                    else
+                      cp registermaschine-console/src/main/resources/bin/start.sh bundle-$MOD/jcc.sh || true
+                      cp registermaschine-console/src/main/resources/bin/start.bat bundle-$MOD/jcc.bat || true
+                    fi
+                  fi
+                  zip -r bundle-$MOD.zip bundle-$MOD
+                done
+
+      - name: Create GitHub Release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "release-${{ github.run_id }}"
+          release_name: ${{ steps.versions.outputs.name }}
+          body: automated multi-module release
+          draft: false
+          prerelease: false
+
+      - name: Upload Bundles
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: bundle-core.zip
+          asset_name: core-v${{ steps.versions.outputs.core }}.zip
+          asset_content_type: application/zip
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: bundle-ui.zip
+          asset_name: ui-v${{ steps.versions.outputs.ui }}.zip
+          asset_content_type: application/zip
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release.outputs.upload_url }}
+          asset_path: bundle-console.zip
+          asset_name: console-v${{ steps.versions.outputs.console }}.zip
+          asset_content_type: application/zip

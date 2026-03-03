@@ -1,0 +1,37 @@
+.register-grid {
+    padding: 10px;
+    overflow-y: auto;
+    gap: 5px;
+    flex: 1;
+    display: grid;
+    grid-template-rows: repeat(auto-fill, minmax(60px, 1fr));
+}
+
+.reg-card {
+    background: var(--register-card-bg);
+    margin-bottom: 5px;
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    border-left: 3px solid transparent;
+}
+
+.reg-name {
+    color: var(--register-name);
+    font-size: 12px;
+    text-transform: uppercase;
+}
+.reg-value {
+    font-weight: bold;
+    color: var(--register-value);
+}
+
+.reg-card.updated {
+    animation: flash 0.6s ease-out;
+}
+
+@keyframes flash {
+    0% { background: var(--register-card-bg-highlight); }
+    100% { background: var(--register-card-bg); }
+}

@@ -1,0 +1,239 @@
+@import "components/registers.css";
+@import "components/editor.css";
+@import "components/instructions.css";
+@import "components/utils.css";
+@import "components/sidebar.css";
+@import "components/files.css";
+@import "components/modal.css";
+@import "components/toast.css";
+
+:root {
+    --bg-dark: #1e1e1e;
+    --panel-bg: #252526;
+    --border: #3c3c3c;
+    --text: #cccccc;
+    --accent: #007acc;
+    --accent-darker: #005791;
+    --error: #f44336;
+    --font-mono: 'Jetbrains Mono', 'Fira Code', 'Consolas', monospace;
+
+    --register-value: #ce9178;
+    --register-name: #888888;
+    --register-card-bg: #2d2d2d;
+    --register-card-bg-highlight: #3e3e42;
+
+    --alert-bg: #eb414f;
+    --alert-fg: white;
+
+    --light-bg: #333333;
+    --topbar-height: 40px;
+
+    font-family: var(--font-mono), monospace;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: var(--font-mono), monospace;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: var(--bg-dark);
+    color: var(--text);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+body > header {
+    height: var(--topbar-height);
+    background: var(--light-bg);
+    display: flex;
+    padding: 8px;
+    gap: 8px;
+}
+
+textarea,
+input,
+[contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+    -ms-user-select: text;
+}
+
+.app-container {
+    display: flex;
+    height: calc(100vh - var(--topbar-height));
+}
+
+.workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbar {
+    height: 45px;
+    background: var(--panel-bg);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.btn {
+    background: #444;
+    border: none;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.btn > p {
+    padding: 0;
+    margin: 0;
+}
+
+.btn:hover {
+    background: #555;
+}
+
+.btn-run {
+    background: #28a745;
+}
+
+.btn-run:hover {
+    background: #218838;
+}
+
+.btn-run.disabled {
+    background: #285932;
+}
+
+.btn-stop {
+    background: #eb414f;
+}
+
+.btn-stop:hover {
+    background: #8a1e25;
+}
+
+.btn-stop.disabled {
+    background: #5c181b;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-outline:hover {
+    background: var(--accent);
+    color: var(--bg-dark);
+}
+
+
+.btn-outline:active {
+    background: var(--accent-darker);
+    color: var(--bg-dark);
+    border-color: var(--accent-darker);
+}
+
+.btn-outline.disabled {
+    background: transparent;
+    color: #555;
+    border-color: #555;
+    cursor: not-allowed;
+}
+
+.spacer {
+    flex: 1;
+}
+
+/* --- Custom Scrollbar Styling --- */
+
+/* 1. The background of the scrollbar area */
+::-webkit-scrollbar {
+    width: 10px; /* Vertical scrollbar width */
+    height: 10px; /* Horizontal scrollbar height */
+    background-color: var(--bg-dark);
+}
+
+/* 2. The draggable handle */
+::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 5px;
+    border: 2px solid var(--bg-dark); /* Creates a "padding" effect around the thumb */
+}
+
+/* 3. Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* 4. Handle when being dragged */
+::-webkit-scrollbar-thumb:active {
+    background: var(--accent); /* Subtle glow when interacting */
+}
+
+/* 5. Corner where vertical and horizontal scrollbars meet */
+::-webkit-scrollbar-corner {
+    background: var(--bg-dark);
+}
+
+.bug {
+    display: inline-block;
+    width: 28px;
+    min-height: 100%;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    background-color: #444;
+
+    text-align: center;
+    vertical-align: baseline;
+}
+
+.bug::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZGF0YS1uYW1lPSJNYXRlcmlhbCBFeHBhbmQiIGlkPSJNYXRlcmlhbF9FeHBhbmQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNi4xODgsNTIuMTczQTIsMiwwLDAsMCw1LDU0djhIOVY1NS4zbDYuOTkyLTMuMTA4YTE3Ljk2OCwxNy45NjgsMCwwLDAsMzIuMDE2LDBMNTUsNTUuM1Y2Mmg0VjU0YTIsMiwwLDAsMC0xLjE4OC0xLjgyN2wtOC4zOS0zLjcyOWExNy44NTgsMTcuODU4LDAsMCwwLC41MTEtMy4xMTVsNy44NzktMy41QTIsMiwwLDAsMCw1OSw0MFYzMkg1NXY2LjdsLTUsMi4yMjNWMzAuM2w3LjgxMi0zLjQ3MkEyLDIsMCwwLDAsNTksMjVWMTdINTV2Ni43bC01LjMyNSwyLjM2N0E2LjAwNiw2LjAwNiwwLDAsMCw0NCwyMkg0MlYxOGE3Ljk0MSw3Ljk0MSwwLDAsMC0uOTktMy44NDdsMy4yMzktMi41OTFBMiwyLDAsMCwwLDQ1LDEwVjVINDFWOS4wMzlsLTIuNzQ3LDIuMkE3LjkzOSw3LjkzOSwwLDAsMCwzNCwxMEgzMGE3LjkzOSw3LjkzOSwwLDAsMC00LjI1MywxLjIzN0wyMyw5LjAzOVY1SDE5djVhMiwyLDAsMCwwLC43NTEsMS41NjJsMy4yMzksMi41OTFBNy45NDEsNy45NDEsMCwwLDAsMjIsMTh2NEgyMGE2LjAwNiw2LjAwNiwwLDAsMC01LjY3NSw0LjA2N0w5LDIzLjdWMTdINXY4YTIsMiwwLDAsMCwxLjE4OCwxLjgyN0wxNCwzMC4zVjQwLjkyM0w5LDM4LjdWMzJINXY4YTIsMiwwLDAsMCwxLjE4OCwxLjgyN2w3Ljg3OSwzLjVhMTcuODU4LDE3Ljg1OCwwLDAsMCwuNTExLDMuMTE1Wk0xOCw0NFYzNEgzMFY1Ny44NEExNC4wMDksMTQuMDA5LDAsMCwxLDE4LDQ0Wk0zNCw1Ny44NFYzNEg0NlY0NEExNC4wMDksMTQuMDA5LDAsMCwxLDM0LDU3Ljg0Wk0yNiwxOGE0LDQsMCwwLDEsNC00aDRhNCw0LDAsMCwxLDQsNHY0SDI2Wm0tNiw4SDQ0YTIsMiwwLDAsMSwyLDJ2MkgxOFYyOEEyLDIsMCwwLDEsMjAsMjZaIi8+PC9zdmc+");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px;
+
+    filter: invert(1);
+    transition: filter 0.2s ease;
+    pointer-events: none;
+}
+
+.bug:hover::before {
+    filter: invert(0);
+}
+
+.bug:hover {
+    background-color: var(--alert-bg);
+}

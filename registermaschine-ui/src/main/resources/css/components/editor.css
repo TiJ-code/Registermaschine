@@ -1,0 +1,139 @@
+.editor-stack {
+    position: relative;
+    flex: 1;
+    background: var(--bg-dark);
+    transition: background-color 0.3s ease;
+    overflow: hidden;
+    min-height: 0;
+    scroll-behavior: smooth;
+}
+
+#editor-input, #editor-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 12px 16px;
+    border: none;
+    box-sizing: border-box;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-y: auto;
+    tab-size: 4;
+}
+
+#editor-input {
+    background: transparent;
+    color: transparent;
+    caret-color: white;
+    resize: none;
+    outline: none;
+    z-index: 2;
+}
+
+#editor-highlight {
+    z-index: 1;
+    pointer-events: none;
+    color: #d4d4d4;
+}
+
+.editor-section {
+    flex: 1;
+    display: flex;
+    background: var(--bg-dark);
+    min-height: 0;
+}
+
+.line-numbers {
+    counter-reset: line;
+    width: 45px;
+    padding: 12px 5px;
+    background: var(--bg-dark);
+    color: #858585;
+    text-align: right;
+    border-right: 1px solid var(--border);
+    font-size: 14px;
+    line-height: 1.5;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    overflow: hidden;
+}
+
+.line-numbers div {
+    counter-increment: line;
+    height: 1.5em;
+}
+
+.line-numbers div::before {
+    content: counter(line);
+    display: block;
+}
+
+.editor-locked #editor-input {
+    cursor: not-allowed;
+}
+
+.editor-locked {
+    opacity: 0.8;
+    background: #1a1a1a;
+    pointer-events: none;
+}
+
+.current-line-highlight {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+}
+
+.execution-line-highlight {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 122, 204, 0.25);
+    pointer-events: none;
+    z-index: 0;
+    display: none;
+}
+
+.editor-locked .current-line-highlight {
+    display: none !important;
+}
+
+/* Syntax Highlighting based on Java Token Types */
+.token-mnemonic {
+    color: #569cd6;
+    font-weight: bold;
+}
+
+.token-register {
+    color: #9cdcfe;
+}
+
+.token-number {
+    color: #eb414f;
+}
+
+.token-label {
+    color: #96d85d;
+}
+
+.token-address {
+    color: #d2d11a;
+}
+
+.token-comment {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.token-operator {
+    color: #d4d4d4;
+}

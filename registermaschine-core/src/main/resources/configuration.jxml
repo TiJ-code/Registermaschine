@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration SYSTEM "dtd/configuration.dtd">
+<configuration>
+    <registers>8</registers>
+    <maxJumps>255</maxJumps>
+</configuration>
