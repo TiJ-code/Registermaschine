@@ -1,0 +1,133 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'core-v*'
+      - 'console-v*'
+      - 'ui-v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "release-build"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Install local jissuesystem
+        shell: bash
+        run: |
+          mvn install:install-file \
+            -Dfile=libs/jissuesystem-0.1.0.jar \
+            -DgroupId=dk.tij \
+            -DartifactId=jissuesystem \
+            -Dversion=0.1.0 \
+            -Dpackaging=jar
+
+      - name: Extract tag info
+        id: tags
+        shell: bash
+        run: |
+          # Get the specific tag that triggered this workflow
+          CURRENT_TAG=${GITHUB_REF_NAME}
+
+          # Get the latest version for each component from the git history
+          # --tags: look at all tags
+          # --abbrev=0: give only the tag name, no commit hash
+          # --match: filter by prefix
+          CORE_VER=$(git describe --tags --abbrev=0 --match "core-v*" 2>/dev/null | sed 's/core-v//' || echo "unknown")
+          UI_VER=$(git describe --tags --abbrev=0 --match "ui-v*" 2>/dev/null | sed 's/ui-v//' || echo "unknown")
+          CONSOLE_VER=$(git describe --tags --abbrev=0 --match "console-v*" 2>/dev/null | sed 's/console-v//' || echo "unknown")
+
+          echo "core=$CORE_VER" >> $GITHUB_OUTPUT
+          echo "ui=$UI_VER" >> $GITHUB_OUTPUT
+          echo "console=$CONSOLE_VER" >> $GITHUB_OUTPUT
+
+          # Create the pretty name for the release header
+          echo "name=Core $CORE_VER - UI $UI_VER - Console $CONSOLE_VER" >> $GITHUB_OUTPUT
+
+      - name: Build & install core
+        shell: bash
+        run: |
+          mvn -B clean install -pl registermaschine-core -DskipTests
+
+      - name: Build UI and Console
+        shell: bash
+        run: |
+          mvn -B clean package -pl registermaschine-ui,registermaschine-console -DskipTests
+
+      - name: Package Artifacts
+        shell: bash
+        run: |
+          rm -rf dist bundle runtime app.jar
+          mkdir -p dist
+          
+          # Use the versions extracted in the previous step
+          C_VER=${{ steps.tags.outputs.core }}
+          U_VER=${{ steps.tags.outputs.ui }}
+          CO_VER=${{ steps.tags.outputs.console }}
+          
+          # 1. CORE & CONSOLE (Only upload from Linux to avoid triple-uploading identical jars)
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            find registermaschine-core/target -maxdepth 1 -name "*.jar" ! -name "original-*" -exec cp {} dist/core-v${C_VER}.jar \;
+            find registermaschine-console/target -maxdepth 1 -name "*.jar" ! -name "original-*" -exec cp {} dist/console-v${CO_VER}.jar \;
+          fi
+          
+          UI_JAR=$(find registermaschine-ui/target -maxdepth 1 -name "*.jar" ! -name "original-*" | head -n 1)
+          cp "$UI_JAR" app.jar
+          
+          jlink \
+                --add-modules java.base,java.desktop,java.logging,java.net.http,jdk.unsupported,jdk.crypto.ec,jdk.charsets,java.management,java.scripting,jdk.jsobject \
+                --output runtime --strip-debug --no-header-files --no-man-pages
+          
+          mkdir -p bundle
+          mv runtime bundle/jre
+          mv app.jar bundle/
+          
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            echo "@echo off" > bundle/start.bat
+            echo "jre\\bin\\java -jar app.jar" >> bundle/start.bat
+            7z a "dist/ui-${U_VER}-windows.zip" ./bundle/*
+          else
+            echo "#!/bin/sh" > bundle/start.sh
+            echo "./jre/bin/java -jar app.jar" >> bundle/start.sh
+            chmod +x bundle/start.sh
+            OS_NAME="linux"
+            [[ "${{ matrix.os }}" == "macos-latest" ]] && OS_NAME="macos"
+            
+            cd bundle && zip -r "../dist/ui-${U_VER}-${OS_NAME}.zip" . && cd ..
+          fi
+
+      - name: Upload to Single Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: dist/*
+          append_body: true
+          make_latest: true
+          name: ${{ steps.tags.outputs.name }}
+          generate_release_notes: ${{ matrix.os == 'ubuntu-latest' }}
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

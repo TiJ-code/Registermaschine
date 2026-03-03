@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE instruction-set SYSTEM "dtd/instruction_file.dtd">
+<instruction-set>
+    <name>CORE CONDITION MACROS</name>
+    <conditionMacros internal="true">
+        <conditionMacro name="core.conditions.NotEqualsZeroCondition" value="!core.conditions.EqualsZeroCondition"/>
+        <conditionMacro name="core.conditions.LessThanOrEqualsToZeroCondition" value="core.conditions.LessThanZeroCondition+core.conditions.EqualsZeroCondition"/>
+        <conditionMacro name="core.conditions.GreaterThanZeroCondition" value="!core.conditions.LessThanZeroCondition*!core.conditions.EqualsZeroCondition"/>
+        <conditionMacro name="core.conditions.GreaterThanOrEqualsToZeroCondition" value="!core.conditions.LessThanZeroCondition"/>
+    </conditionMacros>
+</instruction-set>
