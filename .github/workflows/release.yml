@@ -1,0 +1,140 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'core-v*'
+      - 'console-v*'
+      - 'ui-v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "release-build"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Install local jissuesystem
+        run: |
+          mvn install:install-file \
+            -Dfile=libs/jissuesystem-0.1.0.jar \
+            -DgroupId=dk.tij \
+            -DartifactId=jissuesystem \
+            -Dversion=0.1.0 \
+            -Dpackaging=jar
+
+      - name: Extract tag info
+        id: tags
+        shell: bash
+        run: |
+          CORE_VER=$(git tag -l 'core-v*' --sort=-v:refname | head -n1 | sed 's/core-v//')
+          UI_VER=$(git tag -l 'ui-v*' --sort=-v:refname | head -n1 | sed 's/ui-v//')
+          CONSOLE_VER=$(git tag -l 'console-v*' --sort=-v:refname | head -n1 | sed 's/console-v//')
+          
+          echo "core=$CORE_VER" >> $GITHUB_OUTPUT
+          echo "ui=$UI_VER" >> $GITHUB_OUTPUT
+          echo "console=$CONSOLE_VER" >> $GITHUB_OUTPUT
+          echo "name=Core $CORE_VER - UI $UI_VER - Console $CONSOLE_VER" >> $GITHUB_OUTPUT
+
+      - name: Build & install core
+        shell: bash
+        run: |
+          mvn -B clean install -pl registermaschine-core -DskipTests
+
+      - name: Build UI and Console
+        shell: bash
+        run: |
+          mvn -B clean package -pl registermaschine-ui,registermaschine-console -DskipTests
+
+      - name: Package Artifacts
+        shell: bash
+        run: |
+          mkdir -p dist
+          for MOD in core console ui; do
+            VER=""
+            if [[ "$MOD" == "core" ]]; then
+              VER=${{ steps.tags.outputs.core }}
+            elif [[ "$MOD" == "console" ]]; then
+              VER=${{ steps.tags.outputs.console }}
+            elif [[ "$MOD" == "ui" ]]; then
+              VER=${{ steps.tags.outputs.ui }}
+            fi
+            OS=universal
+          
+            # CORE
+            if [[ "$MOD" == "core" ]]; then
+              cp registermaschine-core/target/core*.jar dist/core-v${VER}.jar
+            fi
+          
+            # CONSOLE
+            if [[ "$MOD" == "console" ]]; then
+              for OS in linux windows mac; do
+                # plain jar
+                cp registermaschine-console/target/console*.jar dist/console-v${VER}.jar
+              done
+            fi
+          
+            # UI
+            if [[ "$MOD" == "ui" ]]; then
+              cp registermaschine-ui/target/ui-*.jar app.jar
+              jlink \
+                --add-modules java.base,java.desktop,java.logging,java.net.http,jdk.unsupported,jdk.crypto.ec \
+                --output runtime --strip-debug --no-header-files --no-man-pages
+          
+              mkdir -p bundle
+              mv runtime bundle/jre
+              mv app.jar bundle/
+          
+              if [[ "$OS" == "windows" ]]; then
+                echo "@echo off" > bundle/start.bat
+                echo "jre\\bin\\java -jar app.jar" >> bundle/start.bat
+              else
+                echo "#!/bin/sh" > bundle/start.sh
+                echo "./jre/bin/java -jar app.jar" >> bundle/start.sh
+                chmod +x bundle/start.sh
+              fi
+          
+              zip -r dist/ui-v${VER}-${OS}.zip bundle
+              rm -rf bundle runtime app.jar
+            fi
+          done
+
+      - name: Create Github Release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: "release-${{ github.run_id }}"
+          release_name: ${{ steps.tags.outputs.nmae }}
+          body: "Automated release."
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

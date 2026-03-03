@@ -1,0 +1,19 @@
+.file-buttons {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.filename {
+    left: 100%;
+    margin-left: 15px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    font-size: 13px;
+    color: var(--text);
+
+    z-index: 1;
+}
