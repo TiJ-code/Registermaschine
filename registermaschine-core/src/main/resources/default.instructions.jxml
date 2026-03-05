@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE instruction-set SYSTEM "dtd/instruction_file.dtd">
-<instruction-set>
+<instruction-set version="2">
     <name>Registermaschine Instruction Set</name>
     <options>
         <option id="allowLabels" value="false"/>
@@ -9,90 +9,159 @@
         <instruction
                 id="hlt"
                 opcode="0x00"
-                description="End instruction to stop execution"
-                handler="core.instructions.HaltInstruction">
-            <operand type="immediate" concept="operand"/>
+                description="End instruction to stop execution">
+            <operand type="immediate" concept="operand" name="exitCode"/>
+            <chain>
+                <step handler="core.instructions.HaltInstruction">
+                    <in ref="exitCode"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="add"
                 opcode="0x01"
-                description="Adds register B to A"
-                handler="core.instructions.AdditionInstruction">
-            <operand type="register" concept="result" implicitValue="r0"/>
-            <operand type="register" concept="operand" implicitValue="r0"/>
-            <operand type="register" concept="operand"/>
+                description="Adds register B to A">
+            <operand type="register" concept="result"  name="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="add1" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="add2"/>
+
+            <chain>
+                <step handler="core.instructions.AdditionInstruction">
+                    <in ref="add1"/>
+                    <in ref="add2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="sub"
                 opcode="0x02"
-                description="Subtracts register B from A"
-                handler="core.instructions.SubtractionInstruction">
-            <operand type="register" concept="result" implicitValue="r0"/>
-            <operand type="register" concept="operand" implicitValue="r0"/>
-            <operand type="register" concept="operand"/>
+                description="Subtracts register B from A">
+            <operand type="register" concept="result"  name="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="sub1" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="sub2"/>
+
+            <chain>
+                <step handler="core.instructions.SubtractionInstruction">
+                    <in ref="sub1"/>
+                    <in ref="sub2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="mul"
                 opcode="0x03"
-                description="Multiplies register A by B"
-                handler="core.instructions.MultiplicationInstruction">
-            <operand type="register" concept="result" implicitValue="r0"/>
-            <operand type="register" concept="operand" implicitValue="r0"/>
-            <operand type="register" concept="operand"/>
+                description="Multiplies register A by B">
+            <operand type="register" concept="result"  name="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="mul1" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="mul2"/>
+
+            <chain>
+                <step handler="core.instructions.MultiplicationInstruction">
+                    <in ref="mul1"/>
+                    <in ref="mul2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="div"
                 opcode="0x04"
                 description="Divides register A by B"
                 handler="core.instructions.DivisionInstruction">
-            <operand type="register" concept="result" implicitValue="r0"/>
-            <operand type="register" concept="operand" implicitValue="r0"/>
-            <operand type="register" concept="operand"/>
+            <operand type="register" concept="result"  name="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="div1" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="div2"/>
+
+            <chain>
+                <step handler="core.instructions.DivisionInstruction">
+                    <in ref="div1"/>
+                    <in ref="div2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="lda"
                 opcode="0x06"
-                description="Loads value from register A into accumulator"
-                handler="core.instructions.MoveInstruction">
-            <operand type="register" concept="result" implicitValue="r0"/>
-            <operand type="register" concept="operand"/>
+                description="Loads value from register A into accumulator">
+            <operand type="register" concept="result" name="result" implicitValue="r0"/>
+            <operand type="register" concept="operand" name="addr"/>
+
+            <chain>
+                <step handler="core.instructions.MoveInstruction">
+                    <in ref="addr"/>
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="ldk"
                 opcode="0x07"
-                description="Loads constant value into accumulator"
-                handler="core.instructions.MoveInstruction">
-            <operand type="register" concept="result" implicitValue="r0"/>
-            <operand type="immediate" concept="operand"/>
+                description="Loads constant value into accumulator">
+            <operand type="register" concept="result" name="result" implicitValue="r0"/>
+            <operand type="immediate" concept="operand" name="const"/>
+
+            <chain>
+                <step handler="core.instructions.MoveInstruction">
+                    <in ref="const"/>
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="sta"
                 opcode="0x08"
-                description="Stores value of accumulator into register A"
-                handler="core.instructions.MoveInstruction">
-            <operand type="register" concept="operand" implicitValue="r0"/>
-            <operand type="register" concept="result"/>
+                description="Stores value of accumulator into register A">
+            <operand type="register" concept="operand" name="addr" implicitValue="r0"/>
+            <operand type="register" concept="result" name="result"/>
+
+            <chain>
+                <step handler="core.instructions.MoveInstruction">
+                    <in ref="addr"/>
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="inp"
                 opcode="0x09"
-                description="Awaits input to store in register A"
-                handler="core.instructions.InputInstruction">
-            <operand type="register" concept="result"/>
+                description="Awaits input to store in register A">
+            <operand type="register" concept="result" name="result"/>
+
+            <chain>
+                <step handler="core.instructions.InputInstruction">
+                    <out to="result"/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="out"
                 opcode="0x0A"
-                description="Outputs content from accumulator onto display"
-                handler="core.instructions.OutputInstruction">
-            <operand type="register" concept="operand" implicitValue="r0"/>
+                description="Outputs content from accumulator onto display">
+            <operand type="register" concept="operand" name="addr" implicitValue="r0"/>
+
+            <chain>
+                <step handler="core.instructions.OutputInstruction">
+                    <in ref="addr"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="jmp"
                 opcode="0x0B"
-                description="Jumps to program line"
-                handler="core.instructions.JumpInstruction">
-            <operand type="label" concept="target"/>
+                description="Jumps to program line">
+            <operand type="label" concept="target" name="target"/>
+
+            <chain>
+                <step handler="core.instructions.JumpInstruction">
+                    <in ref="target"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="jez"
@@ -100,7 +169,14 @@
                 description="Jumps to program line, if accumulator is zero"
                 handler="core.instructions.JumpInstruction"
                 condition="core.conditions.EqualsZeroCondition">
-            <operand type="label" concept="target"/>
+            <operand type="label" concept="target" name="target"/>
+
+            <chain>
+                <step handler="core.instructions.JumpInstruction">
+                    <in ref="target"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="jne"
@@ -108,7 +184,14 @@
                 description="Jumps to program line, if accumulator is not zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.NotEqualsZeroCondition">
-            <operand type="label" concept="target"/>
+            <operand type="label" concept="target" name="target"/>
+
+            <chain>
+                <step handler="core.instructions.JumpInstruction">
+                    <in ref="target"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="jlz"
@@ -116,7 +199,14 @@
                 description="Jumps to program line, if accumulator is less than zero"
                 handler="core.instructions.JumpInstruction"
                 condition="core.conditions.LessThanZeroCondition">
-            <operand type="label" concept="target"/>
+            <operand type="label" concept="target" name="target"/>
+
+            <chain>
+                <step handler="core.instructions.JumpInstruction">
+                    <in ref="target"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="jle"
@@ -124,7 +214,14 @@
                 description="Jumps to program line, if accumulator is less than or equal to zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.LessThanOrEqualsToZeroCondition">
-            <operand type="label" concept="target"/>
+            <operand type="label" concept="target" name="target"/>
+
+            <chain>
+                <step handler="core.instructions.JumpInstruction">
+                    <in ref="target"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="jgz"
@@ -132,7 +229,14 @@
                 description="Jumps to program line, if accumulator is greater than zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.GreaterThanZeroCondition">
-            <operand type="label" concept="target"/>
+            <operand type="label" concept="target" name="target"/>
+
+            <chain>
+                <step handler="core.instructions.JumpInstruction">
+                    <in ref="target"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
         <instruction
                 id="jge"
@@ -140,7 +244,14 @@
                 description="Jumps to program line, if accumulator is greater than or equal to zero"
                 handler="core.instructions.JumpInstruction"
                 condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
-            <operand type="label" concept="target"/>
+            <operand type="label" concept="target" name="target"/>
+
+            <chain>
+                <step handler="core.instructions.JumpInstruction">
+                    <in ref="target"/>
+                    <out/>
+                </step>
+            </chain>
         </instruction>
     </instructions>
 </instruction-set>

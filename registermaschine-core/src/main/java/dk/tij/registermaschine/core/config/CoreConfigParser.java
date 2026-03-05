@@ -2,6 +2,7 @@ package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.core.config.api.IConfigEventListener;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
+import dk.tij.registermaschine.core.config.internal.InstructionSetMigrator;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
@@ -15,6 +16,13 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +32,8 @@ public final class CoreConfigParser {
     public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName();
 
     public static final String  DTD_CONFIGURATION = "dtd/configuration.dtd",
-                                DTD_INSTRUCTION_SET = "dtd/instruction_file.dtd";
+                                DTD_INSTRUCTION_SET = "dtd/instruction_file.dtd",
+                                DTD_DIRECTORY = "dtd";
 
     private static final String CONFIGURATION_FILE = "configuration.jxml",
                                 DEFAULT_CONDITION_MACROS_FILE = "core_condition_macros.jxml",
@@ -58,7 +67,7 @@ public final class CoreConfigParser {
             }
 
             try (InputStream is = getSmartStream(CONFIGURATION_FILE, onlyInternal)) {
-                Document doc = parseWithDtd(is, DTD_CONFIGURATION);
+                Document doc = parseWithDtd(is);
 
                 INTERNAL_CONFIG_PARSERS.forEach(parser -> parser.parseConfig(doc));
 
@@ -89,14 +98,22 @@ public final class CoreConfigParser {
             throw new IllegalStateException("Core Configuration must be initialised via init() before parsing instruction sets.");
         }
 
-        try (InputStream is = getSmartStream(fileName)) {
-            Document doc = parseWithDtd(is, DTD_INSTRUCTION_SET);
+        try {
+            Path filePath = resolvePath(fileName);
 
-            CoreConfig.INSTRUCTIONS.clear();
-            INSTRUCTION_PARSER.parseConfig(doc);
-            MACRO_PARSER.parseConfig(doc);
+            try (InputStream is = Files.newInputStream(filePath)) {
+                Document doc = parseWithoutValidation(is);
 
-            CoreConfig.INSTRUCTIONS.forEach(set::registerInstruction);
+                InstructionSetMigrator.migrateAndStoreIfNeeded(doc, filePath);
+
+                validateWithDtd(doc);
+
+                CoreConfig.INSTRUCTIONS.clear();
+                INSTRUCTION_PARSER.parseConfig(doc);
+                MACRO_PARSER.parseConfig(doc);
+
+                CoreConfig.INSTRUCTIONS.forEach(set::registerInstruction);
+            }
         } catch (Exception e) {
             throw new ConfigurationParseException("Failed to parse instruction set: " + fileName, e);
         }
@@ -134,6 +151,18 @@ public final class CoreConfigParser {
         }
     }
 
+    private static Path resolvePath(String fileName) throws IOException {
+        if (ROOT_PATH != null) {
+            Path path = ROOT_PATH.resolve(fileName);
+            if (Files.exists(path)) return path;
+        }
+
+        Path local = Path.of(fileName);
+        if (Files.exists(local)) return local;
+
+        throw new FileNotFoundException("Instruction file must exist on disk for migration: " + fileName);
+    }
+
     private static InputStream getSmartStream(String fileName) throws FileNotFoundException {
         return getSmartStream(fileName, false);
     }
@@ -162,22 +191,53 @@ public final class CoreConfigParser {
         try (InputStream is = getResourceStream(DEFAULT_CONDITION_MACROS_FILE)) {
             if (is == null) throw new ConfigurationParseException(DEFAULT_CONDITION_MACROS_FILE + " is missing from internal resources!");
             
-            Document doc = parseWithDtd(is, DTD_INSTRUCTION_SET);
+            Document doc = parseWithDtd(is);
             MACRO_PARSER.parseConfig(doc);
         } catch (Exception e) {
-            throw new ConfigurationParseException("Critical failure loading core condition macros", e);
+            throw new ConfigurationParseException("Error loading resource", e);
         }
     }
 
-    private static Document parseWithDtd(InputStream is, String dtdName) throws Exception {
+    private static Document parseWithoutValidation(InputStream is)
+            throws IOException, ParserConfigurationException, SAXException {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setValidating(false);
+        factory.setIgnoringElementContentWhitespace(true);
+        factory.setNamespaceAware(false);
+
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setFeature("http://apache.org/xml/features/validation/dynamic", false);
+
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        return builder.parse(is);
+    }
+
+    private static void validateWithDtd(Document doc)
+            throws IOException, ParserConfigurationException, SAXException, TransformerException {
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, DTD_INSTRUCTION_SET);
+
+        StringWriter writer = new StringWriter();
+        transformer.transform(new DOMSource(doc), new StreamResult(writer));
+
+        String xml = writer.toString();
+        System.out.println(xml);
+
+        parseWithDtd(new ByteArrayInputStream(xml.getBytes()));
+    }
+
+    private static Document parseWithDtd(InputStream is)
+            throws IOException, ParserConfigurationException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(true);
         factory.setIgnoringElementContentWhitespace(true);
 
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
-            @Override
-            public void warning(SAXParseException e) throws SAXException {}
+            @Override public void warning(SAXParseException e) throws SAXException {}
             @Override
             public void error(SAXParseException e) throws SAXException { throw e; }
             @Override
@@ -185,8 +245,11 @@ public final class CoreConfigParser {
         });
 
         builder.setEntityResolver((_, systemId) -> {
-            if (systemId != null && systemId.contains(dtdName)) {
-                return new InputSource(CoreConfigParser.class.getResourceAsStream("/" + dtdName));
+            if (systemId != null) {
+                String dtdFile = systemId.substring(systemId.lastIndexOf('/') + 1);
+                return new InputSource(CoreConfigParser.class.getResourceAsStream(
+                        String.format("/%s/%s", DTD_DIRECTORY, dtdFile))
+                );
             }
             return new InputSource(new StringReader(""));
         });

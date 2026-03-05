@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <!ELEMENT instruction-set (name, options?, conditionMacros?, instructions?)>
-<!ATTLIST instruction-set
-        version CDATA #REQUIRED>
 
 <!ELEMENT name (#PCDATA)>
 
@@ -22,30 +20,16 @@
         value CDATA #REQUIRED>
 
 <!ELEMENT instructions (instruction*)>
-<!ELEMENT instruction (operand* , chain)>
+<!ELEMENT instruction (operand*)>
 <!ATTLIST instruction
         id ID #REQUIRED
         opcode CDATA #REQUIRED
         description CDATA #IMPLIED
-        handler CDATA #IMPLIED
+        handler CDATA #REQUIRED
         condition CDATA #IMPLIED>
 
 <!ELEMENT operand EMPTY>
 <!ATTLIST operand
         type (register|immediate|label) #REQUIRED
         concept (result|operand|target) #REQUIRED
-        name CDATA #REQUIRED
         implicitValue CDATA #IMPLIED>
-
-<!ELEMENT chain (step+)>
-<!ELEMENT step (in*, out)>
-<!ATTLIST step
-        handler CDATA #REQUIRED>
-
-<!ELEMENT in EMPTY>
-<!ATTLIST in
-        ref CDATA #REQUIRED>
-
-<!ELEMENT out EMPTY>
-<!ATTLIST out
-        to CDATA #IMPLIED>
