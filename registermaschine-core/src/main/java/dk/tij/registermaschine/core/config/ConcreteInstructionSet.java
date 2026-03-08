@@ -26,32 +26,91 @@ public final class ConcreteInstructionSet implements IInstructionSet {
 
     @Override
     public void prohibitInstructionHandler(Class<? extends AbstractInstruction> instruction) {
-        List<ConfigInstruction> permittedInstructions = instructions.stream()
-                    .filter(Objects::nonNull)
-                    .filter(i -> Objects.nonNull(i.handler()))
-                    .filter(i -> i.handler().getClass().equals(instruction))
-                    .toList();
-        for (ConfigInstruction instr : permittedInstructions) {
+        List<ConfigInstruction> prohibited = instructions.stream()
+                .filter(Objects::nonNull)
+                .filter(i -> i.steps().stream()
+                        .anyMatch(s -> instruction.isAssignableFrom(s.handler().getClass())))
+                .toList();
+
+        for (ConfigInstruction instr : prohibited) {
             byName.remove(instr.mnemonic().toLowerCase(), instr);
             byOpcode.remove(instr.opcode(), instr);
             instructions.remove(instr);
         }
     }
 
+    /**
+     * Returns configured instruction instance based on its mnemonic.
+     *
+     * @param mnemonic the mnemonic of the instruction
+     * @return the configured instruction
+     *
+     * @since 2.0.0
+     */
+    @Override
+    public ConfigInstruction getInstruction(String mnemonic) {
+        ConfigInstruction entry = byName.get(mnemonic);
+        if (entry == null)
+            throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);
+        return entry;
+    }
+
+    /**
+     * Returns configured instruction instance based on its opcode.
+     *
+     * @param opcode the opcode of the instruction
+     * @return the configured instruction
+     *
+     * @since 2.0.0
+     */
+    @Override
+    public ConfigInstruction getInstruction(byte opcode) {
+        ConfigInstruction entry = byOpcode.get(opcode);
+        if (entry == null)
+            throw new UnknownInstructionException("No instruction found with opcode " + opcode);
+        return entry;
+    }
+
+    /**
+     * +++ DEPRECATED +++
+     * <p>use {@link ConcreteInstructionSet#getInstruction(String mnemonic)} instead</p>
+     * +++ DEPRECATED +++
+     * <p>Returns the very first handler by its instruction mnemonic</p>
+     *
+     * @param mnemonic the mnemonic of the instruction
+     * @return the handler of the very first step
+     *
+     * @deprecated This is deprecated since the introduction of multiple instruction handlers in {@code 2.0.0}
+     * @since 1.0.0
+     */
+    @Deprecated
     @Override
     public AbstractInstruction getHandler(String mnemonic) {
         ConfigInstruction entry = byName.get(mnemonic);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);
-        return entry.handler();
+        return entry.steps().getFirst().handler();
     }
 
+    /**
+     * +++ DEPRECATED +++
+     * <p>use {@link ConcreteInstructionSet#getInstruction(byte opcode)} instead</p>
+     * +++ DEPRECATED +++
+     * <p>Returns the very first handler by its instruction opcode</p>
+     *
+     * @param opcode the opcode of the instruction
+     * @return the handler of the very first step
+     *
+     * @deprecated This is deprecated since the introduction of multiple instruction handlers in {@code 2.0.0}
+     * @since 1.0.0
+     */
+    @Deprecated
     @Override
     public AbstractInstruction getHandler(byte opcode) {
         ConfigInstruction entry = byOpcode.get(opcode);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with opcode " + opcode);
-        return entry.handler();
+        return entry.steps().getFirst().handler();
     }
 
     @Override

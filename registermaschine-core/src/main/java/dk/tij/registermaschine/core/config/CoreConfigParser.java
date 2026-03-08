@@ -230,7 +230,6 @@ public final class CoreConfigParser {
         transformer.transform(new DOMSource(doc), new StreamResult(writer));
 
         String xml = writer.toString();
-        System.out.println(xml);
 
         parseWithDtd(new ByteArrayInputStream(xml.getBytes()));
     }

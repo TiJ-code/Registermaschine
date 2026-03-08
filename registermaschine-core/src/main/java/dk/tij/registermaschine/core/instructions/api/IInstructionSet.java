@@ -8,7 +8,12 @@ public interface IInstructionSet {
     void registerInstruction(ConfigInstruction configInstruction);
     void prohibitInstructionHandler(Class<? extends AbstractInstruction> instructionHandler);
 
+    ConfigInstruction getInstruction(String mnemonic);
+    ConfigInstruction getInstruction(byte opcode);
+
+    @Deprecated(since = "2.0.0")
     AbstractInstruction getHandler(String mnemonic);
+    @Deprecated(since = "2.0.0")
     AbstractInstruction getHandler(byte opcode);
 
     byte getOpcode(String mnemonic);

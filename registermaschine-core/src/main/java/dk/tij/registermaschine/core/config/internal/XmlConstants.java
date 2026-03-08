@@ -31,7 +31,8 @@ public final class XmlConstants {
                                 ATTRIBUTE_OPERAND_NAME = "name",
                                 ATTRIBUTE_OPERAND_IMPLICIT_VALUE = "implicitValue";
 
-    public static final String  ATTRIBUTE_STEP_HANDLER = "handler";
+    public static final String  ATTRIBUTE_STEP_HANDLER = "handler",
+                                ATTRIBUTE_STEP_CONDITION = "condition";
 
     public static final String  ATTRIBUTE_IN_REF = "ref",
                                 ATTRIBUTE_OUT_TO = "to";

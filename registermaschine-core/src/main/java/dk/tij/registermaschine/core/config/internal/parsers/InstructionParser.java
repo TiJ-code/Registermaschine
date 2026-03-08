@@ -43,15 +43,13 @@ public final class InstructionParser implements IConfigParser {
     private static ConfigInstruction parseInstruction(Node instructionNode, final byte opcode)
             throws Exception {
         Element instructionElem = (Element) instructionNode;
-        NodeList operandNodes = instructionElem.getElementsByTagName(XmlConstants.TAG_OPERAND);
 
         String instructionMnemonic = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_ID);
         String instructionDescription = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_DESCRIPTION);
-        String instructionHandlerStr = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);
-        String instructionConditionStr = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_CONDITION);
 
         int resultCount = 0;
 
+        NodeList operandNodes = instructionElem.getElementsByTagName(XmlConstants.TAG_OPERAND);
         List<ConfigOperand> operands = new ArrayList<>(operandNodes.getLength());
         for (int i = 0; i < operandNodes.getLength(); i++) {
             ConfigOperand operand = parseOperand(operandNodes.item(i));
@@ -67,13 +65,11 @@ public final class InstructionParser implements IConfigParser {
             throw new ConfigurationParseException(String.format("Instruction %s must have exactly one result.",
                     instructionMnemonic));
         }
-
-        AbstractInstruction instructionHandler = createInstructionHandler(parseInstructionHandler(instructionHandlerStr),
-                                                                          opcode, operands.size(),
-                                                                          ConditionBuilder.build(instructionConditionStr));
+        
+        List<ConfigStep> steps = parseChain(instructionElem, opcode);
 
         return new ConfigInstruction(instructionMnemonic, instructionDescription,
-                                     opcode, operands, instructionHandler);
+                                     opcode, operands, steps);
     }
 
     private static ConfigOperand parseOperand(Node operandNode) {
@@ -91,6 +87,63 @@ public final class InstructionParser implements IConfigParser {
         if (value.isEmpty()) value = null;
 
         return new ConfigOperand(type, concept, value);
+    }
+    
+    private static List<ConfigStep> parseChain(Element instructionElement, byte opcode) throws Exception {
+        NodeList chainNodes = instructionElement.getElementsByTagName(XmlConstants.TAG_CHAIN);
+        
+        if (chainNodes.getLength() == 0) {
+            throw new ConfigurationParseException("Instruction %s missing chain".formatted(instructionElement));
+        } else if (chainNodes.getLength() > 1) {
+            throw new ConfigurationParseException("Instruction %s must have exactly one chain.".formatted(instructionElement));
+        }
+        
+        Element chainElement = (Element) chainNodes.item(0);
+        
+        NodeList stepNodes = chainElement.getElementsByTagName(XmlConstants.TAG_STEP);
+        if (stepNodes.getLength() == 0) {
+            throw new ConfigurationParseException("Instruction %s missing step".formatted(instructionElement));
+        }
+        
+        List<ConfigStep> steps = new ArrayList<>(stepNodes.getLength());
+        for (int i = 0; i < stepNodes.getLength(); i++) {
+            steps.add(parseStep(stepNodes.item(i), opcode));
+        }
+        
+        return steps;
+    }
+    
+    private static ConfigStep parseStep(Node stepNode, byte opcode) throws Exception {
+        Element stepElement = (Element) stepNode;
+
+        String handlerStr = stepElement.getAttribute(XmlConstants.ATTRIBUTE_STEP_HANDLER);
+        String conditionStr = stepElement.getAttribute(XmlConstants.ATTRIBUTE_STEP_CONDITION);
+
+        Class<? extends AbstractInstruction> handlerClass = parseInstructionHandler(handlerStr);
+
+        ICondition condition = ConditionBuilder.build(conditionStr);
+
+        NodeList children = stepElement.getChildNodes();
+
+        List<String> inputs = new ArrayList<>(children.getLength() - 1); // max. 1 output
+        String output = null;
+
+        for (int i = 0; i < children.getLength(); i++) {
+            Node node = children.item(i);
+            if (node.getNodeType() != Node.ELEMENT_NODE)
+                continue;
+
+            Element elem = (Element) node;
+
+            switch (elem.getTagName()) {
+                case XmlConstants.TAG_IN -> inputs.add(elem.getAttribute(XmlConstants.ATTRIBUTE_IN_REF));
+                case XmlConstants.TAG_OUT -> output = elem.getAttribute(XmlConstants.ATTRIBUTE_OUT_TO);
+            }
+        }
+
+        AbstractInstruction handler = createInstructionHandler(handlerClass, opcode, inputs.size(), condition);
+
+        return new ConfigStep(handler, inputs, output);
     }
 
     private static void validate(String type, String concept) throws ConfigurationParseException {
