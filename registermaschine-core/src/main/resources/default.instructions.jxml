@@ -167,12 +167,12 @@
                 id="jez"
                 opcode="0x0C"
                 description="Jumps to program line, if accumulator is zero"
-                handler="core.instructions.JumpInstruction"
-                condition="core.conditions.EqualsZeroCondition">
+                handler="core.instructions.JumpInstruction">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction">
+                <step handler="core.instructions.JumpInstruction"
+                      condition="core.conditions.EqualsZeroCondition">
                     <in ref="target"/>
                     <out/>
                 </step>
@@ -182,12 +182,12 @@
                 id="jne"
                 opcode="0x0D"
                 description="Jumps to program line, if accumulator is not zero"
-                handler="core.instructions.JumpInstruction"
-                condition="@core.conditions.NotEqualsZeroCondition">
+                handler="core.instructions.JumpInstruction">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction">
+                <step handler="core.instructions.JumpInstruction"
+                      condition="@core.conditions.NotEqualsZeroCondition">
                     <in ref="target"/>
                     <out/>
                 </step>
@@ -197,12 +197,12 @@
                 id="jlz"
                 opcode="0x0E"
                 description="Jumps to program line, if accumulator is less than zero"
-                handler="core.instructions.JumpInstruction"
-                condition="core.conditions.LessThanZeroCondition">
+                handler="core.instructions.JumpInstruction">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction">
+                <step handler="core.instructions.JumpInstruction"
+                      condition="core.conditions.LessThanZeroCondition">
                     <in ref="target"/>
                     <out/>
                 </step>
@@ -212,12 +212,12 @@
                 id="jle"
                 opcode="0x0F"
                 description="Jumps to program line, if accumulator is less than or equal to zero"
-                handler="core.instructions.JumpInstruction"
-                condition="@core.conditions.LessThanOrEqualsToZeroCondition">
+                handler="core.instructions.JumpInstruction">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction">
+                <step handler="core.instructions.JumpInstruction"
+                      condition="@core.conditions.LessThanOrEqualsToZeroCondition">
                     <in ref="target"/>
                     <out/>
                 </step>
@@ -227,12 +227,12 @@
                 id="jgz"
                 opcode="0x10"
                 description="Jumps to program line, if accumulator is greater than zero"
-                handler="core.instructions.JumpInstruction"
-                condition="@core.conditions.GreaterThanZeroCondition">
+                handler="core.instructions.JumpInstruction">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction">
+                <step handler="core.instructions.JumpInstruction"
+                      condition="@core.conditions.GreaterThanZeroCondition">
                     <in ref="target"/>
                     <out/>
                 </step>
@@ -242,12 +242,12 @@
                 id="jge"
                 opcode="0x11"
                 description="Jumps to program line, if accumulator is greater than or equal to zero"
-                handler="core.instructions.JumpInstruction"
-                condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
+                handler="core.instructions.JumpInstruction">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction">
+                <step handler="core.instructions.JumpInstruction"
+                      condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
                     <in ref="target"/>
                     <out/>
                 </step>

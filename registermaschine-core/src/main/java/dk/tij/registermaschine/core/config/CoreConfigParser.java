@@ -5,6 +5,7 @@ import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.InstructionSetMigrator;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
+import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
@@ -30,6 +31,7 @@ import java.util.*;
 
 public final class CoreConfigParser {
     public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName();
+    public static final String  PARSER_INSTRUCTION_OPTIONS = InstructionSetOptionParser.class.getName();
 
     public static final String  DTD_CONFIGURATION = "dtd/configuration.dtd",
                                 DTD_INSTRUCTION_SET = "dtd/instruction_file.dtd",
@@ -48,6 +50,7 @@ public final class CoreConfigParser {
             new SettingsParser()
     );
     private static final IConfigParser MACRO_PARSER = new ConditionMacroParser();
+    private static final IConfigParser INSTRUCTION_OPTIONS_PARSER = new InstructionSetOptionParser();
     private static final IConfigParser INSTRUCTION_PARSER = new InstructionParser();
 
     private CoreConfigParser() {}
@@ -109,6 +112,7 @@ public final class CoreConfigParser {
                 validateWithDtd(doc);
 
                 CoreConfig.INSTRUCTIONS.clear();
+                INSTRUCTION_OPTIONS_PARSER.parseConfig(doc);
                 INSTRUCTION_PARSER.parseConfig(doc);
                 MACRO_PARSER.parseConfig(doc);
 
@@ -122,6 +126,8 @@ public final class CoreConfigParser {
     public static void addListenerToTarget(String target, IConfigEventListener listener) {
         if (PARSER_INSTRUCTIONS.equals(target))
             INSTRUCTION_PARSER.addListener(listener);
+        if (PARSER_INSTRUCTION_OPTIONS.equals(target))
+            INSTRUCTION_OPTIONS_PARSER.addListener(listener);
     }
 
     public static void setCustomRootPath(Path customPath) {

@@ -27,8 +27,7 @@
         id ID #REQUIRED
         opcode CDATA #REQUIRED
         description CDATA #IMPLIED
-        handler CDATA #IMPLIED
-        condition CDATA #IMPLIED>
+        handler CDATA #IMPLIED>
 
 <!ELEMENT operand EMPTY>
 <!ATTLIST operand
@@ -40,7 +39,8 @@
 <!ELEMENT chain (step+)>
 <!ELEMENT step (in*, out)>
 <!ATTLIST step
-        handler CDATA #REQUIRED>
+        handler CDATA #REQUIRED
+        condition CDATA #IMPLIED>
 
 <!ELEMENT in EMPTY>
 <!ATTLIST in

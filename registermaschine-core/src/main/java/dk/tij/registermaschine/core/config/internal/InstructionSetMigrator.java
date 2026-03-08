@@ -65,6 +65,7 @@ public final class InstructionSetMigrator {
             Element instruction = (Element) instructions.item(i);
 
             String handler = instruction.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);
+            String condition = instruction.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_CONDITION);
 
             instruction.removeAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);
 
@@ -73,6 +74,8 @@ public final class InstructionSetMigrator {
 
             if (!handler.isEmpty())
                 step.setAttribute(XmlConstants.ATTRIBUTE_STEP_HANDLER, handler);
+            if (!condition.isEmpty())
+                step.setAttribute(XmlConstants.ATTRIBUTE_STEP_CONDITION, condition);
 
             NodeList children = instruction.getChildNodes();
 
