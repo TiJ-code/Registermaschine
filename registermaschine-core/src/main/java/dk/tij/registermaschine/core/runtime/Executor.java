@@ -2,6 +2,7 @@ package dk.tij.registermaschine.core.runtime;
 
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
+import dk.tij.registermaschine.core.config.ConfigInstruction;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
@@ -43,16 +44,18 @@ public class Executor implements Runnable {
                 ICompiledInstruction instr = program.get(pc);
                 context.step();
 
-                AbstractInstruction handler = instructionSet.getHandler(instr.opcode());
-                if (handler.shouldExecute(context)) {
-                    try {
-                        handler.executeInstruction(context, instr.operands());
-                    } catch (Exception e) {
-                        System.out.println("Execution interrupted during input, stopping!");
-                        break;
+                var configuredInstruction = instructionSet.getInstruction(instr.opcode());
+                for (var configuredInstructionStep : configuredInstruction.steps()) {
+                    AbstractInstruction handler = configuredInstructionStep.handler();
+                    if (handler.shouldExecute(context)) {
+                        try {
+                            handler.executeInstruction(context, instr.operands());
+                        } catch (Exception e) {
+                            System.out.println("Execution interrupted during input, stopping!");
+                            break;
+                        }
                     }
                 }
-
 
                 long cycleTimeNs = System.nanoTime() - cycleStart;
                 long targetCycleNs = delayMs * 1_000_000L;
