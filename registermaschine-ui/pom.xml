@@ -21,6 +21,13 @@
         <registermaschine-core.version>1.0.0</registermaschine-core.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/TiJ-code/JIssueSystem</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>dk.tij.registermaschine</groupId>
@@ -56,7 +63,7 @@
         <dependency>
             <groupId>dk.tij</groupId>
             <artifactId>jissuesystem</artifactId>
-            <version>0.1.0</version>
+            <version>0.2.0</version>
         </dependency>
     </dependencies>
 
