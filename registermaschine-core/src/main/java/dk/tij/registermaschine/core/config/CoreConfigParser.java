@@ -2,7 +2,7 @@ package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.core.config.api.IConfigEventListener;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
-import dk.tij.registermaschine.core.config.internal.InstructionSetMigrator;
+import dk.tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
