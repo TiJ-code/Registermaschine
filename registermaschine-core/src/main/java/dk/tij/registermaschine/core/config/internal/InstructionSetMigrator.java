@@ -77,15 +77,15 @@ public final class InstructionSetMigrator {
             if (!condition.isEmpty())
                 step.setAttribute(XmlConstants.ATTRIBUTE_STEP_CONDITION, condition);
 
-            NodeList children = instruction.getChildNodes();
+            NodeList operands = instruction.getElementsByTagName(XmlConstants.TAG_OPERAND);
 
             int operandCounter = 1;
             String resultName = null;
 
-            for (int j = 0; j < children.getLength(); j++) {
-                Node node = children.item(j);
+            for (int j = 0; j < operands.getLength(); j++) {
+                Node operandNode = operands.item(j);
 
-                if (!(node instanceof Element operand))
+                if (!(operandNode instanceof Element operand))
                     continue;
 
                 if (!operand.getTagName().equals(XmlConstants.TAG_OPERAND))

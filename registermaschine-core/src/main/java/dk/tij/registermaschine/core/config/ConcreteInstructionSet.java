@@ -1,6 +1,7 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.error.ExistingInstructionException;
+import dk.tij.registermaschine.core.compilation.internal.instructions.CompiledInstructionPlan;
+import dk.tij.registermaschine.core.compilation.internal.instructions.InstructionCompiler;
 import dk.tij.registermaschine.core.error.UnknownInstructionException;
 import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
@@ -8,25 +9,23 @@ import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import java.util.*;
 
 public final class ConcreteInstructionSet implements IInstructionSet {
-    private final List<ConfigInstruction> instructions = new ArrayList<>();
+    private final InstructionCompiler instructionCompiler = new InstructionCompiler();
+
     private final Map<String, ConfigInstruction> byName = new HashMap<>();
     private final Map<Byte, ConfigInstruction> byOpcode = new HashMap<>();
+    private final Map<Byte, CompiledInstructionPlan> plans = new HashMap<>();
 
     @Override
     public void registerInstruction(ConfigInstruction configInstruction) {
-        byte opcode = configInstruction.opcode();
-
-        if (byOpcode.containsKey(opcode))
-            throw new ExistingInstructionException("Opcode " + opcode + " is already registered!");
-
-        instructions.add(configInstruction);
-        byName.put(configInstruction.mnemonic().toLowerCase(), configInstruction);
-        byOpcode.put(opcode, configInstruction);
+        CompiledInstructionPlan plan = instructionCompiler.compile(configInstruction);
+        plans.put(plan.opcode(), plan);
+        byName.put(configInstruction.mnemonic(), configInstruction);
+        byOpcode.put(configInstruction.opcode(), configInstruction);
     }
 
     @Override
     public void prohibitInstructionHandler(Class<? extends AbstractInstruction> instruction) {
-        List<ConfigInstruction> prohibited = instructions.stream()
+        List<ConfigInstruction> prohibited = byOpcode.values().stream()
                 .filter(Objects::nonNull)
                 .filter(i -> i.steps().stream()
                         .anyMatch(s -> instruction.isAssignableFrom(s.handler().getClass())))
@@ -35,7 +34,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
         for (ConfigInstruction instr : prohibited) {
             byName.remove(instr.mnemonic().toLowerCase(), instr);
             byOpcode.remove(instr.opcode(), instr);
-            instructions.remove(instr);
+            plans.remove(instr.opcode());
         }
     }
 
@@ -131,16 +130,27 @@ public final class ConcreteInstructionSet implements IInstructionSet {
 
     @Override
     public boolean contains(String mnemonic) {
-        return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.mnemonic().equals(mnemonic));
+        return byName.containsKey(mnemonic);
     }
 
     @Override
-    public boolean contains(byte mnemonic) {
-        return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.opcode() == mnemonic);
+    public boolean contains(byte opcode) {
+        return byOpcode.containsKey(opcode);
     }
 
+    @SuppressWarnings("markedForRemoval")
+    @Deprecated(since = "2.0.0", forRemoval = true)
     @Override
     public List<ConfigInstruction> getInstructions() {
-        return List.copyOf(instructions);
+        return List.copyOf(byOpcode.values());
+    }
+
+    @Override
+    public CompiledInstructionPlan getPlan(byte opcode) {
+        return plans.get(opcode);
+    }
+
+    public List<CompiledInstructionPlan> getInstructionPlans() {
+        return List.copyOf(plans.values());
     }
 }

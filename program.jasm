@@ -1,9 +1,7 @@
-    ldk #1
-    sta r1
-    inp r0
-loop:
-    jle ende
-    sub r1
-    jmp loop
-ende:
-    hlt #99
+ldk #3
+sta r1
+ldk #2
+sta r2
+ldk #5
+sta r3
+muladd r0 r1 r2 r3

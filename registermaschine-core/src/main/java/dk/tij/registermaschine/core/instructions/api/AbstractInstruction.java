@@ -5,6 +5,12 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
 
 public abstract class AbstractInstruction {
+    /**
+     * @since 1.0.0
+     * @deprecated Use {@link AbstractInstruction#OpCode()} instead.
+     *             This will be made private soon.
+     */
+    @Deprecated(since = "2.0.0", forRemoval = true)
     public final byte OpCode;
     protected final int operandCount;
     protected final ICondition condition;
@@ -52,6 +58,17 @@ public abstract class AbstractInstruction {
             case IMMEDIATE -> operand.value();
             default -> throw new UnsupportedOperationException("Labels are not math!");
         };
+    }
+
+    /**
+     * Returns the opcode of this instruction handler
+     *
+     * @return the opcode
+     *
+     * @since 2.0.0
+     */
+    public byte OpCode() {
+        return OpCode;
     }
 
     @Override

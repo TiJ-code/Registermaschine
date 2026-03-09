@@ -61,7 +61,7 @@ public final class InstructionParser implements IConfigParser {
             operands.add(operand);
         }
 
-        if (resultCount < 0 || resultCount > 1) {
+        if (resultCount > 1) {
             throw new ConfigurationParseException(String.format("Instruction %s must have exactly one result.",
                     instructionMnemonic));
         }
@@ -75,9 +75,13 @@ public final class InstructionParser implements IConfigParser {
     private static ConfigOperand parseOperand(Node operandNode) {
         Element operandElem = (Element) operandNode;
 
+        String nameStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_NAME);
         String typeStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_TYPE).toUpperCase();
         String conceptStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_CONCEPT).toUpperCase();
         String value = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_IMPLICIT_VALUE);
+
+        if (nameStr.isEmpty())
+            throw new ConfigurationParseException("Operand %s must have a name".formatted(operandElem));
 
         validate(typeStr, conceptStr);
 
@@ -86,7 +90,7 @@ public final class InstructionParser implements IConfigParser {
 
         if (value.isEmpty()) value = null;
 
-        return new ConfigOperand(type, concept, value);
+        return new ConfigOperand(nameStr, type, concept, value);
     }
     
     private static List<ConfigStep> parseChain(Element instructionElement, byte opcode) throws Exception {
@@ -137,13 +141,16 @@ public final class InstructionParser implements IConfigParser {
 
             switch (elem.getTagName()) {
                 case XmlConstants.TAG_IN -> inputs.add(elem.getAttribute(XmlConstants.ATTRIBUTE_IN_REF));
-                case XmlConstants.TAG_OUT -> output = elem.getAttribute(XmlConstants.ATTRIBUTE_OUT_TO);
+                case XmlConstants.TAG_OUT -> {
+                    String outAttr = elem.getAttribute(XmlConstants.ATTRIBUTE_OUT_TO);
+                    output = outAttr.isEmpty() ? null : outAttr;
+                }
             }
         }
 
         AbstractInstruction handler = createInstructionHandler(handlerClass, opcode, inputs.size(), condition);
 
-        return new ConfigStep(handler, inputs, output);
+        return new ConfigStep(handler, condition, inputs, output);
     }
 
     private static void validate(String type, String concept) throws ConfigurationParseException {

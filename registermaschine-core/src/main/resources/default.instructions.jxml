@@ -6,6 +6,25 @@
         <option id="allowLabels" value="false"/>
     </options>
     <instructions>
+        <instruction id="muladd" opcode="0x15">
+            <operand type="register" concept="result"  name="result"/>
+            <operand type="register" concept="operand" name="add1"/>
+            <operand type="register" concept="operand" name="add2"/>
+            <operand type="register" concept="operand" name="mul1"/>
+
+            <chain>
+                <step handler="core.instructions.AdditionInstruction">
+                    <in ref="add1"/>
+                    <in ref="add2"/>
+                    <out to="result"/>
+                </step>
+                <step handler="core.instructions.MultiplicationInstruction">
+                    <in ref="result"/>
+                    <in ref="mul1"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
         <instruction
                 id="hlt"
                 opcode="0x00"
@@ -69,8 +88,7 @@
         <instruction
                 id="div"
                 opcode="0x04"
-                description="Divides register A by B"
-                handler="core.instructions.DivisionInstruction">
+                description="Divides register A by B">
             <operand type="register" concept="result"  name="result" implicitValue="r0"/>
             <operand type="register" concept="operand" name="div1" implicitValue="r0"/>
             <operand type="register" concept="operand" name="div2"/>
@@ -166,8 +184,7 @@
         <instruction
                 id="jez"
                 opcode="0x0C"
-                description="Jumps to program line, if accumulator is zero"
-                handler="core.instructions.JumpInstruction">
+                description="Jumps to program line, if accumulator is zero">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
@@ -181,8 +198,7 @@
         <instruction
                 id="jne"
                 opcode="0x0D"
-                description="Jumps to program line, if accumulator is not zero"
-                handler="core.instructions.JumpInstruction">
+                description="Jumps to program line, if accumulator is not zero">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
@@ -196,8 +212,7 @@
         <instruction
                 id="jlz"
                 opcode="0x0E"
-                description="Jumps to program line, if accumulator is less than zero"
-                handler="core.instructions.JumpInstruction">
+                description="Jumps to program line, if accumulator is less than zero">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
@@ -211,8 +226,7 @@
         <instruction
                 id="jle"
                 opcode="0x0F"
-                description="Jumps to program line, if accumulator is less than or equal to zero"
-                handler="core.instructions.JumpInstruction">
+                description="Jumps to program line, if accumulator is less than or equal to zero">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
@@ -226,8 +240,7 @@
         <instruction
                 id="jgz"
                 opcode="0x10"
-                description="Jumps to program line, if accumulator is greater than zero"
-                handler="core.instructions.JumpInstruction">
+                description="Jumps to program line, if accumulator is greater than zero">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
@@ -241,8 +254,7 @@
         <instruction
                 id="jge"
                 opcode="0x11"
-                description="Jumps to program line, if accumulator is greater than or equal to zero"
-                handler="core.instructions.JumpInstruction">
+                description="Jumps to program line, if accumulator is greater than or equal to zero">
             <operand type="label" concept="target" name="target"/>
 
             <chain>
