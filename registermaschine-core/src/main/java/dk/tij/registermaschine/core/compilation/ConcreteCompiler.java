@@ -20,7 +20,43 @@ import dk.tij.registermaschine.api.instructions.IInstructionSet;
 
 import java.util.*;
 
+/**
+ * Concrete implementation of {@link ICompiler} for the Registermaschine.
+ *
+ * <p>This compiler transforms a parsed {@link ISyntaxTree} into a
+ * {@link ICompiledProgram} that can be executed by the runtime. It resolves
+ * labels, validates operand types, and converts instruction operands into
+ * {@link ICompiledOperand} objects according to their {@link ConfigOperand}
+ * templates.</p>
+ *
+ * <p>Compilation process:</p>
+ * <ol>
+ *     <li>First pass: scan for labels to build a symbol table</li>
+ *     <li>Second pass: compile each instruction node, resolving operands and labels</li>
+ *     <li>Validate each instruction using its {@link AbstractInstruction} handler</li>
+ * </ol>
+ *
+ * <p>Features:</p>
+ * <ul>
+ *     <li>Supports register, immediate, and label operands</li>
+ *     <li>Validates operand types against instruction templates</li>
+ *     <li>Resolves label addresses and user-provided hexadecimal addresses</li>
+ *     <li>Handles implicit operands defined in the configuration</li>
+ *     <li>Throws {@link SyntaxErrorException} for invalid operands or registers</li>
+ * </ul>
+ *
+ * @since 1.0.0
+ * @author TiJ
+ */
 public final class ConcreteCompiler implements ICompiler {
+    /**
+     * Compiles the given {@link ISyntaxTree} into a {@link ICompiledProgram}.
+     *
+     * @param tree the syntax tree produced by the parser
+     * @param instructionSet the instruction set used to resolve instructions
+     * @return a compiled program ready for execution
+     * @throws RuntimeException for unknown instructions or operand mismatches
+     */
     @Override
     public ICompiledProgram compile(ISyntaxTree tree, IInstructionSet instructionSet) {
         List<ICompiledInstruction> program = new ArrayList<>();
@@ -53,6 +89,14 @@ public final class ConcreteCompiler implements ICompiler {
         return new ConcreteCompiledProgram(program);
     }
 
+    /**
+     * Merges instruction template operands with user-provided operands.
+     *
+     * @param template the instruction's configured operands
+     * @param userNodes the operands provided in source code
+     * @param symbolTable mapping of labels to instruction addresses
+     * @return an array of {@link ICompiledOperand}
+     */
     private ICompiledOperand[] mergeOperands(List<ConfigOperand> template, List<ConcreteOperandNode> userNodes,
                                              Map<String, Integer> symbolTable) {
         ICompiledOperand[] result = new ICompiledOperand[template.size()];
@@ -89,6 +133,9 @@ public final class ConcreteCompiler implements ICompiler {
         return result;
     }
 
+    /**
+     * Parses implicit operand values defined in the configuration.
+     */
     private ICompiledOperand parseInternalValue(ConfigOperand op) {
         ICompiledOperand result;
         String value = op.value();
@@ -105,6 +152,9 @@ public final class ConcreteCompiler implements ICompiler {
         return result;
     }
 
+    /**
+     * Parses a user-provided operand into a compiled operand, resolving labels and addresses.
+     */
     private ICompiledOperand parseUserValue(ConcreteOperandNode node, OperandConcept concept, Map<String, Integer> symbolTable) {
         ICompiledOperand result;
         if (node.isRegister) {
@@ -149,6 +199,9 @@ public final class ConcreteCompiler implements ICompiler {
         return result;
     }
 
+    /**
+     * Constructs a {@link SyntaxErrorException} with node location and message formatting.
+     */
     private SyntaxErrorException error(ConcreteAbstractSyntaxTreeNode node, String msg, Object... args) {
         return new SyntaxErrorException(String.format("at line %d: %s", node.line, String.format(msg, args)));
     }
