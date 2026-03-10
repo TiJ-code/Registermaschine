@@ -5,6 +5,12 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
 import java.util.List;
 
+/**
+ * Condition that evaluates to {@code true} if at least one
+ * contained condition evaluates to {@code true}.
+ *
+ * <p>This implements a logical OR over one or more {@link ICondition} instances.</p>
+ */
 public final class OrCondition implements ICondition {
     private final ICondition[] conditions;
 
