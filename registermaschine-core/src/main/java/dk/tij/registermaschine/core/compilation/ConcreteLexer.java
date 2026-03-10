@@ -10,12 +10,65 @@ import java.util.ArrayList;
 import java.util.List;
 import static dk.tij.registermaschine.api.compilation.lexing.TokenType.*;
 
+/**
+ * Concrete implementation of {@link ILexer} for the Registermaschine.
+ *
+ * <p>This lexer transforms a source code string into a list of {@link IToken}s
+ * suitable for parsing. It handles instructions, registers, numbers, labels,
+ * comments, and special address/immediate syntax. It also performs basic
+ * validation and reports lexical errors for malformed tokens.</p>
+ *
+ * <p>Supported token types:</p>
+ * <ul>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#INSTRUCTION}
+ *     – recognised mnemonics from the {@link IInstructionSet}</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#REGISTER}
+ *     – registers prefixed with 'r' (e.g., r0, r1)</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#NUMBER}
+ *     – immediate values prefixed with '#' and optionally hexadecimal</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#LABEL}
+ *     – symbolic addresses or labels</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#LABEL_DEF}
+ *     – label definitions ending with ':'</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#COMMA}
+ *     – comma separators between operands</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#EOL}
+ *     – end-of-line markers</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#EOF}
+ *     – end-of-file marker</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#COMMENT}
+ *     – comments starting with ';'</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#UNKNOWN}
+ *     – unrecognised characters</li>
+ *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#ERROR}
+ *     – malformed tokens (e.g., invalid immediate/address)</li>
+ * </ul>
+ *
+ * <p>Lexer features:</p>
+ * <ul>
+ *     <li>Normalizes line endings to '\n'</li>
+ *     <li>Tracks line and column positions for error reporting</li>
+ *     <li>Supports hexadecimal addresses and immediates</li>
+ *     <li>Handles symbolic labels based on {@link CoreConfig#ALLOW_LABELS}</li>
+ *     <li>Validates register names using {@link CoreConfig#TOKEN_REGEX}</li>
+ * </ul>
+ *
+ * @since 1.0.0
+ * @author TiJ
+ */
 public final class ConcreteLexer implements ILexer {
     private IInstructionSet instructionSet;
     private List<IToken> tokens;
     private int index, line, column;
     private String source;
 
+    /**
+     * Tokenises the given source code using the provided instruction set.
+     *
+     * @param sourceCode the source code string to tokenise
+     * @param instructions the instruction set to recognise instruction tokens
+     * @return a list of {@link IToken}s representing the lexed source code
+     */
     @Override
     public List<IToken> tokenize(String sourceCode, IInstructionSet instructions) {
         instructionSet = instructions;
@@ -62,6 +115,9 @@ public final class ConcreteLexer implements ILexer {
         return tokens;
     }
 
+    /**
+     * Reads an immediate value prefixed with '#' and handles decimal/hex formats.
+     */
     private void readImmediate() {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
@@ -104,6 +160,9 @@ public final class ConcreteLexer implements ILexer {
         tokens.add(new ConcreteToken(NUMBER, sb.toString(), line, startCol));
     }
 
+    /**
+     * Reads a hexadecimal address prefixed with '@0x'.
+     */
     private void readAddress() {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
@@ -133,6 +192,9 @@ public final class ConcreteLexer implements ILexer {
         tokens.add(new ConcreteToken(LABEL, sb.toString(), line, startCol));
     }
 
+    /**
+     * Reads a comment until the end of the line.
+     */
     private void readComment() {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
@@ -144,6 +206,9 @@ public final class ConcreteLexer implements ILexer {
         tokens.add(new ConcreteToken(COMMENT, sb.toString(), line, startCol));
     }
 
+    /**
+     * Handles numbers without '#' prefix, producing an ERROR token.
+     */
     private void readIllegalNumber(char first) {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
@@ -156,6 +221,9 @@ public final class ConcreteLexer implements ILexer {
         tokens.add(new ConcreteToken(ERROR, "Constants must start with '#': " + sb, line, startCol));
     }
 
+    /**
+     * Reads identifiers (instructions, registers, labels, or label definitions).
+     */
     private void readIdentifier(char first) {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
@@ -197,6 +265,9 @@ public final class ConcreteLexer implements ILexer {
         }
     }
 
+    /**
+     * Checks if the given text matches the configured register regex.
+     */
     private boolean isRegister(String text) {
         if (text.length() < 2) return false;
         if (text.charAt(0) != 'r') return false;
@@ -204,20 +275,32 @@ public final class ConcreteLexer implements ILexer {
         return text.matches(CoreConfig.TOKEN_REGEX.get(REGISTER));
     }
 
+    /**
+     *  Checks whether the given character is a valid hexadecimal digit.
+     */
     private boolean isHexDigit(char c) {
         return Character.isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
     }
 
+    /**
+     * Advances the lexer index by one character and returns it.
+     */
     private char advance() {
         char c = source.charAt(index++);
         column++;
         return c;
     }
 
+    /**
+     * Returns the next character without advancing.
+     */
     private char peek() {
         return source.charAt(index);
     }
 
+    /**
+     * Returns {@code true} if there are remaining characters to process.
+     */
     private boolean isNotAtEnd() {
         return index < source.length();
     }
