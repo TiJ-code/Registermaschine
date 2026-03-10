@@ -20,11 +20,10 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  * operand evaluation. Conditional execution applies if a condition was specified
  * at instruction creation.</p>
  *
- * <p>Example usage:
+ * <p>Example usage:</p>
  * <pre>
  *     MOV r5, 0  ; copy value from register 0 into register 5
  * </pre>
- * </p>
  *
  * @since 1.0.0
  * @author TiJ

@@ -13,11 +13,10 @@ import dk.tij.registermaschine.api.conditions.ICondition;
  * programme counter to jump to. Conditional execution may apply if a condition
  * was specified during instruction creation.</p>
  *
- * <p>Example usage:
+ * <p>Example usage:</p>
  * <pre>
  *  JMP 0xA ; jump to instruction at index 10
  * </pre>
- * </p>
  *
  * @since 1.0.0
  * @author TiJ
