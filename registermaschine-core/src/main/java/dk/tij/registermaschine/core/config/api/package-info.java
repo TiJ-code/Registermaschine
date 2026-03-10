@@ -5,11 +5,12 @@
  *     It allows the configuration system to be extended with custom parsing strategies for different
  *     segments of the machine's setup, such as instruction sets, hardware limits, or memory layouts.
  * </p>
- * <h3>Extensions:</h3>
+ * <b>Extensions:</b>
  * Parsers implementing this API are typically registered within the
  * {@link dk.tij.registermaschine.core.config.CoreConfigParser} to be executed during the
  * initialisation phase of the application.
  *
+ * @since 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.config.api;

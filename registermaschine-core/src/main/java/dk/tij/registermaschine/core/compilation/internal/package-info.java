@@ -10,6 +10,7 @@
  *
  * <p>Implementations in this package may change without notice.</p>
  *
+ * @version 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.compilation.internal;

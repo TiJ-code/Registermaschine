@@ -14,11 +14,10 @@ import dk.tij.registermaschine.core.conditions.api.ICondition;
  * <p>This instruction ignores any remaining operands and
  * unconditionally stops the machine, setting its halted state.</p>
  *
- * <p>Example usage:
+ * <p>Example usage:</p>
  * <pre>
  *     HALT 0 ; set exit code 0 and stop execution
  * </pre>
- * </p>
  *
  * @since 1.0.0
  * @author TiJ

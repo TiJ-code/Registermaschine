@@ -15,6 +15,7 @@
  * <p>All interfaces in this package are stable and safe to depend on. Implementations
  * in other packages may change without notice.</p>
  *
+ * @since 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.compilation.api;
