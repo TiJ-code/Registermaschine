@@ -8,11 +8,49 @@ import dk.tij.registermaschine.api.instructions.IInstructionSet;
 
 import java.util.*;
 
+/**
+ * Concrete implementations of {@link IInstructionSet}.
+ *
+ * <p>This class maintains a registry of all available instructions for the Registermaschine.
+ * It supports lookup by mnemonic or opcode, enforces uniqueness of opcode, and allows
+ * removing instructions by their handler class.</p>
+ *
+ * <p>Internally, the instructions are stored in:</p>
+ * <ul>
+ *     <li>{@code instructions} - ordered list of all instructions</li>
+ *     <li>{@code byName} - map from lowercase mnemonic to instruction</li>
+ *     <li>{@code ByOpcode} - map from opcode to instruction</li>
+ * </ul>
+ *
+ * <p>This class throws {@link ExistingInstructionException} if an instruction
+ * with the same opcode is already registered, and {@link UnknownInstructionException}
+ * if lookup fails.</p>
+ *
+ * @since 1.0.0
+ * @author TiJ
+ */
 public final class ConcreteInstructionSet implements IInstructionSet {
+    /**
+     * Ordered list of registered instructions
+     */
     private final List<ConfigInstruction> instructions = new ArrayList<>();
+    /**
+     * Map from lowercase mnemonic to configuration
+     */
     private final Map<String, ConfigInstruction> byName = new HashMap<>();
+    /**
+     * Map from opcode to configuration
+     */
     private final Map<Byte, ConfigInstruction> byOpcode = new HashMap<>();
 
+    /**
+     * Registers a new instruction in the set.
+     *
+     * <p>The opcode must be unique; if it is already registered an
+     * {@link ExistingInstructionException} is thrown.</p>
+     *
+     * @param configInstruction the instruction configuration to register
+     */
     @Override
     public void registerInstruction(ConfigInstruction configInstruction) {
         byte opcode = configInstruction.opcode();
@@ -25,6 +63,15 @@ public final class ConcreteInstructionSet implements IInstructionSet {
         byOpcode.put(opcode, configInstruction);
     }
 
+    /**
+     * Removes all instructions implemented by a specific handler class
+     * from the set
+     *
+     * <p>Any matching instruction is removed from the list, mnemonic map,
+     * and opcode map.</p>
+     *
+     * @param instruction the {@link AbstractInstruction} class to prohibit
+     */
     @Override
     public void prohibitInstructionHandler(Class<? extends AbstractInstruction> instruction) {
         List<ConfigInstruction> permittedInstructions = instructions.stream()
@@ -81,6 +128,11 @@ public final class ConcreteInstructionSet implements IInstructionSet {
         return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.opcode() == mnemonic);
     }
 
+    /**
+     * Returns an immutable copy of all registered instructions.
+     *
+     * @return list of {@link ConfigInstruction} entries
+     */
     @Override
     public List<ConfigInstruction> getInstructions() {
         return List.copyOf(instructions);
