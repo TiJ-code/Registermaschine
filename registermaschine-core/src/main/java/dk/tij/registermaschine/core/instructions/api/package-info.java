@@ -11,10 +11,11 @@
  *     The base class for all operations, providing lifecycle methods for validation,
  *     conditional checking, and execution.</li>
  * </ul>
- * <h3>Instruction Lifecycle</h3>
+ * <b>Instruction Lifecycle</b>
  * Each instruction follows a strict <b>Validate-Check-Execute</b> sequence managed by
  * the {@link dk.tij.registermaschine.core.runtime.Executor}.
  *
+ * @since 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.instructions.api;

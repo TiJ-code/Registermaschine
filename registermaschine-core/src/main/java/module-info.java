@@ -36,6 +36,8 @@
  * to implement custom logic that integrates with the central {@code CoreConfigParser}
  *
  * @uses dk.tij.registermaschine.core.config.api.IConfigParser
+ *
+ * @since 1.0.0
  * @author TiJ
  */
 module dk.tij.registermaschine.core {

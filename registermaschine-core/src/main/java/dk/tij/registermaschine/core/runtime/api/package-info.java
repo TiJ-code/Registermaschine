@@ -13,6 +13,7 @@
  *     to react to state changes, such as register updates or instruction steps.</li>
  * </ul>
  *
+ * @since 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.runtime.api;

@@ -12,11 +12,12 @@
  *     The orchestration engine that iterates through a compiled program, manages
  *     the Programme Counter, and delegates opcode handling to the instruction set.</li>
  * </ul>
- * <h3>Execution Cycle:</h3>
+ * <b>Execution Cycle:</b>
  * The {@code Executor} maintains a tight loop that persists until the {@code ExecutionContext}
  * signals a {@code HALT} or the Program Counter exceeds the bounds of the code segment.
  * @see dk.tij.registermaschine.core.runtime.api.IExecutionContext
  *
+ * @since 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.runtime;

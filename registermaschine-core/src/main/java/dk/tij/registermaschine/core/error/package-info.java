@@ -5,7 +5,7 @@
  *     stages of the machine's lifecycle-compilation, configuration, and execution
  *     are distinguishable and carry sufficient context (such as line numbers or opcodes).
  * </p>
- * <h3>Exception Categories:</h3>
+ * <b>Exception Categories:</b>
  * <ul>
  *     <li><b>Compilation Errors:</b> Thrown when the source code violates lexical
  *     or syntactic rules (e.g., {@code SyntaxErrorException}).</li>
@@ -15,6 +15,7 @@
  *     representing illegal state transitions or invalid register access.</li>
  * </ul>
  *
+ * @since 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.error;

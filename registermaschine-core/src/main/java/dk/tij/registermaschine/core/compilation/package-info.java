@@ -14,6 +14,7 @@
  * safe to depend on, the concrete implementations in this package may evolve
  * over time and are not guaranteed to remain backwards compatible.</p>
  *
+ * @version 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.compilation;

@@ -6,15 +6,16 @@
  * </p>
  * <p><b>Note:</b> Classes in this package are for internal use only and should not be accessed directly
  * by external modules.</p>
- * <h5>1. XML Domain (parsers)</h5>
+ * <b>1. XML Domain (parsers)</b>
  * Contains specialised parsers like {@code InstructionParser} and {@code SettingsParser}
  * which translate XML elements into {@link dk.tij.registermaschine.core.config.ConfigInstruction} objects
- * <h5>2. Condition Domain (conditions)</h5>
+ * <b>2. Condition Domain (conditions)</b>
  * A sub-system dedicated to the recursive parsing of composite conditions. It handles the conversion
  * of string expressing (e.g., {@code !core.conditions.LessThanZeroCondition * !core.conditions.EqualsZeroCondition}
  * into executable {@link dk.tij.registermaschine.core.conditions.api.ICondition} trees using a dedicated Lexer,
  * Parser, and AST (Abstract Syntax Tree)
  *
+ * @since 1.0.0
  * @author TiJ
  */
 package dk.tij.registermaschine.core.config.internal;
