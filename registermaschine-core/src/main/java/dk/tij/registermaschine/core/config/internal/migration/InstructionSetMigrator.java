@@ -17,7 +17,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Set;
+import java.util.Map;
 
 public final class InstructionSetMigrator {
     private InstructionSetMigrator() {}
@@ -80,19 +80,17 @@ public final class InstructionSetMigrator {
     }
 
     private static void migrateV1toV2(Document doc, Element root) {
-        final Set<String> oldCoreInstructionHandlers = Set.of(
-                "core.instructions.AdditionInstruction",
-                "core.instructions.SubtractionInstruction",
-                "core.instructions.MultiplicationInstruction",
-                "core.instructions.DivisionInstruction",
-                "core.instructions.HaltInstruction",
-                "core.instructions.JumpInstruction",
-                "core.instructions.OutputInstruction",
-                "core.instructions.InputInstruction",
-                "core.instructions.MoveInstruction"
+        final Map<String, String> coreInstructionHandlerMapping = Map.of(
+                "core.instructions.AdditionInstruction", "core.instructions.AdditionStepHandler",
+                "core.instructions.SubtractionInstruction", "core.instructions.SubtractionStepHandler",
+                "core.instructions.MultiplicationInstruction", "core.instructions.MultiplicationStepHandler",
+                "core.instructions.DivisionInstruction", "core.instructions.DivisionStepHandler",
+                "core.instructions.HaltInstruction", "core.instructions.HaltStepHandler",
+                "core.instructions.JumpInstruction", "core.instructions.JumpStepHandler",
+                "core.instructions.OutputInstruction", "core.instructions.OutputStepHandler",
+                "core.instructions.InputInstruction", "core.instructions.InputStepHandler",
+                "core.instructions.MoveInstruction", "core.instructions.MoveStepHandler"
         );
-        final String oldInstructionString = "Instruction";
-        final String newStepHandlerString = "StepHandler";
 
         NodeList instructions = root.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
 
@@ -101,8 +99,8 @@ public final class InstructionSetMigrator {
 
             String handler = instruction.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);
 
-            if (oldCoreInstructionHandlers.contains(handler)) {
-                handler = handler.replace(oldInstructionString, newStepHandlerString);
+            if (coreInstructionHandlerMapping.containsKey(handler)) {
+                handler = coreInstructionHandlerMapping.get(handler);
             }
 
             String condition = instruction.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_CONDITION);
