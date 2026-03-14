@@ -6,6 +6,11 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
 public class InputStepHandler implements IStepHandler {
     @Override
+    public int requiredInputs() {
+        return 0;
+    }
+
+    @Override
     public void execute(IExecutionContext context, ICompiledOperand[] operands, int[] inputIndices, int outputIndex) {
         try {
             context.setRegister(operands[outputIndex].value(), context.input());

@@ -5,37 +5,51 @@ import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledStep;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
+import java.util.Objects;
+
 /**
  * @since 2.0.0
  * @author TiJ
  */
-public class ChainedInstruction {
+public class ChainedInstruction implements IInstruction{
     private final int operandCount;
     private final ICondition condition;
     private final ICompiledStep[] steps;
+    private final IOperandValidator validator;
 
     public ChainedInstruction(int operandCount, ICondition condition, ICompiledStep[] steps) {
-        this.operandCount = operandCount;
-        this.condition = condition;
-        this.steps = steps;
+        this(operandCount, condition, steps, IOperandValidator.defaultValidator());
     }
 
+    public ChainedInstruction(int operandCount, ICondition condition,
+                              ICompiledStep[] steps, IOperandValidator validator) {
+        this.operandCount = operandCount;
+        this.condition = condition;
+        this.steps = Objects.requireNonNull(steps, "steps cannot be null");
+        this.validator = Objects.requireNonNull(validator, "validator cannot be null");
+    }
+
+    @Override
     public void execute(IExecutionContext context, ICompiledOperand[] operands) {
-        if (!validOperands(operands)) {
-            throw new RuntimeException("Insufficient operands: %d expected %d"
-                    .formatted(operands.length, operandCount));
-        }
+        validator.validate(operands, operandCount);
 
         if (!shouldExecute(context, condition))
             return;
 
         for (ICompiledStep step : steps) {
+            IStepHandler handler = step.handler();
+            handler.validate(operands, step.inputIndices(), step.outputIndex());
+
             if (shouldExecute(context, step.condition())) {
-                step.handler().execute(context, operands, step.inputIndices(), step.outputIndex());
+                handler.execute(context, operands, step.inputIndices(), step.outputIndex());
             }
         }
     }
-    
+
+    public int operandCount() {
+        return operandCount;
+    }
+
     public ICompiledStep[] steps() {
         return steps;
     }
@@ -44,13 +58,7 @@ public class ChainedInstruction {
         return condition;
     }
 
-    private boolean validOperands(ICompiledOperand[] operands) {
-        return operands.length == operandCount;
-    }
-
     private boolean shouldExecute(IExecutionContext context, ICondition condition) {
-        if (condition == null)
-            return true;
-        return condition.test(context);
+        return condition == null || condition.test(context);
     }
 }

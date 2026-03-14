@@ -6,6 +6,11 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
 public class HaltStepHandler implements IStepHandler {
     @Override
+    public boolean hasOutput() {
+        return false;
+    }
+
+    @Override
     public void execute(IExecutionContext context, ICompiledOperand[] operands, int[] inputIndices, int outputIndex) {
         context.setExitCode((byte) operands[inputIndices[0]].value());
         context.stopExecution();

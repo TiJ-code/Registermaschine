@@ -21,7 +21,7 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class InstructionParser implements IConfigParser {
+public final class InstructionSetParser implements IConfigParser {
 
     @Override
     public void parseConfig(Document xmlDocument) {

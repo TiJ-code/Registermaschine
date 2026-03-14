@@ -5,7 +5,7 @@ import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.instructions.ConcreteInstructionPrecompiler;
 import dk.tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
-import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
+import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Objects;
 
 public final class CoreConfigParser {
-    public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName();
+    public static final String  PARSER_INSTRUCTIONS = InstructionSetParser.class.getName();
     public static final String  PARSER_INSTRUCTION_OPTIONS = InstructionSetOptionParser.class.getName();
 
     public static final String  DTD_CONFIGURATION = "dtd/configuration.dtd",
@@ -61,7 +61,7 @@ public final class CoreConfigParser {
     );
     private static final IConfigParser MACRO_PARSER = new ConditionMacroParser();
     private static final IConfigParser INSTRUCTION_OPTIONS_PARSER = new InstructionSetOptionParser();
-    private static final IConfigParser INSTRUCTION_PARSER = new InstructionParser();
+    private static final IConfigParser INSTRUCTION_PARSER = new InstructionSetParser();
 
     private CoreConfigParser() {}
 

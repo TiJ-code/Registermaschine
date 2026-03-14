@@ -6,6 +6,7 @@ import dk.tij.registermaschine.core.config.api.instructions.IInstructionPrecompi
 import dk.tij.registermaschine.core.config.model.ConfigInstruction;
 import dk.tij.registermaschine.core.config.model.ConfigOperand;
 import dk.tij.registermaschine.core.config.model.ConfigStep;
+import dk.tij.registermaschine.core.instructions.api.IStepHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +30,22 @@ public class ConcreteInstructionStepPrecompiler implements IInstructionPrecompil
             int output = step.output() == null
                     ? -1
                     : operandIndex.get(step.output());
+
+            IStepHandler handler = step.handler();
+
+            if (inputs.length < handler.requiredInputs()) {
+                throw new IllegalStateException(
+                        "Step %s requires at least %d input operands, got %d"
+                                .formatted(handler.getClass().getSimpleName(), handler.requiredInputs(), inputs.length)
+                );
+            }
+
+            if (handler.hasOutput() && (output < 0)) {
+                throw new IllegalStateException(
+                        "Step %s requires an output operand"
+                                .formatted(handler.getClass().getSimpleName())
+                );
+            }
 
             compiledSteps.add(new ConcreteCompiledStep(step.handler(), step.condition(), inputs, output));
         }

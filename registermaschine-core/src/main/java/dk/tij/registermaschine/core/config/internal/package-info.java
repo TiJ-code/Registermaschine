@@ -7,7 +7,7 @@
  * <p><b>Note:</b> Classes in this package are for internal use only and should not be accessed directly
  * by external modules.</p>
  * <h5>1. XML Domain (parsers)</h5>
- * Contains specialised parsers like {@code InstructionParser} and {@code SettingsParser}
+ * Contains specialised parsers like {@code InstructionSetParser} and {@code SettingsParser}
  * which translate XML elements into {@link dk.tij.registermaschine.core.config.model.ConfigInstruction} objects
  * <h5>2. Condition Domain (conditions)</h5>
  * A sub-system dedicated to the recursive parsing of composite conditions. It handles the conversion

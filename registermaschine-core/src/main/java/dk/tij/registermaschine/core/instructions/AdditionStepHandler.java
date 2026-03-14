@@ -6,6 +6,11 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
 public class AdditionStepHandler implements IStepHandler {
     @Override
+    public int requiredInputs() {
+        return 2;
+    }
+
+    @Override
     public void execute(IExecutionContext context, ICompiledOperand[] operands, int[] inputIndices, int outputIndex) {
         long sum = 0;
 
