@@ -13,6 +13,7 @@ import dk.tij.registermaschine.core.config.model.ConfigStep;
 import dk.tij.registermaschine.core.error.ClassInstantiationException;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
 import dk.tij.registermaschine.core.instructions.api.IStepHandler;
+import dk.tij.registermaschine.core.instructions.internal.StepHandlerRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -160,7 +161,11 @@ public final class InstructionSetParser implements IConfigParser {
             }
         }
 
-        IStepHandler handler = createInstructionHandler(handlerClass, opcode, inputs.size(), condition);
+        IStepHandler handler = StepHandlerRegistry.getHandler(handlerClass);
+        if (handler == null) {
+            handler = createInstructionHandler(handlerClass);
+            StepHandlerRegistry.registerHandler(handler);
+        }
 
         return new ConfigStep(handler, condition, inputs, output);
     }
@@ -199,8 +204,7 @@ public final class InstructionSetParser implements IConfigParser {
             return Class.forName(handlerString.trim()).asSubclass(IStepHandler.class);
     }
 
-    private static IStepHandler createInstructionHandler(Class<? extends IStepHandler> handlerClass,
-                                                                byte opcode, int operands, ICondition condition)
+    private static IStepHandler createInstructionHandler(Class<? extends IStepHandler> handlerClass)
             throws ClassInstantiationException {
         try {
             return handlerClass
