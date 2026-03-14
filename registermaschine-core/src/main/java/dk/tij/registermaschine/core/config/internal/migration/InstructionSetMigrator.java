@@ -11,21 +11,25 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
+import java.nio.file.StandardCopyOption;
 import java.util.Set;
 
 public final class InstructionSetMigrator {
     private InstructionSetMigrator() {}
 
     public static void migrateAndStoreIfNeeded(Document doc, Path path) {
+        backupOldFile(path);
         boolean migrationHappened = migrateIfNeeded(doc);
 
-        if (migrationHappened) {
+        if (migrationHappened)
             writeDocument(doc, path);
-        }
+        else
+            deleteBackupFile(path);
     }
 
     private static boolean migrateIfNeeded(Document doc) {
@@ -39,6 +43,21 @@ public final class InstructionSetMigrator {
 
         migrateV1toV2(doc, root);
         return true;
+    }
+
+    private static void backupOldFile(Path path) {
+        try {
+            Files.copy(path, Path.of(path + ".old"), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void deleteBackupFile(Path path) {
+        File backupFile = new File(Path.of(path + ".old").toUri());
+        if (backupFile.exists()) {
+            backupFile.delete();
+        }
     }
 
     private static void writeDocument(Document doc, Path path) {
@@ -63,7 +82,7 @@ public final class InstructionSetMigrator {
     private static void migrateV1toV2(Document doc, Element root) {
         final Set<String> oldCoreInstructionHandlers = Set.of(
                 "core.instructions.AdditionInstruction",
-                "core.instructions.SubtractInstruction",
+                "core.instructions.SubtractionInstruction",
                 "core.instructions.MultiplicationInstruction",
                 "core.instructions.DivisionInstruction",
                 "core.instructions.HaltInstruction",
