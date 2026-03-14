@@ -2,6 +2,6 @@ package dk.tij.registermaschine.core.compilation.api.compiling;
 
 public interface ICompiledInstruction {
     int opcode();
-    ICompiledInstructionPlan plan();
+    ICompiledStep[] steps();
     ICompiledOperand[] operands();
 }

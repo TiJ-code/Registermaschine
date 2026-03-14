@@ -25,7 +25,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
         var pair = opcodeMapping.computeIfAbsent(finalOpcode, _ -> new Pair<>(configInstruction));
         pair.value = chainedInstruction;
 
-        Arrays.stream(chainedInstruction.plan().steps()).forEach(step -> {
+        Arrays.stream(chainedInstruction.steps()).forEach(step -> {
             Class<? extends IStepHandler> handlerClass = step.handler().getClass();
 
             handlerIndex

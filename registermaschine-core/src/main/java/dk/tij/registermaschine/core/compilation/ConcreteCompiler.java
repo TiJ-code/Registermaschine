@@ -41,7 +41,7 @@ public final class ConcreteCompiler implements ICompiler {
                 ICompiledOperand[] finalOperands = mergeOperands(config.operands(), instr.operands, symbolTable);
 
                 program.add(new ConcreteCompiledInstruction(config.opcode(),
-                                                            instructionSet.get(config.opcode()).plan(),
+                                                            instructionSet.get(config.opcode()).steps(),
                                                             finalOperands));
             }
         }

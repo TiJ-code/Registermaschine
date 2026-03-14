@@ -1,8 +1,6 @@
 package dk.tij.registermaschine.core.compilation.internal.instructions;
 
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstructionPlan;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledStep;
-import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstructionPlan;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledStep;
 import dk.tij.registermaschine.core.config.model.ConfigInstruction;
 import dk.tij.registermaschine.core.config.model.ConfigOperand;
@@ -14,7 +12,7 @@ import java.util.List;
 public class InstructionPrecompiler {
     private InstructionPrecompiler() {}
 
-    public static ICompiledInstructionPlan compile(ConfigInstruction instruction) {
+    public static ICompiledStep[] compile(ConfigInstruction instruction) {
         String[] operandNames = instruction.operands().stream().map(ConfigOperand::name).toArray(String[]::new);
 
         List<ICompiledStep> compiledSteps = new ArrayList<>(instruction.steps().size());
@@ -36,10 +34,7 @@ public class InstructionPrecompiler {
             compiledSteps.add(new ConcreteCompiledStep(step.handler(), step.condition(), inputs, output));
         }
 
-        return new ConcreteCompiledInstructionPlan(
-                instruction.opcode(),
-                compiledSteps.toArray(new ICompiledStep[0])
-        );
+        return compiledSteps.toArray(new ICompiledStep[0]);
     }
 
     private static int findOperandIndex(ConfigInstruction instruction, String name, String[] operands) {

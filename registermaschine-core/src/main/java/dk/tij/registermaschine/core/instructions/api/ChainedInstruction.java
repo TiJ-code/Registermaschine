@@ -1,6 +1,5 @@
 package dk.tij.registermaschine.core.instructions.api;
 
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstructionPlan;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledStep;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
@@ -13,12 +12,12 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 public class ChainedInstruction {
     private final int operandCount;
     private final ICondition condition;
-    private final ICompiledInstructionPlan plan;
+    private final ICompiledStep[] steps;
 
-    public ChainedInstruction(int operandCount, ICondition condition, ICompiledInstructionPlan plan) {
+    public ChainedInstruction(int operandCount, ICondition condition, ICompiledStep[] steps) {
         this.operandCount = operandCount;
         this.condition = condition;
-        this.plan = plan;
+        this.steps = steps;
     }
 
     public void execute(IExecutionContext context, ICompiledOperand[] operands) {
@@ -30,15 +29,15 @@ public class ChainedInstruction {
         if (!shouldExecute(context, condition))
             return;
 
-        for (ICompiledStep step : plan.steps()) {
+        for (ICompiledStep step : steps) {
             if (shouldExecute(context, step.condition())) {
                 step.handler().execute(context, operands, step.inputIndices(), step.outputIndex());
             }
         }
     }
     
-    public ICompiledInstructionPlan plan() {
-        return plan;
+    public ICompiledStep[] steps() {
+        return steps;
     }
     
     public ICondition condition() {
