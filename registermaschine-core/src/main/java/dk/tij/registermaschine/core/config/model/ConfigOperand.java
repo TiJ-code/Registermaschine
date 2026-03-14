@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.core.config;
+package dk.tij.registermaschine.core.config.model;
 
 import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
 import dk.tij.registermaschine.core.compilation.api.compiling.OperandType;

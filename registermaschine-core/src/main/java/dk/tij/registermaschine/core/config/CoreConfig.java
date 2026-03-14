@@ -1,6 +1,7 @@
 package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.core.compilation.api.lexing.TokenType;
+import dk.tij.registermaschine.core.config.model.ConfigInstruction;
 
 import java.util.*;
 

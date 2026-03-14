@@ -1,17 +1,23 @@
 package dk.tij.registermaschine.core.compilation.internal.instructions;
 
-import dk.tij.registermaschine.core.config.ConfigInstruction;
-import dk.tij.registermaschine.core.config.ConfigOperand;
-import dk.tij.registermaschine.core.config.ConfigStep;
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstructionPlan;
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledStep;
+import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstructionPlan;
+import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledStep;
+import dk.tij.registermaschine.core.config.model.ConfigInstruction;
+import dk.tij.registermaschine.core.config.model.ConfigOperand;
+import dk.tij.registermaschine.core.config.model.ConfigStep;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InstructionCompiler {
-    public CompiledInstructionPlan compile(ConfigInstruction instruction) {
+public class InstructionPrecompiler {
+    private InstructionPrecompiler() {}
+
+    public static ICompiledInstructionPlan compile(ConfigInstruction instruction) {
         String[] operandNames = instruction.operands().stream().map(ConfigOperand::name).toArray(String[]::new);
 
-        List<CompiledStep> compiledSteps = new ArrayList<>(instruction.steps().size());
+        List<ICompiledStep> compiledSteps = new ArrayList<>(instruction.steps().size());
 
         for (ConfigStep step : instruction.steps()) {
             List<String> stepInputs = step.inputs();
@@ -27,12 +33,12 @@ public class InstructionCompiler {
                     ? -1
                     : findOperandIndex(instruction, step.output(), operandNames);
 
-            compiledSteps.add(new CompiledStep(step.handler(), inputs, output));
+            compiledSteps.add(new ConcreteCompiledStep(step.handler(), step.condition(), inputs, output));
         }
 
-        return new CompiledInstructionPlan(
+        return new ConcreteCompiledInstructionPlan(
                 instruction.opcode(),
-                compiledSteps.toArray(new CompiledStep[0])
+                compiledSteps.toArray(new ICompiledStep[0])
         );
     }
 

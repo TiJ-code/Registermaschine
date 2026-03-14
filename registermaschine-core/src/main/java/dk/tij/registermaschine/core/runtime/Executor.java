@@ -2,10 +2,7 @@ package dk.tij.registermaschine.core.runtime;
 
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
-import dk.tij.registermaschine.core.compilation.internal.instructions.CompiledInstructionPlan;
-import dk.tij.registermaschine.core.compilation.internal.instructions.CompiledStep;
-import dk.tij.registermaschine.core.instructions.api.AbstractChainedInstruction;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import dk.tij.registermaschine.core.instructions.api.ChainedInstruction;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 
@@ -46,19 +43,8 @@ public class Executor implements Runnable {
                 ICompiledInstruction instr = program.get(pc);
                 context.step();
 
-                CompiledInstructionPlan plan = instructionSet.getPlan(instr.opcode());
-
-                for (CompiledStep step : plan.steps()) {
-                    AbstractInstruction handler = step.handler();
-                    if (handler.shouldExecute(context)) {
-                        try {
-                            handler.executeInstruction(context, instr.operands());
-                        } catch (Exception e) {
-                            System.out.println("Execution interrupted during input, stopping!");
-                            break;
-                        }
-                    }
-                }
+                ChainedInstruction instruction = instructionSet.get(instr.opcode());
+                instruction.execute(context, instr.operands());
 
                 long cycleTimeNs = System.nanoTime() - cycleStart;
                 long targetCycleNs = delayMs * 1_000_000L;

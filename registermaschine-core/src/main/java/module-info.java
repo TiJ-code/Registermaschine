@@ -58,6 +58,7 @@ module dk.tij.registermaschine.core {
     exports dk.tij.registermaschine.core.compilation.api.parsing;
     exports dk.tij.registermaschine.core.compilation.api.compiling;
     exports dk.tij.registermaschine.core.compilation.api.lexing;
+    exports dk.tij.registermaschine.core.config.model;
 
     requires java.xml;
 }

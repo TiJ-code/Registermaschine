@@ -1,5 +1,6 @@
 package dk.tij.registermaschine.core.config;
 
+import dk.tij.registermaschine.core.compilation.internal.instructions.InstructionPrecompiler;
 import dk.tij.registermaschine.core.config.api.IConfigEventListener;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
@@ -8,6 +9,7 @@ import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
+import dk.tij.registermaschine.core.instructions.api.ChainedInstruction;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
@@ -116,7 +118,12 @@ public final class CoreConfigParser {
                 INSTRUCTION_PARSER.parseConfig(doc);
                 MACRO_PARSER.parseConfig(doc);
 
-                CoreConfig.INSTRUCTIONS.forEach(set::registerInstruction);
+                CoreConfig.INSTRUCTIONS.forEach(configInstruction ->
+                   set.register(configInstruction,
+                                new ChainedInstruction(configInstruction.operands().size(),
+                                                  null,
+                                                  InstructionPrecompiler.compile(configInstruction)))
+                );
             }
         } catch (Exception e) {
             throw new ConfigurationParseException("Failed to parse instruction set: " + fileName, e);

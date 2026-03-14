@@ -2,17 +2,15 @@ package dk.tij.registermaschine.core.compilation;
 
 import dk.tij.registermaschine.core.compilation.api.ICompiler;
 import dk.tij.registermaschine.core.compilation.api.compiling.*;
-import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
-import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledOperand;
-import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
+import dk.tij.registermaschine.core.compilation.internal.compiling.*;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteAbstractSyntaxTreeNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
 import dk.tij.registermaschine.core.config.*;
+import dk.tij.registermaschine.core.config.model.ConfigInstruction;
+import dk.tij.registermaschine.core.config.model.ConfigOperand;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
-import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
@@ -36,16 +34,15 @@ public final class ConcreteCompiler implements ICompiler {
 
         for (ISyntaxTreeNode node : tree) {
             if (node instanceof ConcreteInstructionNode instr) {
-                ConfigInstruction config = instructionSet.getInstructions().stream()
+                ConfigInstruction config = instructionSet.getConfigInstructions().stream()
                         .filter(c -> c.mnemonic().equalsIgnoreCase(instr.instruction()))
                         .findFirst().orElseThrow(() -> new RuntimeException("Unknown: " + instr.instruction()));
 
                 ICompiledOperand[] finalOperands = mergeOperands(config.operands(), instr.operands, symbolTable);
 
-                AbstractInstruction handler = instructionSet.getHandler(instr.instruction());
-                handler.validate(finalOperands);
-
-                program.add(new ConcreteCompiledInstruction(config.opcode(), finalOperands));
+                program.add(new ConcreteCompiledInstruction(config.opcode(),
+                                                            instructionSet.get(config.opcode()).plan(),
+                                                            finalOperands));
             }
         }
 

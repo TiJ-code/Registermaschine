@@ -1,183 +1,108 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.compilation.internal.instructions.CompiledInstructionPlan;
-import dk.tij.registermaschine.core.compilation.internal.instructions.InstructionCompiler;
-import dk.tij.registermaschine.core.error.UnknownInstructionException;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import dk.tij.registermaschine.core.config.model.ConfigInstruction;
+import dk.tij.registermaschine.core.instructions.api.ChainedInstruction;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.core.instructions.api.IStepHandler;
 
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class ConcreteInstructionSet implements IInstructionSet {
     private static final int BYTE_BITMASK = 0xFF;
 
-    private final InstructionCompiler instructionCompiler = new InstructionCompiler();
-
-    private final CompiledInstructionPlan[] plans = new CompiledInstructionPlan[BYTE_BITMASK];
-    private final ConfigInstruction[] byOpcode = new ConfigInstruction[BYTE_BITMASK];
+    private final Map<Integer, Pair<ConfigInstruction, ChainedInstruction>> opcodeMapping = new HashMap<>();
+    private final Map<Class<? extends IStepHandler>, List<Integer>> handlerIndex = new HashMap<>();
 
     @Override
-    public void registerInstruction(ConfigInstruction configInstruction) {
-        CompiledInstructionPlan plan = instructionCompiler.compile(configInstruction);
+    public void register(ConfigInstruction configInstruction, ChainedInstruction chainedInstruction) {
+        final int finalOpcode = configInstruction.opcode() & BYTE_BITMASK;
 
-        final int idx = plan.opcode() & BYTE_BITMASK;
+        var pair = opcodeMapping.computeIfAbsent(finalOpcode, _ -> new Pair<>(configInstruction));
+        pair.value = chainedInstruction;
 
-        plans[idx] = plan;
-        byOpcode[idx] = configInstruction;
+        Arrays.stream(chainedInstruction.plan().steps()).forEach(step -> {
+            Class<? extends IStepHandler> handlerClass = step.handler().getClass();
+
+            handlerIndex
+                    .computeIfAbsent(handlerClass, _ -> new ArrayList<>())
+                    .add(finalOpcode);
+        });
     }
 
     @Override
-    public void prohibitInstructionHandler(Class<? extends AbstractInstruction> instruction) {
-        List<ConfigInstruction> prohibited = Stream.of(byOpcode)
-                .filter(Objects::nonNull)
-                .filter(i -> i.steps().stream()
-                        .anyMatch(s -> instruction.isAssignableFrom(s.handler().getClass())))
-                .toList();
+    public ConfigInstruction getConfigInstruction(int opcode) {
+        return opcodeMapping.get(opcode & BYTE_BITMASK).key();
+    }
 
-        for (ConfigInstruction instr : prohibited) {
-            final int idx = instr.opcode() & BYTE_BITMASK;
-            byOpcode[idx] = null;
-            plans[idx] = null;
+    @Override
+    public ConfigInstruction getConfigInstruction(String mnemonic) {
+        return opcodeMapping.values().stream()
+                .filter(p -> p.key().mnemonic().equals(mnemonic))
+                .findFirst()
+                .orElse(Pair.empty())
+                .key();
+    }
+
+    @Override
+    public ChainedInstruction get(int opcode) {
+        return opcodeMapping.get(opcode & BYTE_BITMASK).value;
+    }
+
+    @Override
+    public void prohibitInstructionHandler(Class<? extends IStepHandler> handlerClass) {
+        for (var entry : handlerIndex.entrySet()) {
+            if (!handlerClass.isAssignableFrom(entry.getKey()))
+                continue;
+
+            for (int opcode : entry.getValue()) {
+                opcodeMapping.remove(opcode);
+            }
         }
-    }
-
-    /**
-     * Returns configured instruction instance based on its mnemonic.
-     *
-     * @param mnemonic the mnemonic of the instruction
-     * @return the configured instruction
-     *
-     * @since 2.0.0
-     */
-    @Override
-    public ConfigInstruction getInstruction(String mnemonic) {
-        ConfigInstruction entry = Stream.of(byOpcode)
-                .filter(i -> i.mnemonic().equals(mnemonic))
-                .findAny()
-                .orElse(null);
-        if (entry == null)
-            throw new UnknownInstructionException("No instruction found with mnemonic %s"
-                    .formatted(mnemonic));
-        return entry;
-    }
-
-    /**
-     * Returns configured instruction instance based on its opcode.
-     *
-     * @param opcode the opcode of the instruction
-     * @return the configured instruction
-     *
-     * @since 2.0.0
-     */
-    @Override
-    public ConfigInstruction getInstruction(byte opcode) {
-        final int idx = opcode & BYTE_BITMASK;
-
-        ConfigInstruction entry = byOpcode[idx];
-        if (entry == null)
-            throw new UnknownInstructionException("No instruction found with opcode %d."
-                    .formatted(idx));
-        return entry;
-    }
-
-    /**
-     * +++ DEPRECATED +++
-     * <p>use {@link ConcreteInstructionSet#getInstruction(String mnemonic)} instead</p>
-     * +++ DEPRECATED +++
-     * <p>Returns the very first handler by its instruction mnemonic</p>
-     *
-     * @param mnemonic the mnemonic of the instruction
-     * @return the handler of the very first step
-     *
-     * @deprecated This is deprecated since the introduction of multiple instruction handlers in {@code 2.0.0}
-     * @since 1.0.0
-     */
-    @Deprecated
-    @Override
-    public AbstractInstruction getHandler(String mnemonic) {
-        ConfigInstruction entry = lookUpByMnemonic(mnemonic);
-        if (entry == null)
-            throw new UnknownInstructionException("No instruction found with mnemonic %s."
-                    .formatted(mnemonic));
-        return entry.steps().getFirst().handler();
-    }
-
-    /**
-     * +++ DEPRECATED +++
-     * <p>use {@link ConcreteInstructionSet#getInstruction(byte opcode)} instead</p>
-     * +++ DEPRECATED +++
-     * <p>Returns the very first handler by its instruction opcode</p>
-     *
-     * @param opcode the opcode of the instruction
-     * @return the handler of the very first step
-     *
-     * @deprecated This is deprecated since the introduction of multiple instruction handlers in {@code 2.0.0}
-     * @since 1.0.0
-     */
-    @Deprecated
-    @Override
-    public AbstractInstruction getHandler(byte opcode) {
-        final int idx = opcode & BYTE_BITMASK;
-
-        ConfigInstruction entry = byOpcode[idx];
-        if (entry == null)
-            throw new UnknownInstructionException("No instruction found with opcode %d."
-                    .formatted(idx));
-        return entry.steps().getFirst().handler();
-    }
-
-    @Override
-    public String getMnemonic(byte opcode) {
-        final int idx = opcode & BYTE_BITMASK;
-
-        ConfigInstruction entry = byOpcode[idx];
-        if (entry == null)
-            throw new UnknownInstructionException("No instruction found with opcode %d."
-                    .formatted(idx));
-        return entry.mnemonic();
-    }
-
-    @Override
-    public byte getOpcode(String mnemonic) {
-        ConfigInstruction entry = lookUpByMnemonic(mnemonic);
-        if (entry == null)
-            throw new UnknownInstructionException("No instruction found with mnemonic %s."
-                    .formatted(mnemonic));
-        return entry.opcode();
     }
 
     @Override
     public boolean contains(String mnemonic) {
-        return lookUpByMnemonic(mnemonic) != null;
+        return getConfigInstructions().stream().anyMatch(c -> c.mnemonic().equalsIgnoreCase(mnemonic));
     }
 
     @Override
-    public boolean contains(byte opcode) {
-        return byOpcode[opcode & BYTE_BITMASK] != null;
-    }
-
-    @SuppressWarnings("markedForRemoval")
-    @Deprecated(since = "2.0.0", forRemoval = true)
-    @Override
-    public List<ConfigInstruction> getInstructions() {
-        return Arrays.stream(byOpcode).filter(Objects::nonNull).toList();
+    public boolean contains(int opcode) {
+        return opcodeMapping.containsKey(opcode & BYTE_BITMASK);
     }
 
     @Override
-    public CompiledInstructionPlan getPlan(byte opcode) {
-        return plans[opcode & BYTE_BITMASK];
+    public List<ConfigInstruction> getConfigInstructions() {
+        return opcodeMapping.values().stream().map(Pair::key).collect(Collectors.toList());
     }
 
-    public List<CompiledInstructionPlan> getInstructionPlans() {
-        return Arrays.stream(plans).filter(Objects::nonNull).toList();
+    @Override
+    public List<ChainedInstruction> getInstructions() {
+        return opcodeMapping.values().stream().map(Pair::value).collect(Collectors.toList());
     }
 
-    private ConfigInstruction lookUpByMnemonic(String mnemonic) {
-        for (ConfigInstruction instr : byOpcode) {
-            if (instr != null && instr.mnemonic().equals(mnemonic))
-                return instr;
+    static class Pair<K, V> {
+        static <K, V> Pair<K, V> empty() {
+            return new Pair<>(null);
         }
-        return null;
+
+        private final K key;
+        private V value;
+
+        Pair(K key) {
+            this.key = key;
+        }
+
+        public K key() {
+            return key;
+        }
+
+        public V value() {
+            return value;
+        }
     }
 }

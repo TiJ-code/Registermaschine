@@ -3,14 +3,20 @@ package dk.tij.registermaschine.core.config.internal.parsers;
 import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
 import dk.tij.registermaschine.core.compilation.api.compiling.OperandType;
 import dk.tij.registermaschine.core.conditions.api.ICondition;
-import dk.tij.registermaschine.core.config.*;
-import dk.tij.registermaschine.core.config.internal.XmlConstants;
+import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
+import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
+import dk.tij.registermaschine.core.config.model.ConfigInstruction;
+import dk.tij.registermaschine.core.config.model.ConfigOperand;
+import dk.tij.registermaschine.core.config.model.ConfigStep;
 import dk.tij.registermaschine.core.error.ClassInstantiationException;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
-import org.w3c.dom.*;
+import dk.tij.registermaschine.core.instructions.api.IStepHandler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +40,7 @@ public final class InstructionParser implements IConfigParser {
                 fireEvent((Element) instructionNode, instruction);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
+                e.printStackTrace();
             }
         }
 
@@ -41,11 +48,12 @@ public final class InstructionParser implements IConfigParser {
     }
 
     private static ConfigInstruction parseInstruction(Node instructionNode, final byte opcode)
-            throws Exception {
+            throws ConfigurationParseException, ClassNotFoundException, IllegalStateException {
         Element instructionElem = (Element) instructionNode;
 
         String instructionMnemonic = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_ID);
         String instructionDescription = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_DESCRIPTION);
+        String instructionCondition = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_CONDITION);
 
         int resultCount = 0;
 
@@ -67,9 +75,11 @@ public final class InstructionParser implements IConfigParser {
         }
         
         List<ConfigStep> steps = parseChain(instructionElem, opcode);
+        
+        ICondition condition = ConditionBuilder.build(instructionCondition);
 
         return new ConfigInstruction(instructionMnemonic, instructionDescription,
-                                     opcode, operands, steps);
+                                     opcode, condition, operands, steps);
     }
 
     private static ConfigOperand parseOperand(Node operandNode) {
@@ -93,7 +103,8 @@ public final class InstructionParser implements IConfigParser {
         return new ConfigOperand(nameStr, type, concept, value);
     }
     
-    private static List<ConfigStep> parseChain(Element instructionElement, byte opcode) throws Exception {
+    private static List<ConfigStep> parseChain(Element instructionElement, byte opcode)
+            throws ConfigurationParseException, ClassNotFoundException, IllegalStateException {
         NodeList chainNodes = instructionElement.getElementsByTagName(XmlConstants.TAG_CHAIN);
         
         if (chainNodes.getLength() == 0) {
@@ -117,13 +128,14 @@ public final class InstructionParser implements IConfigParser {
         return steps;
     }
     
-    private static ConfigStep parseStep(Node stepNode, byte opcode) throws Exception {
+    private static ConfigStep parseStep(Node stepNode, byte opcode)
+            throws ConfigurationParseException, ClassNotFoundException, IllegalStateException {
         Element stepElement = (Element) stepNode;
 
         String handlerStr = stepElement.getAttribute(XmlConstants.ATTRIBUTE_STEP_HANDLER);
         String conditionStr = stepElement.getAttribute(XmlConstants.ATTRIBUTE_STEP_CONDITION);
 
-        Class<? extends AbstractInstruction> handlerClass = parseInstructionHandler(handlerStr);
+        Class<? extends IStepHandler> handlerClass = parseInstructionHandler(handlerStr);
 
         ICondition condition = ConditionBuilder.build(conditionStr);
 
@@ -148,7 +160,7 @@ public final class InstructionParser implements IConfigParser {
             }
         }
 
-        AbstractInstruction handler = createInstructionHandler(handlerClass, opcode, inputs.size(), condition);
+        IStepHandler handler = createInstructionHandler(handlerClass, opcode, inputs.size(), condition);
 
         return new ConfigStep(handler, condition, inputs, output);
     }
@@ -176,23 +188,24 @@ public final class InstructionParser implements IConfigParser {
         }
     }
 
-    private static Class<? extends AbstractInstruction> parseInstructionHandler(String handlerString) throws  Exception {
+    private static Class<? extends IStepHandler> parseInstructionHandler(String handlerString)
+            throws IllegalStateException, ClassNotFoundException {
         if (handlerString == null || handlerString.isEmpty())
             throw new IllegalStateException("Cannot parse empty instruction handler");
 
         if (handlerString.startsWith(CoreConfig.CORE_IMPLEMENTATION_PREFIX))
-            return Class.forName(CoreConfig.CORE_CLASS_PATH_PREFIX + handlerString.trim()).asSubclass(AbstractInstruction.class);
+            return Class.forName(CoreConfig.CORE_CLASS_PATH_PREFIX + handlerString.trim()).asSubclass(IStepHandler.class);
         else
-            return Class.forName(handlerString.trim()).asSubclass(AbstractInstruction.class);
+            return Class.forName(handlerString.trim()).asSubclass(IStepHandler.class);
     }
 
-    private static AbstractInstruction createInstructionHandler(Class<? extends AbstractInstruction> handlerClass,
+    private static IStepHandler createInstructionHandler(Class<? extends IStepHandler> handlerClass,
                                                                 byte opcode, int operands, ICondition condition)
             throws ClassInstantiationException {
         try {
             return handlerClass
-                    .getDeclaredConstructor(byte.class, int.class, ICondition.class)
-                    .newInstance(opcode, operands, condition);
+                    .getDeclaredConstructor()
+                    .newInstance();
         } catch (Exception e) {
             throw new ClassInstantiationException("Could not instantiate instruction handler class.", e);
         }

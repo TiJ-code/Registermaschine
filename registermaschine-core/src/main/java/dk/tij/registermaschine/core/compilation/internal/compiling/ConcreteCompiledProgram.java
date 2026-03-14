@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConcreteCompiledProgram extends ArrayList<ICompiledInstruction> implements ICompiledProgram {
-    public ConcreteCompiledProgram() {}
-
     public ConcreteCompiledProgram(List<ICompiledInstruction> instructions) {
         super(instructions);
     }

@@ -1,31 +1,21 @@
 package dk.tij.registermaschine.core.instructions.api;
 
-import dk.tij.registermaschine.core.compilation.internal.instructions.CompiledInstructionPlan;
-import dk.tij.registermaschine.core.config.ConfigInstruction;
+import dk.tij.registermaschine.core.config.model.ConfigInstruction;
 
 import java.util.List;
 
 public interface IInstructionSet {
-    void registerInstruction(ConfigInstruction configInstruction);
+    void register(ConfigInstruction configInstruction, ChainedInstruction chainedInstruction);
 
-    void prohibitInstructionHandler(Class<? extends AbstractInstruction> instructionHandler);
+    ConfigInstruction getConfigInstruction(int opcode);
+    ConfigInstruction getConfigInstruction(String mnemonic);
+    ChainedInstruction get(int opcode);
 
-    ConfigInstruction getInstruction(String mnemonic);
-    ConfigInstruction getInstruction(byte opcode);
-
-    @Deprecated(since = "2.0.0")
-    AbstractInstruction getHandler(String mnemonic);
-    @Deprecated(since = "2.0.0")
-    AbstractInstruction getHandler(byte opcode);
-
-    byte getOpcode(String mnemonic);
-    String getMnemonic(byte opcode);
+    void prohibitInstructionHandler(Class<? extends IStepHandler> stepHandlerClass);
 
     boolean contains(String mnemonic);
-    boolean contains(byte opcode);
+    boolean contains(int opcode);
 
-    @Deprecated(since = "2.0.0", forRemoval = true)
-    List<ConfigInstruction> getInstructions();
-
-    CompiledInstructionPlan getPlan(byte opcode);
+    List<ConfigInstruction> getConfigInstructions();
+    List<ChainedInstruction> getInstructions();
 }

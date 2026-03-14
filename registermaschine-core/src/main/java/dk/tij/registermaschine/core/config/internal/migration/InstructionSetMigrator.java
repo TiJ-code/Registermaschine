@@ -14,6 +14,8 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.Set;
 
 public final class InstructionSetMigrator {
     private InstructionSetMigrator() {}
@@ -59,12 +61,31 @@ public final class InstructionSetMigrator {
     }
 
     private static void migrateV1toV2(Document doc, Element root) {
+        final Set<String> oldCoreInstructionHandlers = Set.of(
+                "core.instructions.AdditionInstruction",
+                "core.instructions.SubtractInstruction",
+                "core.instructions.MultiplicationInstruction",
+                "core.instructions.DivisionInstruction",
+                "core.instructions.HaltInstruction",
+                "core.instructions.JumpInstruction",
+                "core.instructions.OutputInstruction",
+                "core.instructions.InputInstruction",
+                "core.instructions.MoveInstruction"
+        );
+        final String oldInstructionString = "Instruction";
+        final String newStepHandlerString = "StepHandler";
+
         NodeList instructions = root.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
 
         for (int i = 0; i < instructions.getLength(); i++) {
             Element instruction = (Element) instructions.item(i);
 
             String handler = instruction.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);
+
+            if (oldCoreInstructionHandlers.contains(handler)) {
+                handler = handler.replace(oldInstructionString, newStepHandlerString);
+            }
+
             String condition = instruction.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_CONDITION);
 
             instruction.removeAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);

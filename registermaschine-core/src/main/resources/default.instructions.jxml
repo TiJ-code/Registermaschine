@@ -13,12 +13,12 @@
             <operand type="register" concept="operand" name="mul1"/>
 
             <chain>
-                <step handler="core.instructions.AdditionInstruction">
+                <step handler="core.instructions.AdditionStepHandler">
                     <in ref="add1"/>
                     <in ref="add2"/>
                     <out to="result"/>
                 </step>
-                <step handler="core.instructions.MultiplicationInstruction">
+                <step handler="core.instructions.MultiplicationStepHandler">
                     <in ref="result"/>
                     <in ref="mul1"/>
                     <out to="result"/>
@@ -31,7 +31,7 @@
                 description="End instruction to stop execution">
             <operand type="immediate" concept="operand" name="exitCode"/>
             <chain>
-                <step handler="core.instructions.HaltInstruction">
+                <step handler="core.instructions.HaltStepHandler">
                     <in ref="exitCode"/>
                     <out/>
                 </step>
@@ -46,7 +46,7 @@
             <operand type="register" concept="operand" name="add2"/>
 
             <chain>
-                <step handler="core.instructions.AdditionInstruction">
+                <step handler="core.instructions.AdditionStepHandler">
                     <in ref="add1"/>
                     <in ref="add2"/>
                     <out to="result"/>
@@ -62,7 +62,7 @@
             <operand type="register" concept="operand" name="sub2"/>
 
             <chain>
-                <step handler="core.instructions.SubtractionInstruction">
+                <step handler="core.instructions.SubtractionStepHandler">
                     <in ref="sub1"/>
                     <in ref="sub2"/>
                     <out to="result"/>
@@ -78,7 +78,7 @@
             <operand type="register" concept="operand" name="mul2"/>
 
             <chain>
-                <step handler="core.instructions.MultiplicationInstruction">
+                <step handler="core.instructions.MultiplicationStepHandler">
                     <in ref="mul1"/>
                     <in ref="mul2"/>
                     <out to="result"/>
@@ -94,7 +94,7 @@
             <operand type="register" concept="operand" name="div2"/>
 
             <chain>
-                <step handler="core.instructions.DivisionInstruction">
+                <step handler="core.instructions.DivisionStepHandler">
                     <in ref="div1"/>
                     <in ref="div2"/>
                     <out to="result"/>
@@ -109,7 +109,7 @@
             <operand type="register" concept="operand" name="addr"/>
 
             <chain>
-                <step handler="core.instructions.MoveInstruction">
+                <step handler="core.instructions.MoveStepHandler">
                     <in ref="addr"/>
                     <out to="result"/>
                 </step>
@@ -123,7 +123,7 @@
             <operand type="immediate" concept="operand" name="const"/>
 
             <chain>
-                <step handler="core.instructions.MoveInstruction">
+                <step handler="core.instructions.MoveStepHandler">
                     <in ref="const"/>
                     <out to="result"/>
                 </step>
@@ -137,7 +137,7 @@
             <operand type="register" concept="result" name="result"/>
 
             <chain>
-                <step handler="core.instructions.MoveInstruction">
+                <step handler="core.instructions.MoveStepHandler">
                     <in ref="addr"/>
                     <out to="result"/>
                 </step>
@@ -150,7 +150,7 @@
             <operand type="register" concept="result" name="result"/>
 
             <chain>
-                <step handler="core.instructions.InputInstruction">
+                <step handler="core.instructions.InputStepHandler">
                     <out to="result"/>
                 </step>
             </chain>
@@ -162,7 +162,7 @@
             <operand type="register" concept="operand" name="addr" implicitValue="r0"/>
 
             <chain>
-                <step handler="core.instructions.OutputInstruction">
+                <step handler="core.instructions.OutputStepHandler">
                     <in ref="addr"/>
                     <out/>
                 </step>
@@ -175,7 +175,7 @@
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction">
+                <step handler="core.instructions.JumpStepHandler">
                     <in ref="target"/>
                     <out/>
                 </step>
@@ -188,7 +188,7 @@
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction"
+                <step handler="core.instructions.JumpStepHandler"
                       condition="core.conditions.EqualsZeroCondition">
                     <in ref="target"/>
                     <out/>
@@ -202,7 +202,7 @@
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction"
+                <step handler="core.instructions.JumpStepHandler"
                       condition="@core.conditions.NotEqualsZeroCondition">
                     <in ref="target"/>
                     <out/>
@@ -216,7 +216,7 @@
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction"
+                <step handler="core.instructions.JumpStepHandler"
                       condition="core.conditions.LessThanZeroCondition">
                     <in ref="target"/>
                     <out/>
@@ -230,7 +230,7 @@
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction"
+                <step handler="core.instructions.JumpStepHandler"
                       condition="@core.conditions.LessThanOrEqualsToZeroCondition">
                     <in ref="target"/>
                     <out/>
@@ -244,7 +244,7 @@
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction"
+                <step handler="core.instructions.JumpStepHandler"
                       condition="@core.conditions.GreaterThanZeroCondition">
                     <in ref="target"/>
                     <out/>
@@ -258,7 +258,7 @@
             <operand type="label" concept="target" name="target"/>
 
             <chain>
-                <step handler="core.instructions.JumpInstruction"
+                <step handler="core.instructions.JumpStepHandler"
                       condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
                     <in ref="target"/>
                     <out/>

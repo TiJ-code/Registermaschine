@@ -26,7 +26,8 @@
 <!ATTLIST instruction
         id ID #REQUIRED
         opcode CDATA #REQUIRED
-        description CDATA #IMPLIED>
+        description CDATA #IMPLIED
+        condition CDATA #IMPLIED>
 
 <!ELEMENT operand EMPTY>
 <!ATTLIST operand
