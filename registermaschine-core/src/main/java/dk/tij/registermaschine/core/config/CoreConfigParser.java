@@ -1,15 +1,14 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.compilation.internal.instructions.InstructionPrecompiler;
 import dk.tij.registermaschine.core.config.api.IConfigEventListener;
 import dk.tij.registermaschine.core.config.api.IConfigParser;
+import dk.tij.registermaschine.core.config.internal.instructions.ConcreteInstructionPrecompiler;
 import dk.tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
 import dk.tij.registermaschine.core.error.ConfigurationParseException;
-import dk.tij.registermaschine.core.instructions.api.ChainedInstruction;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
@@ -26,10 +25,19 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public final class CoreConfigParser {
     public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName();
@@ -118,12 +126,9 @@ public final class CoreConfigParser {
                 INSTRUCTION_PARSER.parseConfig(doc);
                 MACRO_PARSER.parseConfig(doc);
 
-                CoreConfig.INSTRUCTIONS.forEach(configInstruction ->
-                   set.register(configInstruction,
-                                new ChainedInstruction(configInstruction.operands().size(),
-                                                  null,
-                                                  InstructionPrecompiler.compile(configInstruction)))
-                );
+                CoreConfig.INSTRUCTIONS.forEach(configInstruction -> {
+                    set.register(configInstruction, ConcreteInstructionPrecompiler.instance().precompile(configInstruction));
+                });
             }
         } catch (Exception e) {
             throw new ConfigurationParseException("Failed to parse instruction set: " + fileName, e);

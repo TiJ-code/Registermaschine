@@ -46,6 +46,7 @@ module dk.tij.registermaschine.core {
 
     exports dk.tij.registermaschine.core.config;
     exports dk.tij.registermaschine.core.config.api;
+    exports dk.tij.registermaschine.core.config.api.instructions;
 
     exports dk.tij.registermaschine.core.instructions;
     exports dk.tij.registermaschine.core.instructions.api;
