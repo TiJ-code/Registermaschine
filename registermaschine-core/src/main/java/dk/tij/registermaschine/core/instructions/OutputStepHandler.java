@@ -13,7 +13,7 @@ public class OutputStepHandler implements IStepHandler {
     @Override
     public void execute(IExecutionContext context, ICompiledOperand[] operands, int[] inputIndices, int outputIndex) {
         for (int inputIdx : inputIndices) {
-            context.output(operands[inputIdx].value());
+            context.output(context.getRegister(operands[inputIdx].value()));
         }
     }
 }

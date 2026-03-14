@@ -7,6 +7,6 @@ import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
 public class MoveStepHandler implements IStepHandler {
     @Override
     public void execute(IExecutionContext context, ICompiledOperand[] operands, int[] inputIndices, int outputIndex) {
-        context.setRegister(operands[outputIndex].value(), operands[inputIndices[0]].value());
+        context.setRegister(operands[outputIndex].value(), getValueFromOperand(context, operands[inputIndices[0]]));
     }
 }
