@@ -1,21 +1,30 @@
 package dk.tij.registermaschine.core.compilation;
 
 import dk.tij.registermaschine.core.compilation.api.ICompiler;
-import dk.tij.registermaschine.core.compilation.api.compiling.*;
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
+import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
+import dk.tij.registermaschine.core.compilation.api.compiling.OperandType;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
 import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
-import dk.tij.registermaschine.core.compilation.internal.compiling.*;
+import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
+import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledOperand;
+import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteAbstractSyntaxTreeNode;
+import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
-import dk.tij.registermaschine.core.config.*;
+import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
+import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.model.ConfigInstruction;
 import dk.tij.registermaschine.core.config.model.ConfigOperand;
 import dk.tij.registermaschine.core.error.SyntaxErrorException;
-import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
-import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
 import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class ConcreteCompiler implements ICompiler {
     @Override
@@ -40,9 +49,7 @@ public final class ConcreteCompiler implements ICompiler {
 
                 ICompiledOperand[] finalOperands = mergeOperands(config.operands(), instr.operands, symbolTable);
 
-                program.add(new ConcreteCompiledInstruction(config.opcode(),
-                                                            instructionSet.get(config.opcode()).steps(),
-                                                            finalOperands));
+                program.add(new ConcreteCompiledInstruction(config.opcode(), finalOperands));
             }
         }
 

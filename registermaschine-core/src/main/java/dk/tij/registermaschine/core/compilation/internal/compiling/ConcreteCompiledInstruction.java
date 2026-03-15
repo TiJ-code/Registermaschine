@@ -2,9 +2,8 @@ package dk.tij.registermaschine.core.compilation.internal.compiling;
 
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledOperand;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledStep;
 
-public record ConcreteCompiledInstruction(int opcode, ICompiledStep[] steps, ICompiledOperand[] operands)
+public record ConcreteCompiledInstruction(int opcode, ICompiledOperand[] operands)
        implements ICompiledInstruction {
     @Override
     public String toString() {

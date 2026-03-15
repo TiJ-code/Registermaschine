@@ -1,7 +1,21 @@
-ldk #3
-sta r1
-ldk #2
-sta r2
-ldk #5
-sta r3
-muladd r0 r1 r2 r3
+    ldk #1
+    sta r6
+    lda r6
+    jgz greaterthanzero
+    ldk #15
+    out
+greaterthanzero:
+    ldk #5
+    out
+    ldk #0
+    sta r7
+    lda r7
+    jge greaterequalzero
+    ldk #16
+    out
+greaterequalzero:
+    ldk #6
+    out
+    ldk #99
+    out
+    hlt #0
