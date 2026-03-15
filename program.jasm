@@ -1,9 +1,9 @@
-    ldk #1
+    ldk #-1
     sta r1
     inp r0
 loop:
     jle ende
-    sub r1
+    add r1
     jmp loop
 ende:
     hlt #99
