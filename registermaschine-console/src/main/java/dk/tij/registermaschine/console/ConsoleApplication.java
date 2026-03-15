@@ -65,11 +65,6 @@ public class ConsoleApplication {
                 exec.setProgram(singleStep);
                 cpu.resetProgrammeCounter();
                 exec.run();
-
-                if (cpu.isHalted()) {
-                    System.out.println("CPU is halted. Terminating...");
-                    break;
-                }
             } catch (SyntaxErrorException e) {
                 System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
             }
