@@ -18,13 +18,8 @@ public class MachineListener implements IExecutionContextListener {
         this.context = ctx;
     }
 
-    @Override
-    public void onExecutionStarted() {}
-
-    @Override
-    public void onExecutionStopped() {
-        System.out.println("Stopped Execution");
-    }
+    @Override public void onExecutionStarted() {}
+    @Override public void onExecutionStopped() {}
 
     @Override
     public void onRegisterChanged(int index, int newValue) {
@@ -41,8 +36,7 @@ public class MachineListener implements IExecutionContextListener {
         System.out.println("Exit Code: " + newValue);
     }
 
-    @Override
-    public void onProgrammeCounterChanged(int newPc) {}
+    @Override public void onProgrammeCounterChanged(int newPc) {}
 
     @Override
     public void onMaxJumpsReached() {
