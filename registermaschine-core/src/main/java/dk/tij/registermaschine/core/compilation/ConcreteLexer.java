@@ -46,7 +46,7 @@ public final class ConcreteLexer implements ILexer {
                 default -> {
                     if (Character.isDigit(c)) {
                         readIllegalNumber(c);
-                    } else if (Character.isLetter(c)) {
+                    } else if (Character.isLetter(c) || c == '_') {
                         readIdentifier(c);
                     } else {
                         tokens.add(new ConcreteToken(UNKNOWN, String.valueOf(c), line, column));
@@ -130,7 +130,7 @@ public final class ConcreteLexer implements ILexer {
             return;
         }
 
-        tokens.add(new ConcreteToken(LABEL, sb.toString(), line, startCol));
+        tokens.add(new ConcreteToken(ADDRESS, sb.toString(), line, startCol));
     }
 
     private void readComment() {
@@ -161,7 +161,7 @@ public final class ConcreteLexer implements ILexer {
         StringBuilder sb = new StringBuilder();
         sb.append(first);
 
-        while (isNotAtEnd() && Character.isLetterOrDigit(peek())) {
+        while (isNotAtEnd() && (Character.isLetterOrDigit(peek()) || peek() == '_')) {
             sb.append(advance());
         }
 
