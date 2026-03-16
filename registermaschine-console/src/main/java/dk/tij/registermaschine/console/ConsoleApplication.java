@@ -19,6 +19,15 @@ public class ConsoleApplication {
         try {
             CliOptions options = CliOptions.parse(args);
 
+            if (options.mode() == CliOptions.Mode.REPORT) {
+                if (BugReport.report(options.reportTitle(), options.reportDescription())) {
+                    System.out.println("Creating issue was successful.");
+                } else {
+                    System.err.println("Creating issue has failed.");
+                }
+                return;
+            }
+
             CoreConfigParser.init();
 
             IInstructionSet registry = new ConcreteInstructionSet();
@@ -65,6 +74,11 @@ public class ConsoleApplication {
                 exec.setProgram(singleStep);
                 cpu.resetProgrammeCounter();
                 exec.run();
+
+                if (cpu.isHalted()) {
+                    System.out.println("CPU is halted. Terminating...");
+                    break;
+                }
             } catch (SyntaxErrorException e) {
                 System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
             }
