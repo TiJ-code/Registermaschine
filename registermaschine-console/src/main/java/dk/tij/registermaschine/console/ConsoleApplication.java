@@ -15,12 +15,7 @@ import java.nio.file.Path;
 import java.util.Scanner;
 
 public class ConsoleApplication {
-    static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            printUsage();
-            return;
-        }
-
+    static void main(String[] args) {
         try {
             CliOptions options = CliOptions.parse(args);
 
@@ -70,11 +65,6 @@ public class ConsoleApplication {
                 exec.setProgram(singleStep);
                 cpu.resetProgrammeCounter();
                 exec.run();
-
-                if (cpu.isHalted()) {
-                    System.out.println("CPU is halted. Terminating...");
-                    break;
-                }
             } catch (SyntaxErrorException e) {
                 System.err.printf("%s: %s%n", e.getClass().getSimpleName(), e.getMessage());
             }
@@ -88,16 +78,6 @@ public class ConsoleApplication {
         for (Object item : items) sb.append(item.toString()).append("\n");
         Files.writeString(Path.of(path), sb.toString());
         System.out.println("Output saved to: " + path);
-    }
-
-    static void printUsage() {
-        System.out.printf("%s %s%n", "Usage:", "./jcc ");
-        System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o>", ": Compile source to binary");
-        System.out.printf("  %-30s%s%n", "<src.jasm> -o <out.o> -r", ": Compile and run");
-        System.out.printf("  %-30s%s%n", "-r <out.o>", ": Run binary file");
-        System.out.printf("  %-30s%s%n", "<src.jasm> -t <out.txt>", ": Dump syntaxTree");
-        System.out.printf("  %-30s%s%n", "<src.jasm> -a <out.txt>", ": Dump Abstract Syntax Tree");
-        System.out.printf("  %-30s%s%n", "-i", ": Run as console text program");
     }
 
     static IInstructionSet initRegistry() {
