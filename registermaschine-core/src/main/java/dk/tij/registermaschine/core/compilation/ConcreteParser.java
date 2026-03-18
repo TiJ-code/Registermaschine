@@ -51,11 +51,12 @@ public final class ConcreteParser implements IParser {
 
         List<ConcreteOperandNode> operands = new ArrayList<>();
 
-        while (!check(TokenType.EOL) && !check(TokenType.EOF)) {
+        while (!check(TokenType.EOL) && !check(TokenType.EOF) && !check(TokenType.COMMENT)) {
             operands.add(parseOperand());
             match(TokenType.COMMA);
         }
 
+        match(TokenType.COMMENT);
         match(TokenType.EOL);
 
         return new ConcreteInstructionNode(instr.value(), operands, instr.line());
