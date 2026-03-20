@@ -1,10 +1,13 @@
 package dk.tij.registermaschine.core.runtime;
 
-import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
-import dk.tij.registermaschine.core.runtime.api.IExecutionContextListener;
+import dk.tij.registermaschine.api.runtime.IExecutionContext;
+import dk.tij.registermaschine.api.runtime.IExecutionContextListener;
+import dk.tij.registermaschine.api.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.core.config.CoreConfig;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 

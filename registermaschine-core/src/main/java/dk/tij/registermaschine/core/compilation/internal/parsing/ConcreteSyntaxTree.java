@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.compilation.internal.parsing;
 
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
 
 import java.util.ArrayList;
 import java.util.List;

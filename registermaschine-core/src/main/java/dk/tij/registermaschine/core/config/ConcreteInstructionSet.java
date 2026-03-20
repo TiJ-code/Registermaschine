@@ -1,9 +1,10 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.error.ExistingInstructionException;
-import dk.tij.registermaschine.core.error.UnknownInstructionException;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
-import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.api.config.ConfigInstruction;
+import dk.tij.registermaschine.api.error.ExistingInstructionException;
+import dk.tij.registermaschine.api.error.UnknownInstructionException;
+import dk.tij.registermaschine.api.instructions.AbstractInstruction;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
 
 import java.util.*;
 

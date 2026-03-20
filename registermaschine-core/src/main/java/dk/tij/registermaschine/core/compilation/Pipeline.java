@@ -1,14 +1,14 @@
 package dk.tij.registermaschine.core.compilation;
 
-import dk.tij.registermaschine.core.compilation.api.ICompiler;
-import dk.tij.registermaschine.core.compilation.api.ILexer;
-import dk.tij.registermaschine.core.compilation.api.IParser;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
-import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.error.DefectPipelineException;
-import dk.tij.registermaschine.core.error.SyntaxErrorException;
-import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.api.compilation.ICompiler;
+import dk.tij.registermaschine.api.compilation.ILexer;
+import dk.tij.registermaschine.api.compilation.IParser;
+import dk.tij.registermaschine.api.compilation.compiling.ICompiledProgram;
+import dk.tij.registermaschine.api.compilation.lexing.IToken;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
+import dk.tij.registermaschine.api.error.DefectPipelineException;
+import dk.tij.registermaschine.api.error.SyntaxErrorException;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
 
 import java.util.List;
 import java.util.Objects;

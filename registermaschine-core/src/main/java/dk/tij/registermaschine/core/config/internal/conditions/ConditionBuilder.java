@@ -1,13 +1,13 @@
 package dk.tij.registermaschine.core.config.internal.conditions;
 
-import dk.tij.registermaschine.core.conditions.api.ICondition;
+import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.core.conditions.AndCondition;
 import dk.tij.registermaschine.core.conditions.NotCondition;
 import dk.tij.registermaschine.core.conditions.OrCondition;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.*;
-import dk.tij.registermaschine.core.error.ClassInstantiationException;
-import dk.tij.registermaschine.core.error.ConditionParseException;
+import dk.tij.registermaschine.api.error.ClassInstantiationException;
+import dk.tij.registermaschine.api.error.ConditionParseException;
 
 import java.util.*;
 

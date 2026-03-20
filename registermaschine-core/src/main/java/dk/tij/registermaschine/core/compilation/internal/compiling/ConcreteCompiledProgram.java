@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.compilation.internal.compiling;
 
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
+import dk.tij.registermaschine.api.compilation.compiling.ICompiledInstruction;
+import dk.tij.registermaschine.api.compilation.compiling.ICompiledProgram;
 
 
 import java.util.ArrayList;

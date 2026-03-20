@@ -1,10 +1,10 @@
 package dk.tij.registermaschine.core.runtime;
 
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledInstruction;
-import dk.tij.registermaschine.core.compilation.api.compiling.ICompiledProgram;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
-import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
-import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
+import dk.tij.registermaschine.api.compilation.compiling.ICompiledInstruction;
+import dk.tij.registermaschine.api.compilation.compiling.ICompiledProgram;
+import dk.tij.registermaschine.api.instructions.AbstractInstruction;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
 public class Executor implements Runnable {
     private static final long UNLIMITED_RATE_LIMIT_MS = 10;

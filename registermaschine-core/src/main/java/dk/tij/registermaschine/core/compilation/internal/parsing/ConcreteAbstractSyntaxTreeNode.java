@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.core.compilation.internal.parsing;
 
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
 
 public abstract class ConcreteAbstractSyntaxTreeNode implements ISyntaxTreeNode {
     protected static final String AST_NODE_PRINT_FORMAT = "%s[%sline=%d]";

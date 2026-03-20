@@ -1,15 +1,17 @@
 package dk.tij.registermaschine.core.config.internal.parsers;
 
-import dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept;
-import dk.tij.registermaschine.core.compilation.api.compiling.OperandType;
-import dk.tij.registermaschine.core.conditions.api.ICondition;
+import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
+import dk.tij.registermaschine.api.compilation.compiling.OperandType;
+import dk.tij.registermaschine.api.conditions.ICondition;
+import dk.tij.registermaschine.api.config.ConfigInstruction;
+import dk.tij.registermaschine.api.config.ConfigOperand;
 import dk.tij.registermaschine.core.config.*;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
-import dk.tij.registermaschine.core.config.api.IConfigParser;
+import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
-import dk.tij.registermaschine.core.error.ClassInstantiationException;
-import dk.tij.registermaschine.core.error.ConfigurationParseException;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import dk.tij.registermaschine.api.error.ClassInstantiationException;
+import dk.tij.registermaschine.api.error.ConfigurationParseException;
+import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import org.w3c.dom.*;
 
 import java.util.ArrayList;

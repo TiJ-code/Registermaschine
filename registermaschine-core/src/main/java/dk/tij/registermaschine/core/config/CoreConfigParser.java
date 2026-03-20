@@ -1,12 +1,12 @@
 package dk.tij.registermaschine.core.config;
 
-import dk.tij.registermaschine.core.config.api.IConfigEventListener;
-import dk.tij.registermaschine.core.config.api.IConfigParser;
+import dk.tij.registermaschine.api.config.IConfigEventListener;
+import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
-import dk.tij.registermaschine.core.error.ConfigurationParseException;
-import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.api.error.ConfigurationParseException;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
