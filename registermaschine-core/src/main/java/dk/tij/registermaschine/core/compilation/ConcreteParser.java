@@ -1,15 +1,15 @@
 package dk.tij.registermaschine.core.compilation;
 
-import dk.tij.registermaschine.core.compilation.api.IParser;
-import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
-import dk.tij.registermaschine.core.compilation.api.lexing.TokenType;
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
+import dk.tij.registermaschine.api.compilation.IParser;
+import dk.tij.registermaschine.api.compilation.lexing.IToken;
+import dk.tij.registermaschine.api.compilation.lexing.TokenType;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteSyntaxTree;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
-import dk.tij.registermaschine.core.error.SyntaxErrorException;
+import dk.tij.registermaschine.api.error.SyntaxErrorException;
 
 import java.util.ArrayList;
 import java.util.List;

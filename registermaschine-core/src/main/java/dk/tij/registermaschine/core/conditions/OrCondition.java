@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.conditions;
 
-import dk.tij.registermaschine.core.conditions.api.ICondition;
-import dk.tij.registermaschine.core.runtime.api.IExecutionContext;
+import dk.tij.registermaschine.api.conditions.ICondition;
+import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
 import java.util.List;
 

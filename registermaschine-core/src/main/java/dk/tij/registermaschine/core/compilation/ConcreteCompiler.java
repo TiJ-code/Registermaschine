@@ -1,21 +1,22 @@
 package dk.tij.registermaschine.core.compilation;
 
-import dk.tij.registermaschine.core.compilation.api.ICompiler;
-import dk.tij.registermaschine.core.compilation.api.compiling.*;
-import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTree;
-import dk.tij.registermaschine.core.compilation.api.parsing.ISyntaxTreeNode;
+import dk.tij.registermaschine.api.compilation.ICompiler;
+import dk.tij.registermaschine.api.compilation.compiling.*;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
+import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
+import dk.tij.registermaschine.api.config.ConfigInstruction;
+import dk.tij.registermaschine.api.config.ConfigOperand;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledOperand;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteAbstractSyntaxTreeNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
 import dk.tij.registermaschine.core.config.*;
-import dk.tij.registermaschine.core.error.SyntaxErrorException;
-import dk.tij.registermaschine.core.instructions.api.AbstractInstruction;
+import dk.tij.registermaschine.api.error.SyntaxErrorException;
+import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
-import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
 
 import java.util.*;
 

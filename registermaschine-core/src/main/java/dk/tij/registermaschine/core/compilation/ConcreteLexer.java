@@ -1,14 +1,14 @@
 package dk.tij.registermaschine.core.compilation;
 
-import dk.tij.registermaschine.core.compilation.api.ILexer;
-import dk.tij.registermaschine.core.compilation.api.lexing.IToken;
+import dk.tij.registermaschine.api.compilation.ILexer;
+import dk.tij.registermaschine.api.compilation.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.internal.lexing.ConcreteToken;
 import dk.tij.registermaschine.core.config.CoreConfig;
-import dk.tij.registermaschine.core.instructions.api.IInstructionSet;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
 
 import java.util.ArrayList;
 import java.util.List;
-import static dk.tij.registermaschine.core.compilation.api.lexing.TokenType.*;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.*;
 
 public final class ConcreteLexer implements ILexer {
     private IInstructionSet instructionSet;
