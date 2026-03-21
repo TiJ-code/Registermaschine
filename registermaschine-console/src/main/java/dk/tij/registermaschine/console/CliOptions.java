@@ -7,23 +7,10 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-public record CliOptions(Mode mode,
-                         String sourcePath,
-                         String outputPath,
-                         boolean shouldRun,
-                         boolean interactive,
-                         String dumpTokensPath,
-                         String dumpSyntaxTreePath,
-                         String reportTitle,
-                         String reportDescription) {
+public record CliOptions(String sourcePath, String outputPath, boolean shouldRun, boolean interactive,
+                         String dumpTokensPath, String dumpSyntaxTreePath) {
     public static String CALLER = "java -jar console*.jar";
     private static final Options OPTIONS = createOptions();
-
-    public enum Mode {
-        COMPILE_OR_RUN,
-        INTERACTIVE,
-        REPORT
-    }
 
     private static Options createOptions() {
         Options options = new Options();
@@ -104,7 +91,7 @@ public record CliOptions(Mode mode,
 
         try {
             if (args.length == 1 && args[0].equalsIgnoreCase("-i")) {
-                return new CliOptions(Mode.INTERACTIVE, null, null, false, true, null, null, null, null);
+                return new CliOptions(null, null, false, true, null, null);
             }
 
             CommandLine cmd = parser.parse(OPTIONS, args);
@@ -122,7 +109,7 @@ public record CliOptions(Mode mode,
             if (interactive) {
                 if (args.length != 1)
                     throw new ParseException("-i must be standalone");
-                return new CliOptions(Mode.INTERACTIVE, null,null,false,true,null,null,null,null);
+                return new CliOptions(null,null,false,true,null,null);
             }
 
             if (runFlag && output == null && tokens == null && ast == null && positional != null && !positional.endsWith(".jasm")) {
@@ -130,7 +117,7 @@ public record CliOptions(Mode mode,
                 if (!positional.endsWith(".o") && !positional.endsWith(".bin"))
                     throw new ParseException("Binary must end with .o or .bin");
 
-                return new CliOptions(Mode.COMPILE_OR_RUN, positional, null, true, false, null, null, null, null);
+                return new CliOptions(positional, null, true, false, null, null);
             }
 
             String source = positional;
@@ -139,7 +126,7 @@ public record CliOptions(Mode mode,
                 if (source == null || !source.endsWith(".jasm"))
                     throw new ParseException("-or requires <src.jasm>");
 
-                return new CliOptions(Mode.COMPILE_OR_RUN, source, null, true, false, tokens, ast, null, null);
+                return new CliOptions(source, null, true, false, tokens, ast);
             }
 
             if (source != null && source.endsWith(".jasm")) {
@@ -147,7 +134,7 @@ public record CliOptions(Mode mode,
                 if (output == null && tokens == null && ast == null)
                     throw new ParseException("Nothing to do: specify -o, -t, -a, or -r");
 
-                return new CliOptions(Mode.COMPILE_OR_RUN,source, output, runFlag, false, tokens, ast, null, null);
+                return new CliOptions(source, output, runFlag, false, tokens, ast);
             }
 
             throw new ParseException("Invalid command");
@@ -170,8 +157,6 @@ public record CliOptions(Mode mode,
         sb.append("  %-30s%s%n".formatted("<src.jasm> -o <out.o> -t <t.txt> -a <a.txt>", ": Combine"));
         sb.append("  %-30s%s%n".formatted("<src.jasm> -o <out.o> -t <t.txt> -a <a.txt> -r", ": Combine & run"));
         sb.append("  %-30s%s".formatted("-i", ": Run as console text program"));
-        sb.append("  %-30s%s%n".formatted("report -t \"Title Here\" -d \"Description here\"", ": Report a bug"));
-        sb.append("  %-30s%s%n".formatted("report", ": Report a bug interactively"));
 
         return sb.toString();
     }
