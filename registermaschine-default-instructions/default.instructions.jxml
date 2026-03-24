@@ -10,14 +10,14 @@
                 id="hlt"
                 opcode="0x00"
                 description="End instruction to stop execution"
-                handler="core.instructions.HaltInstruction">
+                handler="dk.tij.registermaschine.instructions.HaltInstruction">
             <operand type="immediate" concept="operand"/>
         </instruction>
         <instruction
                 id="add"
                 opcode="0x01"
                 description="Adds register B to A"
-                handler="core.instructions.AdditionInstruction">
+                handler="dk.tij.registermaschine.instructions.AdditionInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
@@ -26,7 +26,7 @@
                 id="sub"
                 opcode="0x02"
                 description="Subtracts register B from A"
-                handler="core.instructions.SubtractionInstruction">
+                handler="dk.tij.registermaschine.instructions.SubtractionInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
@@ -35,7 +35,7 @@
                 id="mul"
                 opcode="0x03"
                 description="Multiplies register A by B"
-                handler="core.instructions.MultiplicationInstruction">
+                handler="dk.tij.registermaschine.instructions.MultiplicationInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
@@ -44,7 +44,7 @@
                 id="div"
                 opcode="0x04"
                 description="Divides register A by B"
-                handler="core.instructions.DivisionInstruction">
+                handler="dk.tij.registermaschine.instructions.DivisionInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
@@ -53,7 +53,7 @@
                 id="lda"
                 opcode="0x06"
                 description="Loads value from register A into accumulator"
-                handler="core.instructions.MoveInstruction">
+                handler="dk.tij.registermaschine.instructions.MoveInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="register" concept="operand"/>
         </instruction>
@@ -61,7 +61,7 @@
                 id="ldk"
                 opcode="0x07"
                 description="Loads constant value into accumulator"
-                handler="core.instructions.MoveInstruction">
+                handler="dk.tij.registermaschine.instructions.MoveInstruction">
             <operand type="register" concept="result" implicitValue="r0"/>
             <operand type="immediate" concept="operand"/>
         </instruction>
@@ -69,7 +69,7 @@
                 id="sta"
                 opcode="0x08"
                 description="Stores value of accumulator into register A"
-                handler="core.instructions.MoveInstruction">
+                handler="dk.tij.registermaschine.instructions.MoveInstruction">
             <operand type="register" concept="operand" implicitValue="r0"/>
             <operand type="register" concept="result"/>
         </instruction>
@@ -77,28 +77,28 @@
                 id="inp"
                 opcode="0x09"
                 description="Awaits input to store in register A"
-                handler="core.instructions.InputInstruction">
+                handler="dk.tij.registermaschine.instructions.InputInstruction">
             <operand type="register" concept="result"/>
         </instruction>
         <instruction
                 id="out"
                 opcode="0x0A"
                 description="Outputs content from accumulator onto display"
-                handler="core.instructions.OutputInstruction">
+                handler="dk.tij.registermaschine.instructions.OutputInstruction">
             <operand type="register" concept="operand" implicitValue="r0"/>
         </instruction>
         <instruction
                 id="jmp"
                 opcode="0x0B"
                 description="Jumps to program line"
-                handler="core.instructions.JumpInstruction">
+                handler="dk.tij.registermaschine.instructions.JumpInstruction">
             <operand type="label" concept="target"/>
         </instruction>
         <instruction
                 id="jez"
                 opcode="0x0C"
                 description="Jumps to program line, if accumulator is zero"
-                handler="core.instructions.JumpInstruction"
+                handler="dk.tij.registermaschine.instructions.JumpInstruction"
                 condition="core.conditions.EqualsZeroCondition">
             <operand type="label" concept="target"/>
         </instruction>
@@ -106,7 +106,7 @@
                 id="jne"
                 opcode="0x0D"
                 description="Jumps to program line, if accumulator is not zero"
-                handler="core.instructions.JumpInstruction"
+                handler="dk.tij.registermaschine.instructions.JumpInstruction"
                 condition="@core.conditions.NotEqualsZeroCondition">
             <operand type="label" concept="target"/>
         </instruction>
@@ -114,7 +114,7 @@
                 id="jlz"
                 opcode="0x0E"
                 description="Jumps to program line, if accumulator is less than zero"
-                handler="core.instructions.JumpInstruction"
+                handler="dk.tij.registermaschine.instructions.JumpInstruction"
                 condition="core.conditions.LessThanZeroCondition">
             <operand type="label" concept="target"/>
         </instruction>
@@ -122,7 +122,7 @@
                 id="jle"
                 opcode="0x0F"
                 description="Jumps to program line, if accumulator is less than or equal to zero"
-                handler="core.instructions.JumpInstruction"
+                handler="dk.tij.registermaschine.instructions.JumpInstruction"
                 condition="@core.conditions.LessThanOrEqualsToZeroCondition">
             <operand type="label" concept="target"/>
         </instruction>
@@ -130,7 +130,7 @@
                 id="jgz"
                 opcode="0x10"
                 description="Jumps to program line, if accumulator is greater than zero"
-                handler="core.instructions.JumpInstruction"
+                handler="dk.tij.registermaschine.instructions.JumpInstruction"
                 condition="@core.conditions.GreaterThanZeroCondition">
             <operand type="label" concept="target"/>
         </instruction>
@@ -138,7 +138,7 @@
                 id="jge"
                 opcode="0x11"
                 description="Jumps to program line, if accumulator is greater than or equal to zero"
-                handler="core.instructions.JumpInstruction"
+                handler="dk.tij.registermaschine.instructions.JumpInstruction"
                 condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
             <operand type="label" concept="target"/>
         </instruction>

@@ -131,10 +131,7 @@ public final class InstructionParser implements IConfigParser {
         if (handlerString == null || handlerString.isEmpty())
             throw new IllegalStateException("Cannot parse empty instruction handler");
 
-        if (handlerString.startsWith(CoreConfig.CORE_IMPLEMENTATION_PREFIX))
-            return Class.forName(CoreConfig.CORE_CLASS_PATH_PREFIX + handlerString.trim()).asSubclass(AbstractInstruction.class);
-        else
-            return Class.forName(handlerString.trim()).asSubclass(AbstractInstruction.class);
+        return Class.forName(handlerString.trim()).asSubclass(AbstractInstruction.class);
     }
 
     private static AbstractInstruction createInstructionHandler(Class<? extends AbstractInstruction> handlerClass,

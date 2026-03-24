@@ -1,4 +1,4 @@
-package dk.tij.rm.instructions;
+package dk.tij.registermaschine.instructions;
 
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledOperand;
 import dk.tij.registermaschine.api.conditions.ICondition;
