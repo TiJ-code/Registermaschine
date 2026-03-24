@@ -9,7 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <groupId>dk.tij.rm</groupId>
+    <groupId>dk.tij.registermaschine</groupId>
     <artifactId>instructions</artifactId>
     <packaging>jar</packaging>
     <name>Registermaschine Core Default Instruction-Set</name>

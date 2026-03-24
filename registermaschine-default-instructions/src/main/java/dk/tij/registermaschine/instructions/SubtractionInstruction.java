@@ -1,4 +1,4 @@
-package dk.tij.rm.instructions;
+package dk.tij.registermaschine.instructions;
 
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledOperand;
 import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
@@ -8,8 +8,8 @@ import dk.tij.registermaschine.api.conditions.ICondition;
 
 import java.util.Arrays;
 
-public final class MultiplicationInstruction extends AbstractInstruction {
-    public MultiplicationInstruction(byte opcode, int operandCount, ICondition condition) {
+public final class SubtractionInstruction extends AbstractInstruction {
+    public SubtractionInstruction(byte opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 
@@ -23,23 +23,30 @@ public final class MultiplicationInstruction extends AbstractInstruction {
 
     @Override
     public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
-        long product = 1;
         ICompiledOperand destination = null;
+        Long runningDifference = null;
 
         for (ICompiledOperand op : operands) {
             if (op.concept() == OperandConcept.RESULT) {
                 destination = op;
-            } else if (op.concept() == OperandConcept.OPERAND) {
-                product *= getValueFromOperand(context, op);
+                continue;
+            }
+
+            int value = getValueFromOperand(context, op);
+
+            if (runningDifference == null) {
+                runningDifference = (long) value;
+            } else {
+                runningDifference -= value;
             }
         }
 
-        boolean overFlow = (product > Integer.MAX_VALUE) ||
-                           (product < Integer.MIN_VALUE);
+        if (destination != null && runningDifference != null) {
+            boolean overFlow = (runningDifference > Integer.MAX_VALUE) ||
+                    (runningDifference < Integer.MIN_VALUE);
 
-        if (destination != null) {
-            context.setFlags(product < 0, product == 0, overFlow);
-            context.setRegister(destination.value(), (int) product);
+            context.setFlags(runningDifference < 0, runningDifference == 0, overFlow);
+            context.setRegister(destination.value(), runningDifference.intValue());
         }
     }
 }
