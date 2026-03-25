@@ -32,6 +32,7 @@
     </developers>
 
     <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -43,50 +44,4 @@
             <artifactId>api</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.4.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <sourcepath>${project.basedir}/src/main</sourcepath>
-                            <doctitle>Registermaschine API</doctitle>
-                            <additionalJOption>-Xdoclint:none</additionalJOption>
-                            <additionalOptions>
-                                <additionalOption>-overview</additionalOption>
-                                <additionalOption>${project.basedir}/docs/overview.html</additionalOption>
-                            </additionalOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 </project>
