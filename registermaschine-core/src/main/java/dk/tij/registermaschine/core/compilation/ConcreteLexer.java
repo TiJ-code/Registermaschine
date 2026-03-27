@@ -20,27 +20,27 @@ import static dk.tij.registermaschine.api.compilation.lexing.TokenType.*;
  *
  * <p>Supported token types:</p>
  * <ul>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#INSTRUCTION}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#INSTRUCTION}
  *     – recognised mnemonics from the {@link IInstructionSet}</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#REGISTER}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#REGISTER}
  *     – registers prefixed with 'r' (e.g., r0, r1)</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#NUMBER}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#NUMBER}
  *     – immediate values prefixed with '#' and optionally hexadecimal</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#LABEL}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#LABEL}
  *     – symbolic addresses or labels</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#LABEL_DEF}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#LABEL_DEF}
  *     – label definitions ending with ':'</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#COMMA}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#COMMA}
  *     – comma separators between operands</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#EOL}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#EOL}
  *     – end-of-line markers</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#EOF}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#EOF}
  *     – end-of-file marker</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#COMMENT}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#COMMENT}
  *     – comments starting with ';'</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#UNKNOWN}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#UNKNOWN}
  *     – unrecognised characters</li>
- *     <li>{@link dk.tij.registermaschine.core.compilation.api.lexing.TokenType#ERROR}
+ *     <li>{@link dk.tij.registermaschine.api.compilation.lexing.TokenType#ERROR}
  *     – malformed tokens (e.g., invalid immediate/address)</li>
  * </ul>
  *
