@@ -1,31 +1,120 @@
 name: Release
 on:
-  push:
-    tags:
-      - 'core-v*'
-      - 'console-v*'
-      - 'ui-v*'
-
-permissions:
-  contents: write
-
-concurrency:
-  group: "release-build"
-  cancel-in-progress: true
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Level of version bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - test
 
 jobs:
-  build:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  version_bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      new_version: ${{ steps.versioning.outputs.NEW_VER }}
+      release_tag: ${{ steps.release_tagging.outputs.RELEASE_TAG }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Generate Token
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ steps.generate_token.outputs.token }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 25
+          distribution: temurin
+          server-id: 'github'
+
+      - name: Calculate & Set New Version
+        id: versioning
+        shell: bash
+        run: |
+          CURRENT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          
+          IFS='.' read -ra ADDR <<< "$CURRENT_VER"
+          MAJOR=${ADDR[0]}
+          MINOR=${ADDR[1]}
+          PATCH=${ADDR[2]}
+          
+          if [[ "${{ github.event.inputs.bump_type }}" == "major" ]]; then
+            NEW_VER="$((MAJOR + 1)).0.0"
+          elif [[ "${{ github.event.inputs.bump_type }}" == "minor" ]]; then
+            NEW_VER="$MAJOR.$((MINOR + 1)).0"
+          elif [[ "${{ github.event.inputs.bump_type }}" == "patch" ]]; then
+            NEW_VER="$MAJOR.$MINOR.$((PATCH + 1))"
+          else
+            NEW_VER="$MAJOR.$MINOR.$PATCH.test"
+          fi
+          
+          echo "NEW_VER=$NEW_VER" >> $GITHUB_OUTPUT
+          mvn versions.set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
+
+      - name: Commit & Push
+        if: github.event.inputs.bump-type != 'test'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.no-reply.github.com"
+          
+          git commit -am "[ACTION] bump version to ${{ steps.versioning.outputs.NEW_VER }}"
+          git push origin main
+          
+          git tag pom-v${{ steps.versioning.outputs.NEW_VER }}
+          git push origin pom-v${{ steps.versioning.outputs.NEW_VER }}
+
+      - name: Squash Merge Into Release
+        if: github.event.inputs.bump-type != 'test'
+        shell: bash
+        run: |
+          git fetch origin releases
+          git checkout releases
+          
+          git merge --squash main
+          
+          git commit -m "Release v${{ steps.versioning.outputs.NEW_VER }}"
+          git push origin releases
+
+      - name: Tag Release
+        id: release_tagging
+        shell: bash
+        run:
+          echo "RELEASE_TAG=release-v${{ steps.versioning.outputs.NEW_VER }}" >> $GITHUB_OUTPUT
+          
+          git tag release-v${{ steps.versioning.outputs.NEW_VER }}
+          git push origin release-v${{ steps.versioning.outputs.NEW_VER }}
+
+  build:
+    needs: version_bump
+
+    name: Build Artifacts
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ needs.version_bump.outputs.release_tag }}
           fetch-depth: 0
           fetch-tags: true
 
@@ -35,98 +124,32 @@ jobs:
           distribution: temurin
           java-version: 25
 
-      - name: Install local jissuesystem
+      - name: Build Core Library
         shell: bash
-        run: |
-          mvn install:install-file \
-            -Dfile=libs/jissuesystem-0.1.0.jar \
-            -DgroupId=dk.tij \
-            -DartifactId=jissuesystem \
-            -Dversion=0.1.0 \
-            -Dpackaging=jar
+        run: mvn -B clean package -DskipTests
 
-      - name: Extract tag info
-        id: tags
+      - name: Deploy To Github Packages
         shell: bash
-        run: |
-          # Get the specific tag that triggered this workflow
-          CURRENT_TAG=${GITHUB_REF_NAME}
-
-          # Get the latest version for each component from the git history
-          # --tags: look at all tags
-          # --abbrev=0: give only the tag name, no commit hash
-          # --match: filter by prefix
-          CORE_VER=$(git describe --tags --abbrev=0 --match "core-v*" 2>/dev/null | sed 's/core-v//' || echo "unknown")
-          UI_VER=$(git describe --tags --abbrev=0 --match "ui-v*" 2>/dev/null | sed 's/ui-v//' || echo "unknown")
-          CONSOLE_VER=$(git describe --tags --abbrev=0 --match "console-v*" 2>/dev/null | sed 's/console-v//' || echo "unknown")
-
-          echo "core=$CORE_VER" >> $GITHUB_OUTPUT
-          echo "ui=$UI_VER" >> $GITHUB_OUTPUT
-          echo "console=$CONSOLE_VER" >> $GITHUB_OUTPUT
-
-          # Create the pretty name for the release header
-          echo "name=Core $CORE_VER - UI $UI_VER - Console $CONSOLE_VER" >> $GITHUB_OUTPUT
-
-      - name: Build & install core
-        shell: bash
-        run: |
-          mvn -B clean install -pl registermaschine-core -DskipTests
-
-      - name: Build UI and Console
-        shell: bash
-        run: |
-          mvn -B clean package -pl registermaschine-ui,registermaschine-console -DskipTests
+        run: mvn clean deploy
 
       - name: Package Artifacts
         shell: bash
         run: |
-          rm -rf dist bundle runtime app.jar
+          rm -rf dist
           mkdir -p dist
           
-          # Use the versions extracted in the previous step
-          C_VER=${{ steps.tags.outputs.core }}
-          U_VER=${{ steps.tags.outputs.ui }}
-          CO_VER=${{ steps.tags.outputs.console }}
-          
-          # 1. CORE & CONSOLE (Only upload from Linux to avoid triple-uploading identical jars)
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            find registermaschine-core/target -maxdepth 1 -name "*.jar" ! -name "original-*" -exec cp {} dist/core-v${C_VER}.jar \;
-            find registermaschine-console/target -maxdepth 1 -name "*.jar" ! -name "original-*" -exec cp {} dist/console-v${CO_VER}.jar \;
-          fi
-          
-          UI_JAR=$(find registermaschine-ui/target -maxdepth 1 -name "*.jar" ! -name "original-*" | head -n 1)
-          cp "$UI_JAR" app.jar
-          
-          jlink \
-                --add-modules java.base,java.desktop,java.logging,java.net.http,jdk.unsupported,jdk.crypto.ec,jdk.charsets,java.management,java.scripting,jdk.jsobject \
-                --output runtime --strip-debug --no-header-files --no-man-pages
-          
-          mkdir -p bundle
-          mv runtime bundle/jre
-          mv app.jar bundle/
-          
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            echo "@echo off" > bundle/start.bat
-            echo "jre\\bin\\java -jar app.jar" >> bundle/start.bat
-            7z a "dist/ui-${U_VER}-windows.zip" ./bundle/*
-          else
-            echo "#!/bin/sh" > bundle/start.sh
-            echo "./jre/bin/java -jar app.jar" >> bundle/start.sh
-            chmod +x bundle/start.sh
-            OS_NAME="linux"
-            [[ "${{ matrix.os }}" == "macos-latest" ]] && OS_NAME="macos"
-            
-            cd bundle && zip -r "../dist/ui-${U_VER}-${OS_NAME}.zip" . && cd ..
-          fi
+          cp registermaschine-api/target/*.jar dist/
+          cp registermaschine-core/target/*.jar dist/
+          cp registermaschine-instructions/target/*.jar dist/
 
       - name: Upload to Single Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ needs.version_bump.outputs.release_tag  }}
           files: dist/*
           append_body: true
           make_latest: true
-          name: ${{ steps.tags.outputs.name }}
+          name: 'Core v${{ needs.version_bump.outputs.new_version }}'
           generate_release_notes: ${{ matrix.os == 'ubuntu-latest' }}
           draft: false
         env:
