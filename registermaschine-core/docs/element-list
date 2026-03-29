@@ -1,0 +1,12 @@
+module:dk.tij.registermaschine.core
+dk.tij.registermaschine.core.compilation
+dk.tij.registermaschine.core.compilation.internal.compiling
+dk.tij.registermaschine.core.compilation.internal.lexing
+dk.tij.registermaschine.core.compilation.internal.parsing
+dk.tij.registermaschine.core.conditions
+dk.tij.registermaschine.core.config
+dk.tij.registermaschine.core.config.internal
+dk.tij.registermaschine.core.config.internal.conditions
+dk.tij.registermaschine.core.config.internal.conditions.nodes
+dk.tij.registermaschine.core.config.internal.parsers
+dk.tij.registermaschine.core.runtime
