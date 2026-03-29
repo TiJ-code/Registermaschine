@@ -1,0 +1,9 @@
+    ldk #1
+    sta r1
+    inp r0
+_loop__1:
+    jle _ende_2
+    sub r1
+    jmp _loop__1
+_ende_2:
+    hlt #99
