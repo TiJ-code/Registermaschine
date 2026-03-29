@@ -1,0 +1,10 @@
+    ldk #1
+    sta r1
+    inp r0
+; big comment before
+loop:
+    jle ende ; illegal
+    sub r1
+    jmp loop
+ende:
+    hlt #99
