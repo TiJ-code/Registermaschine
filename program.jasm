@@ -1,0 +1,10 @@
+
+    ldk #-1
+    sta r1
+    inp r0
+loop:
+    jle ende
+    add r1
+    jmp loop
+ende:
+    hlt #99
