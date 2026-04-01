@@ -6,7 +6,7 @@
     <parent>
         <groupId>dk.tij</groupId>
         <artifactId>registermaschine</artifactId>
-        <version>0.999.999</version>
+        <version>1.0.0</version>
     </parent>
 
     <groupId>dk.tij.registermaschine</groupId>
