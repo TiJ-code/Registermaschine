@@ -5,6 +5,7 @@ public enum TokenType {
     INSTRUCTION,
     REGISTER,
     NUMBER,
+    ADDRESS,
     LABEL,
     LABEL_DEF,
 
