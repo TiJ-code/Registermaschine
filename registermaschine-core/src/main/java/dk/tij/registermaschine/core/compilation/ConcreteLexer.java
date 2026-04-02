@@ -71,6 +71,10 @@ public final class ConcreteLexer implements ILexer {
             return;
         }
 
+        if (peek() == '-') {
+            sb.append(advance());
+        }
+
         if (peek() == '0') {
             char zero = advance();
             if (isNotAtEnd() && (peek() == 'x' || peek() == 'X')) {
