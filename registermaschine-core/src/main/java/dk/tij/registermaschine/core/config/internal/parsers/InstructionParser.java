@@ -2,8 +2,11 @@ package dk.tij.registermaschine.core.config.internal.parsers;
 
 import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
 import dk.tij.registermaschine.api.compilation.compiling.OperandType;
-import dk.tij.registermaschine.api.config.ConfigInstruction;
-import dk.tij.registermaschine.api.config.ConfigOperand;
+import dk.tij.registermaschine.api.conditions.ICondition;
+import dk.tij.registermaschine.api.config.model.ConfigInstruction;
+import dk.tij.registermaschine.api.config.model.ConfigOperand;
+import dk.tij.registermaschine.core.config.*;
+import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
