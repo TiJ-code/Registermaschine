@@ -16,6 +16,8 @@ public final class XmlConstants {
      */
     private XmlConstants() {}
 
+    public static final int VERSION_INSTRUCTION_SET = 2;
+
     /**
      * Tag for the number of registers (e.g., {@code <registers>8</registers>}
      */
@@ -40,7 +42,13 @@ public final class XmlConstants {
     /**
      * Tag for global configuration toggles
      */
-                                TAG_OPTION = "option";
+                                TAG_OPTION = "option",
+                                TAG_CHAIN = "chain",
+                                TAG_STEP = "step",
+                                TAG_IN = "in",
+                                TAG_OUT = "out";
+
+    public static final String  ATTRIBUTE_INSTRUCTION_SET_VERSION = "version";
 
     /**
      * Attribute for the name of a condition macro
@@ -68,10 +76,11 @@ public final class XmlConstants {
      */
                                 ATTRIBUTE_INSTRUCTION_CONDITION = "condition";
 
+    public static final String  ATTRIBUTE_OPERAND_NAME = "name",
     /**
      * The data type of the operand
      */
-    public static final String  ATTRIBUTE_OPERAND_TYPE = "type",
+                                ATTRIBUTE_OPERAND_TYPE = "type",
     /**
      * The semantic role of the operand
      */
@@ -81,6 +90,13 @@ public final class XmlConstants {
      */
                                 ATTRIBUTE_OPERAND_IMPLICIT_VALUE = "implicitValue";
 
+    public static final String  ATTRIBUTE_STEP_HANDLER = "handler",
+                                ATTRIBUTE_STEP_CONDITION = "condition";
+
+    public static final String  ATTRIBUTE_IN_REF = "ref";
+
+    public static final String  ATTRIBUTE_OUT_TO = "to";
+
     /**
      * The identifier for a specific configuration option
      */
@@ -89,6 +105,10 @@ public final class XmlConstants {
      * The value assigned to a configuration option
      */
                                 ATTRIBUTE_OPTION_VALUE = "value";
+
+    public static final String  VALUE_CONCEPT_RESULT = "result",
+                                VALUE_CONCEPT_TARGET = "target",
+                                VALUE_CONCEPT_OPERAND = "operand";
 
     /**
      * Option ID toggle for enabling / disabling label support in assembly

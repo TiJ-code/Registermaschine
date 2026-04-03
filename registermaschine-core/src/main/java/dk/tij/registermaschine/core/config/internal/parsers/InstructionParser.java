@@ -43,21 +43,6 @@ public final class InstructionParser implements IConfigParser {
      */
     @Override
     public void parseConfig(Document xmlDocument) {
-        log.info("Started parsing instructions");
-
-        log.info("Parsing options for this instruction set");
-        NodeList optionsList = xmlDocument.getElementsByTagName(XmlConstants.TAG_OPTION);
-        for (int i = 0; i < optionsList.getLength(); i++) {
-            log.debug("Parsing <{}> tag {}", XmlConstants.TAG_OPTION, i);
-
-            Element option = (Element) optionsList.item(i);
-            if (XmlConstants.INSTR_OPTION_ALLOW_LABELS.equals(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_ID))) {
-                CoreConfig.ALLOW_LABELS = Boolean.parseBoolean(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_VALUE));
-                log.info("Parsed allow labels; this instruction set {}allows labels", CoreConfig.ALLOW_LABELS ? "" : "dis");
-                fireEvent(option, CoreConfig.ALLOW_LABELS);
-            }
-        }
-
         NodeList instructionNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
         if (instructionNodeList.getLength() < 0) return;
 
@@ -112,11 +97,9 @@ public final class InstructionParser implements IConfigParser {
 
         List<ConfigOperand> operands = new ArrayList<>(operandNodes.getLength());
         for (int i = 0; i < operandNodes.getLength(); i++) {
-            log.debug("Parsing <{}> tag {}", XmlConstants.TAG_OPERAND, i);
             ConfigOperand operand = parseOperand(operandNodes.item(i));
 
             if (operand.concept() == OperandConcept.RESULT) {
-                log.debug("Parsed <{}> tag {} as concept {}", XmlConstants.TAG_OPERAND, i, OperandConcept.RESULT);
                 resultCount++;
             }
 
