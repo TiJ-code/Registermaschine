@@ -3,6 +3,7 @@ package dk.tij.registermaschine.api.instructions;
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledOperand;
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledStep;
 import dk.tij.registermaschine.api.conditions.ICondition;
+import dk.tij.registermaschine.api.error.InvalidOperandException;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
 import java.util.Objects;
@@ -30,6 +31,17 @@ public class ChainedInstruction {
                 handler.execute(context, operands, step.inputIndices(), step.outputIndex());
             }
         }
+    }
+
+    public void validateOperands(ICompiledOperand[] operands) {
+        for (var step : steps) {
+            try {
+                step.handler().validate(operands, step.inputIndices(), step.outputIndex());
+            } catch (IllegalArgumentException e) {
+                throw new InvalidOperandException("Invalid operands for %s step.".formatted(step));
+            }
+        }
+
     }
 
     public int getOperandCount() {
