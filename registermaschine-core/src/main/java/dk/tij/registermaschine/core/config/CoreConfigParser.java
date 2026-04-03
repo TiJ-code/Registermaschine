@@ -4,14 +4,14 @@ import dk.tij.registermaschine.api.config.IConfigEventListener;
 import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.api.log.LogLevel;
 import dk.tij.registermaschine.api.log.ILogger;
+import dk.tij.registermaschine.api.log.LogLevel;
 import dk.tij.registermaschine.api.log.LoggerFactory;
+import dk.tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
+import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
-import dk.tij.registermaschine.api.error.ConfigurationParseException;
-import dk.tij.registermaschine.api.instructions.IInstructionSet;
 import dk.tij.registermaschine.core.plugin.PluginConfigParser;
 import dk.tij.registermaschine.core.plugin.PluginLoader;
 import org.w3c.dom.Document;
@@ -22,11 +22,20 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -63,13 +72,15 @@ public final class CoreConfigParser {
      * Name of the instruction parser target
      */
     public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName(),
-                                PARSER_CONFIGURATION = SettingsParser.class.getName();
+                                PARSER_CONFIGURATION = SettingsParser.class.getName(),
+                                PARSER_INSTRUCTION_OPTION = InstructionSetOptionParser.class.getName();
 
     /**
      * Internal DTD names
      */
-    public static final String  DTD_CONFIGURATION = "dtd/configuration.dtd",
-                                DTD_INSTRUCTION_SET = "dtd/instruction_file.dtd";
+    public static final String  DTD_DIRECTORY = "dtd",
+                                DTD_CONFIGURATION = DTD_DIRECTORY + "/configuration.dtd",
+                                DTD_INSTRUCTION_SET = DTD_DIRECTORY + "/instruction_file.dtd";
 
     /**
      * Default core configuration files
@@ -106,6 +117,10 @@ public final class CoreConfigParser {
      * Parser for instruction sets
      */
     private static final IConfigParser INSTRUCTION_PARSER = new InstructionParser();
+    /**
+     * Parser for instruction set options
+     */
+    private static final IConfigParser INSTRUCTION_OPTION_PARSER = new InstructionSetOptionParser();
 
     /**
      * Private constructor to prevent instantiation
@@ -155,7 +170,7 @@ public final class CoreConfigParser {
 
             try (InputStream is = getSmartStream(CONFIGURATION_FILE, onlyInternal)) {
                 LOGGER.debug("Parsing core configuration file {}", CONFIGURATION_FILE);
-                Document doc = parseWithDtd(is, DTD_CONFIGURATION);
+                Document doc = parseWithDtd(is);
 
                 LOGGER.debug("Running internal config parsers");
                 INTERNAL_CONFIG_PARSERS.forEach(parser -> {
@@ -225,26 +240,38 @@ public final class CoreConfigParser {
 
         LOGGER.info("Parsing instruction set file {}", fileName);
 
-        try (InputStream is = getSmartStream(fileName)) {
-            Document doc = parseWithDtd(is, DTD_INSTRUCTION_SET);
+        try {
+            Path filePath = resolvePath(fileName);
 
-            CoreConfig.INSTRUCTIONS.clear();
-            LOGGER.trace("Cleared existing instructions");
+            try (InputStream is = Files.newInputStream(filePath)) {
+                Document doc = parseWithoutValidation(is);
 
-            LOGGER.debug("Parsing instructions");
-            INSTRUCTION_PARSER.parseConfig(doc);
-            LOGGER.debug("Finished instruction parsing");
+                InstructionSetMigrator.migrateAndStoreIfNeeded(doc, filePath);
 
-            LOGGER.debug("Parsing macros for instruction set");
-            MACRO_PARSER.parseConfig(doc);
-            LOGGER.debug("Finished macro parsing");
+                validateWithDtd(doc);
 
-            CoreConfig.INSTRUCTIONS.forEach(instr -> {
-                set.registerInstruction(instr);
-                LOGGER.trace("Registered instruction '{}' with opcode {}", instr.mnemonic(), instr.opcode());
-            });
+                CoreConfig.INSTRUCTIONS.clear();
+                LOGGER.trace("Cleared existing instructions");
 
-            LOGGER.info("All instructions registered to {}", set);
+                LOGGER.trace("Parsing instruction set options");
+                INSTRUCTION_OPTION_PARSER.parseConfig(doc);
+                LOGGER.trace("Finished instruction set options parsing");
+
+                LOGGER.debug("Parsing instructions");
+                INSTRUCTION_PARSER.parseConfig(doc);
+                LOGGER.debug("Finished instruction parsing");
+
+                LOGGER.debug("Parsing macros for instruction set");
+                MACRO_PARSER.parseConfig(doc);
+                LOGGER.debug("Finished macro parsing");
+
+                CoreConfig.INSTRUCTIONS.forEach(instr -> {
+                    set.registerInstruction(instr);
+                    LOGGER.trace("Registered instruction '{}' with opcode {}", instr.mnemonic(), instr.opcode());
+                });
+
+                LOGGER.info("All instructions registered to {}", set);
+            }
         } catch (Exception e) {
             final String errorMsg = "Failed to parse instruction set: " + fileName;
             LOGGER.error(errorMsg, e);
@@ -262,6 +289,8 @@ public final class CoreConfigParser {
         LOGGER.trace("Registering listener {} to target {}", listener, target);
         if (PARSER_INSTRUCTIONS.equals(target))
             INSTRUCTION_PARSER.addListener(listener);
+        else if (PARSER_INSTRUCTION_OPTION.equals(target))
+            INSTRUCTION_OPTION_PARSER.addListener(listener);
         else if (PARSER_CONFIGURATION.equals(target))
             INTERNAL_CONFIG_PARSERS.stream()
                     .filter(p -> p instanceof SettingsParser)
@@ -310,15 +339,18 @@ public final class CoreConfigParser {
         }
     }
 
-    /**
-     * Returns an input stream for a configuration file, either from local path or resources
-     *
-     * @param fileName the filename
-     * @return an input stream
-     * @throws FileNotFoundException if the file cannot be found
-     */
-    private static InputStream getSmartStream(String fileName) throws FileNotFoundException {
-        return getSmartStream(fileName, false);
+    private static Path resolvePath(String fileName) throws IOException {
+        if (ROOT_PATH != null) {
+            Path path = ROOT_PATH.resolve(fileName);
+            if (Files.exists(path))
+                return path;
+        }
+
+        Path local = Path.of(fileName);
+        if (Files.exists(local))
+            return local;
+
+        throw new FileNotFoundException("Instruction file must exist on disk for migration: " + fileName);
     }
 
     /**
@@ -358,8 +390,8 @@ public final class CoreConfigParser {
         LOGGER.debug("Loading default condition macros from {}", DEFAULT_CONDITION_MACROS_FILE);
         try (InputStream is = getResourceStream(DEFAULT_CONDITION_MACROS_FILE)) {
             if (is == null) throw new ConfigurationParseException(DEFAULT_CONDITION_MACROS_FILE + " is missing from internal resources!");
-            
-            Document doc = parseWithDtd(is, DTD_INSTRUCTION_SET);
+
+            Document doc = parseWithDtd(is);
             LOGGER.trace("Parsing default condition macros");
             MACRO_PARSER.parseConfig(doc);
             LOGGER.info("Default condition macros loaded successfully");
@@ -370,16 +402,46 @@ public final class CoreConfigParser {
         }
     }
 
+    private static Document parseWithoutValidation(InputStream is)
+            throws IOException, ParserConfigurationException, SAXException{
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setValidating(false);
+        factory.setIgnoringElementContentWhitespace(true);
+        factory.setNamespaceAware(false);
+
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setFeature("http://apache.org/xml/features/validation/dynamic", false);
+
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        return builder.parse(is);
+    }
+
+    private static void validateWithDtd(Document doc)
+            throws Exception {
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, DTD_INSTRUCTION_SET);
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+
+        StringWriter writer = new StringWriter();
+        transformer.transform(new DOMSource(doc), new StreamResult(writer));
+
+        String xml = writer.toString();
+
+        parseWithDtd(new ByteArrayInputStream(xml.getBytes()));
+    }
+
     /**
      * Parses an input stream XML, validating against a DTD
      *
      * @param is the input stream
-     * @param dtdName the DTD filename
      * @return the parsed {@link Document}
      * @throws Exception if parsing fails
      */
-    private static Document parseWithDtd(InputStream is, String dtdName) throws Exception {
-        LOGGER.trace("Parsing XML with DTD {}", dtdName);
+    private static Document parseWithDtd(InputStream is) throws Exception {
+        LOGGER.trace("Parsing XML with DTD");
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(true);
@@ -387,8 +449,7 @@ public final class CoreConfigParser {
 
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
-            @Override
-            public void warning(SAXParseException e) throws SAXException {}
+            @Override public void warning(SAXParseException e) throws SAXException {}
             @Override
             public void error(SAXParseException e) throws SAXException { throw e; }
             @Override
@@ -396,16 +457,19 @@ public final class CoreConfigParser {
         });
 
         builder.setEntityResolver((_, systemId) -> {
-            if (systemId != null && systemId.contains(dtdName)) {
-                LOGGER.trace("Resolving DTD {} from internal resources", dtdName);
-                return new InputSource(CoreConfigParser.class.getResourceAsStream("/" + dtdName));
+            if (systemId != null) {
+                String dtdFile = systemId.substring(systemId.lastIndexOf('/') + 1);
+                LOGGER.trace("Resolving DTD {} from internal resources", dtdFile);
+                return new InputSource(CoreConfigParser.class.getResourceAsStream(
+                        "/%s/%s".formatted(DTD_DIRECTORY, dtdFile)
+                ));
             }
             LOGGER.trace("No DTD match for {}", systemId);
             return new InputSource(new StringReader(""));
         });
 
         final var doc = builder.parse(is);
-        LOGGER.trace("XML parsing complete for DTD {}", dtdName);
+        LOGGER.trace("XML parsing complete for DTD");
         return doc;
     }
 
