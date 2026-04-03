@@ -451,7 +451,8 @@ public final class CoreConfigParser {
 
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
-            @Override public void warning(SAXParseException e) throws SAXException {}
+            @Override
+            public void warning(SAXParseException e) throws SAXException {}
             @Override
             public void error(SAXParseException e) throws SAXException { throw e; }
             @Override
