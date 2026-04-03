@@ -113,5 +113,6 @@ public final class XmlConstants {
     /**
      * Option ID toggle for enabling / disabling label support in assembly
      */
+
     public static final String INSTR_OPTION_ALLOW_LABELS = "allowLabels";
 }
