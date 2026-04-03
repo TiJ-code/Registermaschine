@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.api.config;
+package dk.tij.registermaschine.api.config.model;
 
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 

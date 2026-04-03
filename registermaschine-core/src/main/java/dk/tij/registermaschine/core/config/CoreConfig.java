@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.api.compilation.lexing.TokenType;
-import dk.tij.registermaschine.api.config.ConfigInstruction;
+import dk.tij.registermaschine.api.config.model.ConfigInstruction;
 import dk.tij.registermaschine.api.log.LogConfig;
 import dk.tij.registermaschine.api.instructions.IInstructionRegistry;
 import dk.tij.registermaschine.core.instructions.ConcreteInstructionRegistry;

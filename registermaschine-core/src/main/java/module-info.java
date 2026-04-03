@@ -43,6 +43,7 @@ module dk.tij.registermaschine.core {
     exports dk.tij.registermaschine.core.conditions;
     exports dk.tij.registermaschine.core.config;
     exports dk.tij.registermaschine.core.runtime;
+    exports dk.tij.registermaschine.core.instructions;
 
     requires dk.tij.registermaschine.api;
     requires java.xml;
