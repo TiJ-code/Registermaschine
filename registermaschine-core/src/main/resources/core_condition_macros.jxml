@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!DOCTYPE instruction-set SYSTEM "dtd/instruction_file.dtd">
+<!DOCTYPE instruction-set SYSTEM "dtd/instruction_file.v1.dtd">
 <instruction-set>
     <name>CORE CONDITION MACROS</name>
     <conditionMacros internal="true">
