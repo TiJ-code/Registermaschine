@@ -19,11 +19,6 @@ import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompi
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledOperand;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteAbstractSyntaxTreeNode;
-import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
-import dk.tij.registermaschine.core.config.*;
-import dk.tij.registermaschine.api.error.SyntaxErrorException;
-import dk.tij.registermaschine.api.instructions.AbstractInstruction;
-import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
