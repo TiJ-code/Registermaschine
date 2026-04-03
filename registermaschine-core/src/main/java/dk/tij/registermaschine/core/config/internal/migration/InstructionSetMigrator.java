@@ -86,7 +86,12 @@ public final class InstructionSetMigrator {
                 "dk.tij.registermaschine.instructions.AdditionInstruction", "dk.tij.registermaschine.instructions.AdditionStepHandler",
                 "dk.tij.registermaschine.instructions.SubtractionInstruction", "dk.tij.registermaschine.instructions.SubtractionStepHandler",
                 "dk.tij.registermaschine.instructions.MultiplicationInstruction", "dk.tij.registermaschine.instructions.MultiplicationStepHandler",
-                "dk.tij.registermaschine.instructions.DivisionInstruction", "dk.tij.registermaschine.instructions.DivisionStepHandler"
+                "dk.tij.registermaschine.instructions.DivisionInstruction", "dk.tij.registermaschine.instructions.DivisionStepHandler",
+                "dk.tij.registermaschine.instructions.HaltInstruction", "dk.tij.registermaschine.instructions.HaltStepHandler",
+                "dk.tij.registermaschine.instructions.InputInstruction", "dk.tij.registermaschine.instructions.InputStepHandler",
+                "dk.tij.registermaschine.instructions.OutputInstruction", "dk.tij.registermaschine.instructions.OutputStepHandler",
+                "dk.tij.registermaschine.instructions.JumpInstruction", "dk.tij.registermaschine.instructions.JumpStepHandler",
+                "dk.tij.registermaschine.instructions.MoveInstruction", "dk.tij.registermaschine.instructions.MoveStepHandler"
         );
 
         NodeList instructions = root.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
@@ -135,11 +140,12 @@ public final class InstructionSetMigrator {
                         resultName = name;
                     }
                     case XmlConstants.VALUE_CONCEPT_TARGET -> name = XmlConstants.VALUE_CONCEPT_TARGET;
-                    case XmlConstants.VALUE_CONCEPT_OPERAND -> name = XmlConstants.VALUE_CONCEPT_OPERAND;
+                    case XmlConstants.VALUE_CONCEPT_OPERAND -> name = XmlConstants.VALUE_CONCEPT_OPERAND + operandCounter++;
                     default -> name = "arg" + operandCounter++;
                 }
 
                 operand.setAttribute(XmlConstants.ATTRIBUTE_OPERAND_NAME, name);
+                System.out.println("generated name: " + name);
 
                 if (concept.equals(XmlConstants.VALUE_CONCEPT_OPERAND) || concept.equals(XmlConstants.VALUE_CONCEPT_TARGET)) {
                     Element in = doc.createElement(XmlConstants.TAG_IN);
