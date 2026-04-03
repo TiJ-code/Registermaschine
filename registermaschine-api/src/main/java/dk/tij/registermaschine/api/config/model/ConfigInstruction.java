@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.api.config.model;
 
-import dk.tij.registermaschine.api.instructions.AbstractInstruction;
+import dk.tij.registermaschine.api.conditions.ICondition;
 
 import java.util.List;
 
@@ -17,10 +17,10 @@ import java.util.List;
  * @param description a human-readable description
  * @param opcode the opcode used to identify the instruction during execution
  * @param operands the operand definitions expected by the instruction
- * @param handler the instruction implementation
  *
  * @since 1.0.0
  * @author TiJ
  */
 public record ConfigInstruction(String mnemonic, String description,
-                                int opcode, List<ConfigOperand> operands, AbstractInstruction handler) {}
+                                int opcode, ICondition condition,
+                                List<ConfigOperand> operands, List<ConfigStep> steps) {}
