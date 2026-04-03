@@ -10,6 +10,7 @@ module dk.tij.registermaschine.api {
     exports dk.tij.registermaschine.api.error;
     exports dk.tij.registermaschine.api.plugin;
     exports dk.tij.registermaschine.api.log;
+    exports dk.tij.registermaschine.api.config.model;
 
     requires java.xml;
     requires java.logging;
