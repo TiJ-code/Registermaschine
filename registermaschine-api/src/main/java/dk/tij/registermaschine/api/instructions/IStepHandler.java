@@ -1,10 +1,18 @@
 package dk.tij.registermaschine.api.instructions;
 
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledOperand;
+import dk.tij.registermaschine.api.compilation.compiling.OperandType;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
 public interface IStepHandler {
     void execute(IExecutionContext context, ICompiledOperand[] operands, int[] inputIndices, int outputIndex);
+
+    default int getValueFromOperand(IExecutionContext context, ICompiledOperand operand) {
+        if (operand.type().equals(OperandType.REGISTER))
+            return context.getRegister(operand.value());
+        return operand.value();
+    }
+
 
     default int requiredInputs() {
         return 1;
