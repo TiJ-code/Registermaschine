@@ -1,0 +1,10 @@
+module:dk.tij.registermaschine.api
+dk.tij.registermaschine.api.compilation
+dk.tij.registermaschine.api.compilation.compiling
+dk.tij.registermaschine.api.compilation.lexing
+dk.tij.registermaschine.api.compilation.parsing
+dk.tij.registermaschine.api.conditions
+dk.tij.registermaschine.api.config
+dk.tij.registermaschine.api.error
+dk.tij.registermaschine.api.instructions
+dk.tij.registermaschine.api.runtime

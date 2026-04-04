@@ -6,7 +6,25 @@ import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
+/**
+ * Parses general machine constraints and settings from the configuration XML.
+ *
+ * <p>This parses handles fundamental register machine parameters such as the number of
+ * available registers and the maximum allowed jump limit (to prevent infinite loops during
+ * execution).</p>
+ *
+ * @since 1.0.0
+ * @author TiJ
+ */
 public final class SettingsParser implements IConfigParser {
+    /**
+     * Parses numeric settings and updates the global {@link CoreConfig} state.
+     *
+     * <p>Both registers and max jumps are clamped to a minimum value of 1 to
+     * ensure machine stability.</p>
+     *
+     * @param xmlDocument the parsed DOM document of the configuration file
+     */
     @Override
     public void parseConfig(Document xmlDocument) {
         NodeList registerNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_CONFIG_REGISTERS);

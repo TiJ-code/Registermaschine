@@ -11,9 +11,35 @@ import dk.tij.registermaschine.api.error.ConditionParseException;
 
 import java.util.*;
 
+/**
+ * The high-level builder responsible for transforming condition
+ * strings into executable {@link ICondition} objects.
+ *
+ * <p>This class coordinates the full compilation pipeline:</p>
+ * <ol>
+ *     <li><b>Lexing:</b> Breaking the string into tokens.</li>
+ *     <li><b>Parsing:</b> Creating an Abstract Syntax Tree (AST).</li>
+ *     <li><b>Assembly:</b> Recursively building real condition objects, resolving macros,
+ *                          and instantiating classes via reflection.</li>
+ * </ol>
+ *
+ * @since 1.0.0
+ * @author TiJ
+ */
 public final class ConditionBuilder {
+    /**
+     * Private constructor to enforce static entry point usage
+     */
     private ConditionBuilder() {}
 
+    /**
+     * Entry point to create a condition from a string.
+     *
+     * @param conditionString The raw logic string (e.g., "FeatureA * !@MACRO_B")
+     * @return An executable {@link ICondition} or {@code null} if the input is empty.
+     * @throws ConditionParseException if the syntax is malformed
+     * @throws ClassInstantiationException if a referenced condition class cannot be loaded or instantiated
+     */
     public static ICondition build(String conditionString)
            throws ConditionParseException, ClassInstantiationException {
         if (conditionString == null || conditionString.isEmpty())
@@ -25,11 +51,27 @@ public final class ConditionBuilder {
         return new ConditionBuilder().buildCondition(syntaxTree);
     }
 
+    /**
+     * Overload for initial recursive call
+     * @param node The root AST node
+     * @return The built {@link ICondition}
+     * @throws ConditionParseException if the syntax is malformed
+     * @throws ClassInstantiationException if a referenced condition class cannot be loaded or instantiated
+     */
     private ICondition buildCondition(ConditionNode node)
             throws ConditionParseException, ClassInstantiationException {
         return buildCondition(node, new HashSet<>());
     }
 
+    /**
+     * Recursively transform AST nodes into functional Condition objects.
+     *
+     * @param node The current AST node being processed
+     * @param expansionChain A set used to track macro resolutions and prevent infinite loop
+     * @return The built {@link ICondition}
+     * @throws ConditionParseException if the syntax is malformed
+     * @throws ClassInstantiationException if a referenced condition class cannot be loaded or instantiated
+     */
     private ICondition buildCondition(ConditionNode node, Set<String> expansionChain)
             throws ConditionParseException, ClassInstantiationException {
         if (node instanceof MacroNode(String macroName)) {
