@@ -10,7 +10,7 @@ import dk.tij.registermaschine.api.conditions.ICondition;
  * and stores it in a register.
  *
  * <p>The first operand must be a
- * {@link dk.tij.registermaschine.core.compilation.api.compiling.OperandConcept#RESULT}
+ * {@link dk.tij.registermaschine.api.compilation.compiling.OperandConcept#RESULT}
  * operand specifying the destination register.</p>
  *
  * <p>The instruction blocks execution until input is provided

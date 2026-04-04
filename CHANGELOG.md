@@ -3,7 +3,12 @@
 ### CORE
 - Added support for comments that appear after instructions but still in the same line
 - Added support for underscores in labels in default implementations for `ConcreteLexer` and `ConcreteParser`
-- Added support for negative immediate values in `ConcreteLexer` Added support for negative immediate values in `ConcreteLexer` 
+- Added support for negative immediate values in `ConcreteLexer` Added support for negative immediate values in `ConcreteLexer`
+- Added Documentation
+### API
+- Added Documentation
+### Default Instruction Set & Handlers
+- Added Documentation
 ## Breaking Changes
 ### API
 #### Minor
