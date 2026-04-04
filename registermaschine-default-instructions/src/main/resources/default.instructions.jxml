@@ -142,5 +142,6 @@
                 condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
             <operand type="label" concept="target"/>
         </instruction>
+        <instruction id="nop" opcode="0x12" handler="dk.tij.registermaschine.instructions.NoOperationInstruction"/>
     </instructions>
 </instruction-set>
