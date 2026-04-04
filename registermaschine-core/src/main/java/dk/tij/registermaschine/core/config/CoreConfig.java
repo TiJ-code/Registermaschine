@@ -69,6 +69,13 @@ public final class CoreConfig {
      */
     public static final List<ConfigInstruction> INSTRUCTIONS = new LinkedList<>();
 
+    /**
+     * Precompiler stage responsible for converting {@link ConfigInstruction}
+     * instances into {@link ChainedInstruction} objects.
+     *
+     * <p>This stage is used as part of a precompilation pipeline, to directly
+     * generate the executable representation of an instruction from its configuration.</p>
+     */
     public static final IPrecompilerStage<ConfigInstruction, ChainedInstruction> INSTRUCTION_PRECOMPILER = InstructionPrecompilerStage.instance();
 
     public static volatile IInstructionRegistry INSTRUCTION_REGISTRY = ConcreteInstructionRegistry.instance();

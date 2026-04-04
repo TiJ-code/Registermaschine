@@ -9,9 +9,32 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+/**
+ * Parses global instruction set options from the XML configuration.
+ *
+ * <p>This parser processes {@code <option>} elements defined in the instruction
+ * set file and applies their values to {@link CoreConfig}.</p>
+ *
+ * <p>Currently supported options include:</p>
+ * <ul>
+ *     <li>{@code allowLabels}: enables or disables label support in instructions</li>
+ * </ul>
+ *
+ * <p>Each parsed option triggers a configuration event via
+ * {@link #fireEvent(Element, Object)} for external listeners.</p>
+ *
+ * @since 2.0.0
+ * @author TiJ
+ */
 public final class InstructionSetOptionParser implements IConfigParser {
     private static final ILogger log = LoggerFactory.getLogger(InstructionSetOptionParser.class);
 
+    /**
+     * Parses all {@code <option>} elements from the given XML document and applies
+     * their values to the core configuration.
+     *
+     * @param xmlDocument the XML document containing instruction set configuration
+     */
     @Override
     public void parseConfig(Document xmlDocument) {
         log.info("Started parsing options for this instruction set");
