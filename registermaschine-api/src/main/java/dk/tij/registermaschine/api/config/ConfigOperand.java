@@ -4,24 +4,26 @@ import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
 import dk.tij.registermaschine.api.compilation.compiling.OperandType;
 
 /**
- * Configuration for a single operand in an instruction.
+ * Describes an operand definition within an instruction configuration.
  *
- * <p>Each operand has a type (e.g. {@link OperandType#REGISTER}, {@link OperandType#LABEL}, {@link OperandType#IMMEDIATE}),
- * a conceptual role ({@link OperandConcept#OPERAND}, {@link OperandConcept#RESULT}, {@link OperandConcept#TARGET}),
- * and an optional implicit value.</p>
+ * <p>An operand is defined by its {@link OperandType type}, its
+ * {@link OperandConcept conceptual role}, and an optional implicit value.</p>
  *
- * @param type the data type of the operand
- * @param concept the conceptual role of the operand in the instructions
- * @param value an optional literal value; if present, the operand is considered implicit
+ * <p>If a value is provided, the operand is considered implicit and does
+ * not need to be specified explicitly in source input.</p>
+ *
+ * @param type the operand type
+ * @param concept the semantic role of the operand
+ * @param value an optional value representing an implicit operand
  *
  * @since 1.0.0
  * @author TiJ
  */
 public record ConfigOperand(OperandType type, OperandConcept concept, String value) {
     /**
-     * Determines if the operand has an implicit value.
+     * Returns whether this operand has an implicit value.
      *
-     * @return {@code true} if {@link #value()} is not {@code null}
+     * @return {@code true} if a value is defined, otherwise {@code false}
      */
     public boolean isImplicit() {
         return value != null;

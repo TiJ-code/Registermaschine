@@ -5,47 +5,38 @@ import dk.tij.registermaschine.api.config.ConfigInstruction;
 import java.util.List;
 
 /**
- * Represents the instruction registry used by the Registermaschine runtime
+ * Defines a registry of available instructions.
  *
- * <p>An {@link IInstructionSet} maintains the mapping between instruction
- * mnemonics, their corresponding opcodes, and the
- * {@link AbstractInstruction} handlers responsible for executing them.</p>
+ * <p>An {@link IInstructionSet} maintains mappings between instruction
+ * mnemonics, opcodes, and their corresponding handlers.</p>
  *
- * <p>The instruction set is used by the compiler and runtime to resolve
- * instructions during program compilation and execution. The
- * {@link dk.tij.registermaschine.core.runtime.Executor} retrieves the
- * appropriate instruction handler for each opcode using this interface.</p>
+ * <p>The instruction set is used during compilation and execution to
+ * resolve instructions by mnemonic or opcode.</p>
  *
- * <p>Instructions are typically registered using configuration definitions
- * ({@link ConfigInstruction}) which describe the mnemonic, opcode, operand
- * structure, and the handler implementations.</p>
+ * <p>Instructions are typically registered using {@link ConfigInstruction}
+ * definitions, which describe their metadata and behaviour.</p>
  *
- * <p>Implementations may also prohibit certain handlers in order to
- * restrict or customise the available instruction set.</p>
+ * <p>Implementations may restrict or customise the available instructions,
+ * for example by prohibiting specific handlers.</p>
  *
  * @since 1.0.0
  * @author TiJ
  */
 public interface IInstructionSet {
     /**
-     * Registers a new instruction in the instruction set.
+     * Registers an instruction in the instruction set.
      *
-     * <p>The provided {@link ConfigInstruction} contains the metadata required
-     * to construct the instruction handler and associate it with its mnemonic
-     * and opcode.</p>
-     *
-     * @param configInstruction the instruction configuration to register
+     * @param configInstruction the instruction configuration
      */
     void registerInstruction(ConfigInstruction configInstruction);
 
     /**
      * Prohibits the use of a specific instruction handler.
      *
-     * <p>If an instruction attempts to use a prohibited handler, registration
-     * should fail or the instruction should be ignored depending on the
-     * implementation.</p>
+     * <p>If a prohibited handler is encountered during registration,
+     * the implementation may reject or ignore the instruction.</p>
      *
-     * @param instructionHandler the instruction handler class to prohibit
+     * @param instructionHandler the handler class to prohibit
      */
     void prohibitInstructionHandler(Class<? extends AbstractInstruction> instructionHandler);
 
@@ -60,7 +51,7 @@ public interface IInstructionSet {
     /**
      * Returns the instruction handler associated with the given opcode.
      *
-     * @param opcode the instruction mnemonic
+     * @param opcode the instruction opcode
      * @return the corresponding instruction handler
      */
     AbstractInstruction getHandler(byte opcode);
@@ -69,7 +60,7 @@ public interface IInstructionSet {
      * Returns the opcode associated with a mnemonic.
      *
      * @param mnemonic the instruction mnemonic
-     * @return the corresponding opcode
+     * @return the opcode
      */
     byte getOpcode(String mnemonic);
 
@@ -82,28 +73,26 @@ public interface IInstructionSet {
     String getMnemonic(byte opcode);
 
     /**
-     * Returns whether the instruction set contains an instruction
-     * with the specified mnemonic.
+     * Checks whether an instruction with the given mnemonic exists.
      *
      * @param mnemonic the instruction mnemonic
-     * @return {@code true} if the instruction exists
+     * @return {@code true} if present
      */
     boolean contains(String mnemonic);
 
     /**
-     * Returns whether the instruction set contains an instruction
-     * with the specified opcode.
+     * Checks whether an instruction with the given opcode exists.
      *
      * @param opcode the instruction opcode
-     * @return {@code true} if the instruction exists
+     * @return {@code true} if present
      */
     boolean contains(byte opcode);
 
     /**
-     * Returns the list of all configured instructions.
+     * Returns all registered instruction configurations.
      *
-     * <p>The returned list represents the instruction definitions
-     * that are currently registered in the instruction set.</p>
+     * <p>The returned list reflects the current instruction definitions
+     * known to the instruction set.</p>
      *
      * @return a list of instruction configurations
      */

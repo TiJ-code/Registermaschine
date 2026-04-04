@@ -1,32 +1,75 @@
 package dk.tij.registermaschine.api.compilation.lexing;
 
 /**
- * Enumerates the possible types of lexical tokens in the language.
+ * Enumerates the types of lexical tokens recognised by the language.
  *
- * <p>Tokens can represent instructions, operands, structural symbols,
- * comments, or error types.</p>
+ * <p>Token types define the syntactic role of a token and are used
+ * by the parser to interpret the input stream.</p>
+ *
+ * <p>The exact set of supported tokens may vary depending on the
+ * language or instruction set.</p>
  *
  * @since 1.0.0
  * @author TiJ
  */
 public enum TokenType {
-    // instructions & operands
+    /**
+     * Instruction mnemonic.
+     */
     INSTRUCTION,
+
+    /**
+     * Register identifier.
+     */
     REGISTER,
+
+    /**
+     * Numeric literal.
+     */
     NUMBER,
+
+    /**
+     * Raw address reference
+     */
     ADDRESS,
+
+    /**
+     * Label reference.
+     */
     LABEL,
+
+    /**
+     * Label definition.
+     */
     LABEL_DEF,
 
-    // structure
+    /**
+     * Separator between operands.
+     */
     COMMA,
+
+    /**
+     * End of line.
+     */
     EOL,
+
+    /**
+     * End of input.
+     */
     EOF,
 
-    // comments
+    /**
+     * Comment token.
+     */
     COMMENT,
 
-    // errors
+    /**
+     * Unrecognised token.
+     */
     UNKNOWN,
+
+    /**
+     * Token representing a lexing error.
+     */
     ERROR
 }

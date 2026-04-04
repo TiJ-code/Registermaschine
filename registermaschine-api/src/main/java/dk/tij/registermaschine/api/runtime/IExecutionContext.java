@@ -6,21 +6,14 @@ import java.util.Set;
 /**
  * Represents the runtime state of a Registermaschine during program execution.
  *
- * <p>The {@link IExecutionContext} acts as the central state container used by the
- * runtime system. It stores and manages the machine registers, program counter,
- * status flags, input/output operations, and execution lifecycle events.</p>
+ * <p>The {@link IExecutionContext} stores and manages registers, the
+ * programme counter, status flags, I/O, and execution lifecycle events.</p>
  *
- * <p>The {@link dk.tij.registermaschine.core.runtime.Executor} interacts with the
- * context during program execution, while instruction implementations modify the
- * machine state through the methods defined here.</p>
+ * <p>Instruction implementations modify machine state through this interface,
+ * while external systems (executor, UI, debugger) can observe or snapshot state.</p>
  *
- * <p>Implementations are responsible for maintaining internal state of the
- * virtual machine and ensuring consistent behaviour when instruction interact
- * with register, flags, or I/O.</p>
- *
- * <p>The execution context also supports listeners via {@link IExecutionContextListener}.
- * These listeners can observe execution events, such as state changes, enabling
- * debugging tools, visualisers, or UI frontends to react to runtime updates.</p>
+ * <p>Listeners can register via {@link IExecutionContextListener} to observe
+ * execution events.</p>
  *
  * @since 1.0.0
  * @author TiJ

@@ -3,17 +3,8 @@ package dk.tij.registermaschine.api.runtime;
 /**
  * Listener interface for observing changes in an {@link IExecutionContext}.
  *
- * <p>Implementations of this interface can subscribe to an execution context
- * in order to receive notifications about runtime events during program
- * execution. These events include lifecycle changes, register updates,
- * programme counter movement, flag changes, and input/output operations.</p>
- *
- * <p>Listeners are typically used by user interfaces, debugging tools,
- * logging systems, or monitoring utilities that need to react to changes
- * in the state of the Registermaschine</p>
- *
- * <p>A listener becomes associated with a context when registered through
- * {@link IExecutionContext#addListener(IExecutionContextListener)}.</p>
+ * <p>Listeners can react to runtime events such as register updates,
+ * flags, programme counter changes, I/O, and execution lifecycle events.</p>
  *
  * @since 1.0.0
  * @author TiJ
@@ -94,11 +85,9 @@ public interface IExecutionContextListener {
     void onOutput(int value);
 
     /**
-     * Invoked when the executing program requests input.
+     * Invoked when input is requested.
      *
-     * <p>The default implementation performs no action, allowing listeners
-     * to override this method only if they need to react to input requests
-     * (for example, by prompting the user)</p>
+     * <p>Default implementation does nothing. Override if user input or prompt is required.</p>
      */
     default void onInputRequested() {}
 }

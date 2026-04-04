@@ -7,15 +7,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Parser interface for processing XML-based configuration documents.
+ * Defines the contract for a configuration parser.
  *
- * <p>Provides methods to parse a {@link Document} and notify registered
- * {@link IConfigEventListener listeners} about each parsed element.</p>
+ * <p>A configuration parser processes a structured input and produces
+ * corresponding configuration objects. Implementations may emit
+ * {@link ParsingEvent events} during parsing.</p>
  *
- * <p>Implementations can extend this interface and override
- * {@link #parseConfig(Document)} to provide the specific parsing logic.</p>
- *
- * <p>The listener list is thread-safe, using {@link CopyOnWriteArrayList}</p>
+ * <p>This interface does not define how listeners are stored or managed.</p>
  *
  * @since 1.0.0
  * @author TiJ
@@ -27,15 +25,14 @@ public interface IConfigParser {
     List<IConfigEventListener> LISTENERS = new CopyOnWriteArrayList<>();
 
     /**
-     * Parses a given XML document and fires events for each element
-     * that is successfully parsed.
+     * Parses the given configuration document.
      *
-     * @param xmlDocument the XML configuration document to parse
+     * @param xmlDocument the configuration input
      */
     void parseConfig(Document xmlDocument);
 
     /**
-     * Registers a new listener to receive parsing events.
+     * Registers a listener for parsing events.
      *
      * @param listener the listener to add
      */
