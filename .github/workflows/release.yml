@@ -21,6 +21,7 @@ jobs:
     outputs:
       new_version: ${{ steps.versioning.outputs.NEW_VER }}
       token: ${{ steps.generate_token.outputs.token }}
+      changelog: ${{ steps.changelog.outputs.content }}
 
     steps:
       - name: Generate Token
@@ -42,6 +43,32 @@ jobs:
           java-version: 25
           distribution: temurin
           server-id: 'github'
+
+      - name: Read Changelog
+        id: changelog
+        shell: bash
+        run: |
+          EMPTY_TEMPLATE="# Version X.X.X\n## Changes\n### Core\n### API\n### Default Instruction Set & Handlers\n\n---\n## Breaking Changes\n### Core\n#### Minor\n#### Major\n### API\n#### Minor\n#### Major"
+          EMPTY_HASH=echo -e $EMPTY_TEMPLATE | sha256sum | awk '{ print $1 }'
+
+          if [ -f "CHANGELOG.md" ]; then
+            CURRENT_HASH=$(sha256sum CHANGELOG.md | awk '{ print $1 }')
+
+            if [ "$CURRENT_HASH" != "$EMPTY_HASH" ]; then
+              echo "Changelog is dirty (Hash: $CURRENT_HASH). Extracting content..."
+              {
+                echo 'content<<EOF'
+                cat CHANGELOG.md
+                echo 'EOF'
+              } >> $GITHUB_OUTPUT
+            else
+              echo "Changelog matches empty template. Skipping."
+              echo "content=" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "CHANGELOG.md not found."
+            echo "content=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Calculate & Set New Version
         id: versioning
@@ -74,7 +101,7 @@ jobs:
           mvn versions:set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
 
       - name: Commit & Push
-        if: github.event.inputs.bump-type != 'test'
+        if: github.event.inputs.bump_type != 'test'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
@@ -85,6 +112,18 @@ jobs:
           
           git tag release-v${{ steps.versioning.outputs.NEW_VER }}
           git push origin release-v${{ steps.versioning.outputs.NEW_VER }}
+
+      - name: Prepare Next Development Phase
+        if: steps.changelog.outputs.content != ''
+        shell: bash
+        run: |
+          EMPTY_TEMPLATE="# Version X.X.X\n## Changes\n### Core\n### API\n### Default Instruction Set & Handlers\n\n---\n## Breaking Changes\n### Core\n#### Minor\n#### Major\n### API\n#### Minor\n#### Major"
+          
+          echo "$EMPTY_TEMPLATE" > CHANGELOG.md
+          mvn versions:set -DnewVersion="${{ steps.versioning.outputs.NEW_VER }}-SNAPSHOT" -DgenerateBackupPoms=false
+          
+          git commit -am "[ACTION] preparing next development phase"
+          git push origin development
 
   build:
     needs: version_bump
@@ -135,10 +174,11 @@ jobs:
         with:
           tag_name: release-v${{ needs.version_bump.outputs.new_version  }}
           files: dist/*
+          body: ${{ steps.changelog.outputs.content }}
           append_body: true
           make_latest: true
           name: 'Core v${{ needs.version_bump.outputs.new_version }}'
-          generate_release_notes: ${{ matrix.os == 'ubuntu-latest' }}
+          generate_release_notes: true
           draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
