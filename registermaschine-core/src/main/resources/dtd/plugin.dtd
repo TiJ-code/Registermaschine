@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!ELEMENT plugin (name, description?, version, author?, main)>
+<!ATTLIST plugin
+        version (1) #REQUIRED>
+
+<!ELEMENT name ANY>
+
+<!ELEMENT description ANY>
+
+<!ELEMENT version ANY>
+
+<!ELEMENT author ANY>
+
+<!ELEMENT main ANY>

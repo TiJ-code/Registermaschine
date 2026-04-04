@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE plugin SYSTEM "dtd/plugin.dtd">
+<plugin version="1">
+    <name>Registermaschine Instruction Set</name>
+    <description>Description</description>
+    <version>1.0.0</version>
+    <author>TiJ</author>
+    <main>dk.tij.registermaschine.Plugin</main>
+</plugin>
