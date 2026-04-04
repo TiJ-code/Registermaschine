@@ -19,9 +19,39 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Map;
 
+/**
+ * Handles migration of instruction set XML files to the latest version.
+ *
+ * <p>This class ensures that older instruction set files are updated to
+ * conform to the current XML schema expected by the system. If migration
+ * is required, it creates a backup of the original file and writes the
+ * updated version to disk.</p>
+ *
+ * <p>Current supported migration:</p>
+ * <ul>
+ *     <li>Version 1 -> Version 2: converts legacy instruction handler attributes
+ *     to chained step elements with proper input/output mapping.</li>
+ * </ul>
+ *
+ * <p>Usage is static; this class cannot be instantiated</p>
+ *
+ * @since 2.0.0
+ * @author TiJ
+ */
 public final class InstructionSetMigrator {
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private InstructionSetMigrator() {}
 
+    /**
+     * Migrates the given instruction set document if needed and stores it back
+     * to the specified path. Creates a backup of the original file and deletes
+     * it if no migration occurred.
+     *
+     * @param doc the DOM document representing the instruction set
+     * @param path the file path of the instruction set XML
+     */
     public static void migrateAndStoreIfNeeded(Document doc, Path path) {
         backupOldFile(path);
         boolean migrationHappened = migrateIfNeeded(doc);
@@ -32,7 +62,14 @@ public final class InstructionSetMigrator {
             deleteBackupFile(path);
         }
     }
-    
+
+    /**
+     * Determines whether migration is needed for the document, and performs
+     * migration if required.
+     *
+     * @param doc the DOM document
+     * @return {@code true} if migration was performed; {@code false} if the document already up-to-date
+     */
     private static boolean migrateIfNeeded(Document doc) {
         Element root = doc.getDocumentElement();
 
@@ -47,6 +84,11 @@ public final class InstructionSetMigrator {
         return true;
     }
 
+    /**
+     * Creates backup of the given file with the {@code .old} extension.
+     *
+     * @param path the path of the file to back up
+     */
     private static void backupOldFile(Path path) {
         try {
             Files.copy(path, Path.of(path + ".old"), StandardCopyOption.REPLACE_EXISTING);
@@ -55,6 +97,11 @@ public final class InstructionSetMigrator {
         }
     }
 
+    /**
+     * Deletes the backup file corresponding to the given path.
+     *
+     * @param path the original file path whose backup should be deleted
+     */
     private static void deleteBackupFile(Path path) {
         File backupFile = new File(Path.of(path + ".old").toUri());
         if (backupFile.exists()) {
@@ -62,6 +109,12 @@ public final class InstructionSetMigrator {
         }
     }
 
+    /**
+     * Writes the DOM document to the specified file path using pretty-printing
+     *
+     * @param doc the DOM document to write
+     * @param path the file path to write to
+     */
     private static void writeDocument(Document doc, Path path) {
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
@@ -81,6 +134,16 @@ public final class InstructionSetMigrator {
         }
     }
 
+    /**
+     * Migrates an instruction set from version 1 to version 2.
+     *
+     * <p>This migration replaces legacy instruction handler attributes with
+     * chained step elements, generates operand names based on their concept,
+     * and maps core instructions to their corresponding step handlers.</p>
+     *
+     * @param doc the DOM document
+     * @param root the root element of the instruction set
+     */
     private static void migrateV1toV2(Document doc, Element root) {
         final Map<String, String> coreInstructionHandlerMapping = Map.of(
                 "dk.tij.registermaschine.instructions.AdditionInstruction", "dk.tij.registermaschine.instructions.AdditionStepHandler",
