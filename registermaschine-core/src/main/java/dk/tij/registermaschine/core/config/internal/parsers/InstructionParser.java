@@ -155,6 +155,25 @@ public final class InstructionParser implements IConfigParser {
         return new ConfigOperand(nameStr, type, concept, value);
     }
 
+    /**
+     * Parses the {@code <chain>} element of an instruction and converts it into a list
+     * of {@link ConfigStep} definitions.
+     *
+     * <p>An instruction must define exactly one {@code <chain>} element, which contains
+     * one or more {@code <step>} elements describing the execution sequence.</p>
+     *
+     * <p>Validation rules:</p>
+     * <ul>
+     *     <li>Exactly one {@code <chain>} element must be present</li>
+     *     <li>The chain must contain at least one {@code <step>}</li>
+     * </ul>
+     *
+     * @param instructionElement the XML element representing the instruction
+     * @return a list of parsed {@link ConfigStep} objects in execution order
+     * @throws ConfigurationParseException if the chain is missing, duplicated, or contains no steps
+     * @throws ClassNotFoundException      if a step handler class cannot be resolved
+     * @throws IllegalStateException       if handler configuration is invalid
+     */
     private static List<ConfigStep> parseChain(Element instructionElement)
             throws ConfigurationParseException, ClassNotFoundException, IllegalStateException {
         NodeList chainNodes = instructionElement.getElementsByTagName(XmlConstants.TAG_CHAIN);
@@ -180,6 +199,30 @@ public final class InstructionParser implements IConfigParser {
         return steps;
     }
 
+    /**
+     * Parses a single {@code <step>} element into a {@link ConfigStep}.
+     *
+     * <p>A step defines a single execution unit within an instruction chain. It consists of:</p>
+     * <ul>
+     *     <li>A required handler class ({@code handler})</li>
+     *     <li>An optional execution condition</li>
+     *     <li>Zero or more input references ({@code <in ref="..."/>})</li>
+     *     <li>An optional output reference ({@code <out to="..."/>})</li>
+     * </ul>
+     *
+     * <p>The handler is resolved dynamically via reflection and cached using
+     * {@link StepHandlerRegistry} to avoid repeated instantiation.</p>
+     *
+     * <p>Input and output references correspond to operand names defined at the
+     * instruction level and are resolved later during precompilation.</p>
+     *
+     * @param stepNode the XML node representing the step
+     * @return the parsed {@link ConfigStep}
+     *
+     * @throws ConfigurationParseException if the step definition is invalid
+     * @throws ClassNotFoundException      if the handler class cannot be found
+     * @throws IllegalStateException       if the handler attribute is missing or invalid
+     */
     private static ConfigStep parseStep(Node stepNode)
             throws ConfigurationParseException, ClassNotFoundException, IllegalStateException {
         Element stepElem = (Element) stepNode;
