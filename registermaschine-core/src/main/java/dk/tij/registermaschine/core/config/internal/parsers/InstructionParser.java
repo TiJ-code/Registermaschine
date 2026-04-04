@@ -15,6 +15,7 @@ import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
+import dk.tij.registermaschine.core.instructions.StepHandlerRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -211,7 +212,7 @@ public final class InstructionParser implements IConfigParser {
             }
         }
 
-        IStepHandler handler = createInstructionHandler(handlerClass);
+        IStepHandler handler = StepHandlerRegistry.getOrCreate(handlerClass, InstructionParser::createInstructionHandler);
 
         return new ConfigStep(handler, condition, inputs, output);
     }
