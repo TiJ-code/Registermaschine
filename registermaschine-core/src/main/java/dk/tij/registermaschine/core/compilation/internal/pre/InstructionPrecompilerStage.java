@@ -1,18 +1,20 @@
 package dk.tij.registermaschine.core.compilation.internal.pre;
 
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledStep;
+import dk.tij.registermaschine.api.compilation.pre.IPrecompilerStage;
 import dk.tij.registermaschine.api.config.model.ConfigInstruction;
 import dk.tij.registermaschine.api.instructions.ChainedInstruction;
 
 import java.util.Arrays;
 
-public final class InstructionPrecompiler {
-    private static final InstructionPrecompiler INSTANCE = new InstructionPrecompiler();
+public final class InstructionPrecompilerStage implements IPrecompilerStage<ConfigInstruction, ChainedInstruction> {
+    private static final InstructionPrecompilerStage INSTANCE = new InstructionPrecompilerStage();
 
-    private InstructionPrecompiler() {}
+    private InstructionPrecompilerStage() {}
 
-    public final ChainedInstruction precompile(ConfigInstruction instruction) {
-        ICompiledStep[] steps = InstructionStepPrecompiler.instance().precompile(instruction);
+    @Override
+    public ChainedInstruction precompile(ConfigInstruction instruction) {
+        ICompiledStep[] steps = InstructionStepPrecompilerStage.instance().precompile(instruction);
 
         int minOperandCount = Arrays.stream(steps)
                 .mapToInt(step -> step.inputIndices().length + (step.outputIndex() >= 0 ? 1 : 0))
@@ -29,7 +31,7 @@ public final class InstructionPrecompiler {
         return new ChainedInstruction(instruction.operands().size(), instruction.condition(), steps);
     }
 
-    public static InstructionPrecompiler instance() {
+    public static InstructionPrecompilerStage instance() {
         return INSTANCE;
     }
 }

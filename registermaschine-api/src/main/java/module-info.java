@@ -3,6 +3,7 @@ module dk.tij.registermaschine.api {
     exports dk.tij.registermaschine.api.compilation.parsing;
     exports dk.tij.registermaschine.api.compilation.lexing;
     exports dk.tij.registermaschine.api.compilation.compiling;
+    exports dk.tij.registermaschine.api.compilation.pre;
     exports dk.tij.registermaschine.api.runtime;
     exports dk.tij.registermaschine.api.conditions;
     exports dk.tij.registermaschine.api.instructions;
