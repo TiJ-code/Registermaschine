@@ -5,6 +5,13 @@
 - Added instruction step precompiler in `dk.tij.registermaschine.core.compilation.internal.pre.`\
   `InstructionPrecompiler` and `InstructionStepPrecompiler` precompile instructions and their steps into `dk.tij.registermaschine.api.instructions.ChainedInstruction` instances\
   that can be reused throughout the compilation pipeline.
+- Added default implementations of instruction precompilers.\
+  Those are chained internally, as the `InstructionPrecompilerStage` uses the `InstructionStepPrecompilerStage`.
+  - `dk.tij.registermaschine.core.compilation.internal.pre.`
+    - `InstructionPrecompilerStage`
+    - `InstructionStepPrecompilerStage`
+- Added config entry to `dk.tij.registermaschine.core.config.CoreConfig` that can be set by developers.\
+  This entry is used by `dk.tij.registermaschine.core.config.CoreConfigParser` to precompile configured instructions.
 ### API
 - Introduction new execution model of instructions with additional instruction entities:
   - `dk.tij.registermaschine.api.`
@@ -14,6 +21,9 @@
       - `IStepHandler`
 - Introducing new exception `dk.tij.registermaschine.api.error.InvalidOperandException` that should be thrown, if the configured (input and output) operands are\
   incompatible with a `dk.tij.registermaschine.api.instructions.IStepHandler` instance.
+- Introducing new precompilation model `dk.tij.registermaschine.api.compilation.pre.IPrecompilerStage` to allow extensible\
+  precompilation of `dk.tij.registermaschine.api.config.model.ConfigInstruction`'s into `dk.tij.registermaschine.api.instructions.ChainedInstruction`.\
+  Precompilers can be chained internally, but the root precompiler, needs to accept `ConfigInstruction` and yield a `ChainedInstruction` instance.
 ### Default Instruction Set & Handlers
 - Reworked instruction handler implementations to instruction step implementations.
 > [!NOTE]
