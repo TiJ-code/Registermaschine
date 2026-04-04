@@ -4,7 +4,6 @@ import dk.tij.registermaschine.api.config.IConfigEventListener;
 import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.core.compilation.internal.pre.InstructionPrecompiler;
 import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LogLevel;
 import dk.tij.registermaschine.api.log.LoggerFactory;
@@ -26,7 +25,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -269,7 +267,8 @@ public final class CoreConfigParser {
 
                 CoreConfig.INSTRUCTIONS.forEach(configInstruction -> {
                     LOGGER.trace("Registered instruction '{}' with opcode {}", configInstruction.mnemonic(), configInstruction.opcode());
-                    set.register(configInstruction, InstructionPrecompiler.instance().precompile(configInstruction));
+                    set.register(configInstruction,
+                            CoreConfig.INSTRUCTION_PRECOMPILER.precompile(configInstruction));
                 });
 
                 LOGGER.info("All instructions registered to {}", set);

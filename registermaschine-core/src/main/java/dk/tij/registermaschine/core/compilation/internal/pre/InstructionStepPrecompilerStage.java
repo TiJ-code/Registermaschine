@@ -1,6 +1,7 @@
 package dk.tij.registermaschine.core.compilation.internal.pre;
 
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledStep;
+import dk.tij.registermaschine.api.compilation.pre.IPrecompilerStage;
 import dk.tij.registermaschine.api.config.model.ConfigInstruction;
 import dk.tij.registermaschine.api.config.model.ConfigOperand;
 import dk.tij.registermaschine.api.instructions.IStepHandler;
@@ -11,12 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class InstructionStepPrecompiler {
-    private static final InstructionStepPrecompiler INSTANCE = new InstructionStepPrecompiler();
+public final class InstructionStepPrecompilerStage implements IPrecompilerStage<ConfigInstruction, ICompiledStep[]> {
+    private static final InstructionStepPrecompilerStage INSTANCE = new InstructionStepPrecompilerStage();
 
-    private InstructionStepPrecompiler() {}
+    private InstructionStepPrecompilerStage() {}
 
-    public final ICompiledStep[] precompile(ConfigInstruction instruction) {
+    @Override
+    public ICompiledStep[] precompile(ConfigInstruction instruction) {
         Map<String, Integer> operandIndex = buildOperandIndex(instruction.operands());
 
         List<ICompiledStep> compiledSteps = new ArrayList<>(instruction.steps().size());
@@ -51,7 +53,7 @@ public final class InstructionStepPrecompiler {
         return compiledSteps.toArray(new ICompiledStep[0]);
     }
 
-    public static InstructionStepPrecompiler instance() {
+    public static InstructionStepPrecompilerStage instance() {
         return INSTANCE;
     }
 
