@@ -1,9 +1,14 @@
 package dk.tij.registermaschine.api.compilation.lexing;
 
 /**
- * Represents a lexical token produced by a {@link dk.tij.registermaschine.core.compilation.api.ILexer}.
+ * Represents a lexical token produced during the lexing phase.
  *
- * <p>A token contains the type, source location (line and column), and its raw text value.</p>
+ * <p>A token encapsulates a {@link TokenType type}, its position in the
+ * source input, and its textual representation.</p>
+ *
+ * <p>This interface defines the contract for tokens consumed by later
+ * compilation stages (e.g. parsing), but does not specify how tokens
+ * are created.</p>
  *
  * @since 1.0.0
  * @author TiJ
@@ -12,28 +17,34 @@ public interface IToken {
     /**
      * Returns the type of this token.
      *
-     * @return the {@link TokenType}
+     * @return the token type
      */
     TokenType type();
 
     /**
-     * Returns the line number.
+     * Returns the line number in the source input.
+     *
+     * <p>Line numbering is implementation-defined but is typically 1-based.</p>
      *
      * @return the line number
      */
     int line();
 
     /**
-     * Returns the column number.
+     * Returns the column number in the source input.
      *
-     * @return the column number.
+     * <p>Column numbering is implementation-defined but is typically 1-based.</p>
+     *
+     * @return the column number
      */
     int column();
 
     /**
-     * Returns the raw text value.
+     * Returns the raw textual representation of this token.
      *
-     * @return the value
+     * <p>No interpretation or normalisation is implied.</p>
+     *
+     * @return the token text
      */
     String value();
 }

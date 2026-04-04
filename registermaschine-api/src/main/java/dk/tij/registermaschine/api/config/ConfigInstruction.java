@@ -5,16 +5,22 @@ import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import java.util.List;
 
 /**
- * Configuration for a single instruction in the Registermaschine runtime.
+ * Describes a single instruction within a configuration.
  *
- * <p>Includes the instruction mnemonic, description, opcode, operand
- * definitions, and the runtime handler implementing the instruction logic.</p>
+ * <p>Includes the instruction identifier, opcode, operand definitions,
+ * and the associated execution logic.</p>
  *
- * @param mnemonic the textual name of the instruction (e.g., ADD, MOV)
- * @param description a human-readable description of the instruction
- * @param opcode the numeric opcode used internally for execution
- * @param operands the list of operand configurations expected by this instruction
- * @param handler the {@link AbstractInstruction} instance that performs the operation
+ * <p>This is a data representation and does not define how instructions
+ * are executed or instantiated.</p>
+ *
+ * @param mnemonic the textual identifier of the instruction (e.g. ADD, MOV)
+ * @param description a human-readable description
+ * @param opcode the opcode used to identify the instruction during execution
+ * @param operands the operand definitions expected by the instruction
+ * @param handler the instruction implementation
+ *
+ * @since 1.0.0
+ * @author TiJ
  */
 public record ConfigInstruction(String mnemonic, String description,
                                 byte opcode, List<ConfigOperand> operands, AbstractInstruction handler) {}

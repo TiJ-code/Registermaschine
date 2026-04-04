@@ -3,14 +3,15 @@ package dk.tij.registermaschine.api.config;
 import org.w3c.dom.Element;
 
 /**
- * Event object representing the successful parsing of a configuration element.
+ * Represents the result of parsing a configuration element.
  *
- * <p>Contains the XML element that was parsed and the resulting
- * parsed object.</p>
+ * <p>Contains the source element and the corresponding parsed object.</p>
  *
- * @param xmlElement the source XML element
- * @param result the object produced from parsing this element
- * @param <T> the type of the parsed result
+ * <p>This interface does not define how parsing is performed.</p>
+ *
+ * @param xmlElement the source element
+ * @param result the parsed result
+ * @param <T> the result type
  *
  * @since 1.0.0
  * @author TiJ

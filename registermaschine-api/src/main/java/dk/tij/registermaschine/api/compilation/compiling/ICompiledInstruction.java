@@ -1,12 +1,16 @@
 package dk.tij.registermaschine.api.compilation.compiling;
 
 /**
- * Represents a compiled instruction with a fixed opcode
- * and its associated operands.
+ * Represents a compiled instruction consisting of an opcode
+ * and fixed set of operands.
  *
- * <p>Compiled instructions are created by the compiler
- * after parsing the source code. Operands are pre-resolved to
- * allow efficient execution.</p>
+ * <p>This interface is part of the public compilation contract and
+ * is consumed by the execution layer. Implementations are expected
+ * to provide operands in a form that allows efficient runtime access,
+ * but the exact compilation process is not defined by this API.</p>
+ *
+ * <p>The meaning of the opcode and interpretation of operands are
+ * defined by the active instruction set.</p>
  *
  * @since 1.0.0
  */

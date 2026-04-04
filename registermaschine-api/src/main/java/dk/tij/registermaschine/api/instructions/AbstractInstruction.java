@@ -6,43 +6,47 @@ import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
 /**
- * Base class for all instruction implementations in the Regisermaschine.
+ * Base implementation of an instruction.
  *
- * <p>An {@link AbstractInstruction} defines the executable behaviour of a
- * machine instruction. Concrete subclasses implement the
- * {@link #executeInstruction(IExecutionContext, ICompiledOperand[])} method
- * to perform the specific oepration.</p>
+ * <p>This class provides common functionality for instruction execution,
+ * including operand validation, conditional execution, and operand
+ * value resolution.</p>
  *
- * <p>Each instruction instance is associated with:</p>
- * <ul>
- *     <li>An opcode identifying the instruction in compiled programs</li>
- *     <li>A fixed number of operands</li>
- *     <li>An optional execution {@link ICondition}</li>
- * </ul>
+ * <p>Concrete subclass implement {@link #executeInstruction(IExecutionContext, ICompiledOperand[])}
+ * to define the instruction's behaviour.</p>
  *
- * <p>The {@link dk.tij.registermaschine.core.runtime.Executor} retrieves
- * instruction handlers from the instruction set and invokes them during
- * program execution.</p>
+ * <p>Instructions may optionally be associated with an {@link ICondition}
+ * that controls whether they execute.</p>
  *
- * <p>Before execution, the instruction may validate its operands and evaluate
- * its execution condition.</p>
+ * <p>This class is a convenience base and not required for all instruction implementations.
+ * However, if using default implementation of the compilation pipeline,
+ * (e.g. {@link dk.tij.registermaschine.api.compilation.ICompiler}), it is required.</p>
  *
  * @since 1.0.0
  * @author TiJ
  */
 public abstract class AbstractInstruction {
+    /**
+     * Opcode identifying this instruction.
+     */
     public final byte OpCode;
+
+    /**
+     * Expected number of operands.
+     */
     protected final int operandCount;
+
+    /**
+     * Optional execution condition.
+     */
     protected final ICondition condition;
 
     /**
-     * Creates a new instruction definition.
+     * Creates a new instruction.
      *
-     * @param opcode the numeric opcode identifying the instruction
-     * @param operandCount the number of operands required by this instruction
-     * @param condition an optional condition controlling whether the instruction
-     *                  should execute, or {@code null} if the instruction should
-     *                  always execute
+     * @param opcode the opcode identifying the instruction
+     * @param operandCount the required number of operands
+     * @param condition optional execution condition, or {@code null}
      */
     public AbstractInstruction(final byte opcode, final int operandCount, ICondition condition) {
         this.OpCode = opcode;
@@ -51,16 +55,13 @@ public abstract class AbstractInstruction {
     }
 
     /**
-     * Validates the operand array supplied to this instruction.
+     * Validates the provided operands.
      *
-     * <p>The default implementation verifies that the operand array exists
-     * and contains at least the expected number of operands.</p>
+     * <p>The default implementation ensures that the operand array
+     * contains at least the expected number of operands.</p>
      *
-     * <p>Subclasses may override this method if additional validation rules
-     * are required.</p>
-     *
-     * @param operands the operands supplied for execution
-     * @throws RuntimeException if the operand count is insufficient
+     * @param operands the operands to validate
+     * @throws IllegalArgumentException if validation fails
      */
     public void validate(ICompiledOperand[] operands) {
         if (operands == null || operands.length < operandCount)
@@ -69,14 +70,10 @@ public abstract class AbstractInstruction {
     }
 
     /**
-     * Determines whether this instruction should execute in the current context.
+     * Determines whether this instruction should execute.
      *
-     * <p>If a condition was provided during construction, the condition is
-     * evaluated against the {@link IExecutionContext}. If no condition is
-     * present, the instruction will always execute.</p>
-     *
-     * @param context the current execution context
-     * @return {@code true} if the instruction should execute
+     * @param context the execution context
+     * @return {@code true} if execution should proceed
      */
     public boolean shouldExecute(IExecutionContext context) {
         if (condition == null) return true;
@@ -86,48 +83,31 @@ public abstract class AbstractInstruction {
     /**
      * Executes the instruction logic.
      *
-     * <p>This method is called by the runtime executor when the instruction
-     * is reached during program execution.</p>
-     *
-     * @param context the execution context containing the machine state
-     * @param operands the compiled operands supplied ot the instruction
+     * @param context the execution context
+     * @param operands the operands for this instruction
      */
     public abstract void executeInstruction(IExecutionContext context, ICompiledOperand[] operands);
 
     /**
-     * Resolves the operational value of an operand based on its type.
+     * Resolves the runtime value of an operand.
      *
-     * <p>This helper method provides a unified way to access operand data
-     * regardless of whether the value originates from a register or from
-     * an immediate literal.</p>
+     * <p>The interpretation depends on {@link OperandType}.</p>
      *
-     * <ul>
-     *     <li><b>REGISTER:</b> {@code operand.value()} is interpreted as a
-     *     register index and the value is fetched from the
-     *     {@link IExecutionContext}.</li>
-     *     <li><b>IMMEDIATE:</b> the literal {@code operand.value()} is returned
-     *     directly.</li>
-     * </ul>
-     *
-     * @param context the current execution environment providing register access
-     * @param operand the compiled operand containing the type and raw value
-     * @return the resolved integer value to be used by the instruction
-     * @throws UnsupportedOperationException if the operand type is {@code LABEL},
-     *                                       because labels represent control flow targets rather than numeric values
+     * @param context the execution context
+     * @param operand the operand
+     * @return the resolved value
+     * @throws UnsupportedOperationException if the operand type is unsupported
      */
     protected int getValueFromOperand(IExecutionContext context, ICompiledOperand operand) {
         return switch (operand.type()) {
             case OperandType.REGISTER -> context.getRegister(operand.value());
             case OperandType.IMMEDIATE -> operand.value();
-            default -> throw new UnsupportedOperationException("Labels are not math!");
+            default -> throw new UnsupportedOperationException(
+                    "Cannot resolve %s to numeric value".formatted(operand.type())
+            );
         };
     }
 
-    /**
-     * Returns a string representing of the instruction definition.
-     *
-     * @return a formatted string containing the opcode and operand count
-     */
     @Override
     public String toString() {
         return String.format("%02x( %d )", OpCode, operandCount);
