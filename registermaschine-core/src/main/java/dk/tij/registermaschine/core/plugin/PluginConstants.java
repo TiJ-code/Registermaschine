@@ -1,5 +1,9 @@
 package dk.tij.registermaschine.core.plugin;
 
+/**
+ * @since 1.1.0
+ * @author TiJ
+ */
 public final class PluginConstants {
     private PluginConstants() {}
 
@@ -36,6 +40,8 @@ public final class PluginConstants {
             return FileVersion.values()[0];
         }
     }
+
+    public static final String PLUGIN_FILENAME = "plugin.xml";
 
     public static final String ATTRIBUTE_PLUGIN_VERSION = "version";
 

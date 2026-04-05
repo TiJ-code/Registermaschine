@@ -1,10 +1,11 @@
 package dk.tij.registermaschine.api.plugin;
 
+/**
+ * @since 1.1.0
+ * @author TiJ
+ */
 public interface IPlugin {
-    void onEnable();
+    void onLoad();
+    void onEnable(PluginContext context);
     void onDisable();
-    String getName();
-    String getDescription();
-    String getVersion();
-    String getAuthor();
 }
