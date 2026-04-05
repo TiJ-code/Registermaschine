@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.instructions;
+package dk.tij.rm.instructions;
 
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledOperand;
 import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
@@ -9,14 +9,14 @@ import dk.tij.registermaschine.api.conditions.ICondition;
 import java.util.Arrays;
 
 /**
- * Instruction handler that performs integer addition.
+ * Instruction handler that performs integer multiplication.
  *
- * <p>This instruction sums all operands marked with the
+ * <p>This instruction multiplies all operands marked with the
  * {@link OperandConcept#OPERAND} concept and stores the resulting
  * value in the operand marked with {@link OperandConcept#RESULT}.</p>
  *
  * <p>The operation supports both register and immediate operands.
- * Operand values are also resolved using
+ * Operand values are resolved using
  * {@link AbstractInstruction#getValueFromOperand(IExecutionContext, ICompiledOperand)}</p>
  *
  * <p>The instruction also updates the processor flags in the {@link IExecutionContext}:</p>
@@ -30,14 +30,14 @@ import java.util.Arrays;
  * <p>Overflow detection is performed using a {@code long} accumulator
  * before the final result is cast to {@code int}.</p>
  *
- * <p>At lest one {@link OperandConcept#RESULT} operand must be present.
+ * <p>At least one {@link OperandConcept#RESULT} operand must be present.
  * Validation fails otherwise.</p>
  *
  * @since 1.0.0
  * @author TiJ
  */
-public final class AdditionInstruction extends AbstractInstruction {
-    public AdditionInstruction(int opcode, int operandCount, ICondition condition) {
+public final class MultiplicationInstruction extends AbstractInstruction {
+    public MultiplicationInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 
@@ -57,10 +57,10 @@ public final class AdditionInstruction extends AbstractInstruction {
     }
 
     /**
-     * Executes the addition operation.
+     * Executes the multiplication operation.
      *
      * <p>All operands with the concept {@link OperandConcept#OPERAND}
-     * are summed and the resulting value is written to the
+     * are multiplied and the resulting value is written to the
      * {@link OperandConcept#RESULT} operand.</p>
      *
      * <p>If the calculated value exceeds the 32-bit signed integer
@@ -69,27 +69,27 @@ public final class AdditionInstruction extends AbstractInstruction {
      * @param context the execution context providing register access
      *                and processor state
      * @param operands the compiled operands participating in the
-     *                 addition operation
+     *                 multiplication operation
      */
     @Override
     public void executeInstruction(IExecutionContext context, ICompiledOperand[] operands) {
-        long sum = 0;
+        long product = 1;
         ICompiledOperand destination = null;
 
         for (ICompiledOperand op : operands) {
             if (op.concept() == OperandConcept.RESULT) {
                 destination = op;
             } else if (op.concept() == OperandConcept.OPERAND) {
-                sum += getValueFromOperand(context, op);
+                product *= getValueFromOperand(context, op);
             }
         }
 
-        boolean overFlow = (sum > Integer.MAX_VALUE) ||
-                           (sum < Integer.MIN_VALUE);
+        boolean overFlow = (product > Integer.MAX_VALUE) ||
+                           (product < Integer.MIN_VALUE);
 
         if (destination != null) {
-            context.setFlags(sum < 0, sum == 0, overFlow);
-            context.setRegister(destination.value(), (int) sum);
+            context.setFlags(product < 0, product == 0, overFlow);
+            context.setRegister(destination.value(), (int) product);
         }
     }
 }

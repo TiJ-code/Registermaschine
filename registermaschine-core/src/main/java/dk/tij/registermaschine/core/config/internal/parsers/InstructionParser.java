@@ -18,6 +18,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.config.internal.XmlConstants;
+import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,9 +137,9 @@ public final class InstructionParser implements IConfigParser {
                     instructionMnemonic));
         }
 
-        AbstractInstruction instructionHandler = createInstructionHandler(parseInstructionHandler(instructionHandlerStr),
-                                                                          opcode, operands.size(),
-                                                                          ConditionBuilder.build(instructionConditionStr));
+        AbstractInstruction instructionHandler = CoreConfig.INSTRUCTION_REGISTRY
+                .instantiate(instructionHandlerStr, opcode,
+                             operands.size(), ConditionBuilder.build(instructionConditionStr));
 
         return new ConfigInstruction(instructionMnemonic, instructionDescription,
                                      opcode, operands, instructionHandler);

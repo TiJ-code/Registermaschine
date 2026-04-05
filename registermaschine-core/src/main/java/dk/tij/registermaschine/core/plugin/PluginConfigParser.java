@@ -1,5 +1,6 @@
 package dk.tij.registermaschine.core.plugin;
 
+import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
@@ -10,53 +11,31 @@ import org.xml.sax.SAXParseException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
+/**
+ * @since 1.1.0
+ * @author TiJ
+ */
 public final class PluginConfigParser {
-    public static final PluginConfigParser INSTANCE = new PluginConfigParser();
+    private static final PluginConfigParser INSTANCE = new PluginConfigParser();
+
+    public static final Path PLUGIN_PATH = Path.of("plugins");
 
     private PluginConfigParser() {}
 
-    public PluginConfig parse(File pluginConfigFile)
-            throws IOException, ParserConfigurationException, SAXException {
-        try (InputStream is = Files.newInputStream(pluginConfigFile.toPath())) {
-            Document doc = parseWithoutDtd(is);
-
-            PluginConstants.FileVersion fv = null;
-
-            String versionPlugin = doc.getDocumentElement().getAttribute(PluginConstants.ATTRIBUTE_PLUGIN_VERSION);
-            if (!versionPlugin.isEmpty())
-                fv = PluginConstants.FileVersion.match(versionPlugin);
-
-            doc = parseWithDtd(is, fv);
-
-            PluginConfig config;
-            switch (fv) {
-                case v1 -> config = parseV1(doc);
-                case null, default -> config = parseV1(doc);
-            }
-
-            return config;
+    public Path getPluginDirectory() {
+        try {
+            Files.createDirectories(PLUGIN_PATH);
+            return PLUGIN_PATH;
+        } catch (IOException e) {
+            throw new ConfigurationParseException("Cannot create directory: " + PLUGIN_PATH, e);
         }
-    }
-
-    private PluginConfig parseV1(Document xmlDocument) {
-        String nameStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_NAME)
-                .item(0).getTextContent();
-        String descriptionStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_DESCRIPTION)
-                .item(0).getTextContent();
-        String versionStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_VERSION)
-                .item(0).getTextContent();
-        String authorStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_AUTHOR)
-                .item(0).getTextContent();
-        String mainStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_MAIN)
-                .item(0).getTextContent();
-
-        return new PluginConfig(nameStr, descriptionStr, versionStr, authorStr, mainStr);
     }
 
     private static Document parseWithDtd(InputStream is, PluginConstants.FileVersion fileVersion)
@@ -68,11 +47,18 @@ public final class PluginConfigParser {
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
             @Override
-            public void warning(SAXParseException e) throws SAXException {}
+            public void warning(SAXParseException e) throws SAXException {
+            }
+
             @Override
-            public void error(SAXParseException e) throws SAXException { throw e; }
+            public void error(SAXParseException e) throws SAXException {
+                throw e;
+            }
+
             @Override
-            public void fatalError(SAXParseException e) throws SAXException { throw e; }
+            public void fatalError(SAXParseException e) throws SAXException {
+                throw e;
+            }
         });
 
         builder.setEntityResolver((_, systemId) -> {
@@ -102,5 +88,44 @@ public final class PluginConfigParser {
 
     public static PluginConfigParser instance() {
         return INSTANCE;
+    }
+
+    public PluginConfig parse(InputStream is)
+            throws IOException, ParserConfigurationException, SAXException {
+
+        byte[] data = is.readAllBytes();
+
+        Document doc = parseWithoutDtd(new ByteArrayInputStream(data));
+
+        PluginConstants.FileVersion fv = null;
+
+        String versionPlugin = doc.getDocumentElement().getAttribute(PluginConstants.ATTRIBUTE_PLUGIN_VERSION);
+        if (!versionPlugin.isEmpty())
+            fv = PluginConstants.FileVersion.match(versionPlugin);
+
+        doc = parseWithDtd(new ByteArrayInputStream(data), fv);
+
+        PluginConfig config;
+        switch (fv) {
+            case v1 -> config = parseV1(doc);
+            case null, default -> config = parseV1(doc);
+        }
+
+        return config;
+    }
+
+    private PluginConfig parseV1(Document xmlDocument) {
+        String nameStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_NAME)
+                .item(0).getTextContent();
+        String descriptionStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_DESCRIPTION)
+                .item(0).getTextContent();
+        String versionStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_VERSION)
+                .item(0).getTextContent();
+        String authorStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_AUTHOR)
+                .item(0).getTextContent();
+        String mainStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_MAIN)
+                .item(0).getTextContent();
+
+        return new PluginConfig(nameStr, descriptionStr, versionStr, authorStr, mainStr);
     }
 }

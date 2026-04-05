@@ -10,6 +10,10 @@ import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
+import dk.tij.registermaschine.api.error.ConfigurationParseException;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import dk.tij.registermaschine.core.plugin.PluginConfigParser;
+import dk.tij.registermaschine.core.plugin.PluginLoader;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -179,6 +183,17 @@ public final class CoreConfigParser {
             }
 
             loadDefaultMacros();
+
+            PluginLoader.instance().init();
+            try {
+                System.out.println("loading plugins");
+                PluginLoader.instance().loadPlugins(PluginConfigParser.PLUGIN_PATH);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                e.printStackTrace();
+            }
+
+            PluginLoader.instance().enablePlugins();
         }
     }
 

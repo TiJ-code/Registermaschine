@@ -3,6 +3,8 @@ package dk.tij.registermaschine.core.config;
 import dk.tij.registermaschine.api.compilation.lexing.TokenType;
 import dk.tij.registermaschine.api.config.ConfigInstruction;
 import dk.tij.registermaschine.api.log.LogConfig;
+import dk.tij.registermaschine.api.instructions.IInstructionRegistry;
+import dk.tij.registermaschine.core.instructions.ConcreteInstructionRegistry;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -63,4 +65,6 @@ public final class CoreConfig {
      * List of all configured instructions in the runtime
      */
     public static final List<ConfigInstruction> INSTRUCTIONS = new LinkedList<>();
+
+    public static volatile IInstructionRegistry INSTRUCTION_REGISTRY = ConcreteInstructionRegistry.instance();
 }

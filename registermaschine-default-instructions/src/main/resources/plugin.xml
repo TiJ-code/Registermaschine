@@ -5,5 +5,5 @@
     <description>Description</description>
     <version>1.0.0</version>
     <author>TiJ</author>
-    <main>dk.tij.registermaschine.Plugin</main>
+    <main>dk.tij.rm.RegistermaschinePlugin</main>
 </plugin>
