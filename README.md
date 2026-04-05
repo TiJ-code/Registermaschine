@@ -1,75 +1,184 @@
 # Registermaschine
 
-Registermaschine is a modular virtual machine system designed to execute custom instruction sets with configurable hardware behaviour. It provides a complete runtime environment, compilation pipeline, and APIs for building interactive or console-based applications.
+Registermaschine is a modular, extensible virtual machine framework designed for building and executing
+custom instruction sets with configurable hardware behaviour.
+
+It combines a compilation pipeline, a virtual runtime, and a configuration system into a cleanly separated architecture, making it suitable for:
+- teaching low-level computation concepts
+- building custom assembly-like scripting languages
+- experimenting with virtual CPUs and instruction sets
+- embedding deterministic execution environments into applications
+
+## Features
+- Modular architecture (API, Core, Instruction Packs)
+- Custom instruction sets via configuration
+- Full compilation pipeline (Lexer → Parser → Compiler)
+- Virtual CPU with register-based execution
+- Condition system (Boolean logic for control flow)
+- XML-based configuration system (`.jxml`)
+- Strict encapsualtion via Java modules
 
 ## Project Structure
 
-The project is split into three main modules:
+The project is split into three main Maven modules:
+- `registermaschine-api`
+- `registermaschine-core`
+- `registermaschine-default-instructions`
+
+---
+
+### `registermaschine-api`
+The public API layer defining all contracts of the system.
+#### Responsibilities
+- Compilation interfaces (`ICompiler`, `ILexer`, `IParser`)
+- Syntax tree abstraction
+- Instruction and operand models
+- Runtime interfaces (`IExecutionContext`, snapshots, listeners)
+- Configuration interfaces
+- Error model (typed exceptions)
+
+#### Purpose
+This module is implementation-agnostic and stable.
+
+It allows you to:
+- build your own compiler or runtime
+- implement custom instructions
+- integrate Registermaschine into external systems
+
+---
 
 ### `registermaschine-core`
-The core engine of the Registermaschine system.
+The reference implementation of the Registermaschine system.\
+This is the central connection point and should be extended upon not done from scratch.
+#### Core Components
+1. Compilation Pipeline\
+  Located in `core.compilation`:
+   - `ConcreteLexer`
+   - `ConcreteParser`
+   - `ConcreteCompiler`
+   - `Pipeline`\
+Handles `Source → Tokens → AST → Compiled Program`
+2. Runtime\
+   Located in `core.runtime`
+   - `ConcreteExecutionContext`
+   - `Executor`
 
-#### Overview
-This module provides:
+   Provides:
+   - register-based execution
+   - instruction dispatch
+   - step-by-step evaluation
+   - listener support for UI/debugging
 
-- A virtual CPU and register bank
-- A compilation pipeline (lexing, parsing, code generation)
-- A configurable instruction set
-- Runtime execution loop
+3. Instruction System
+   -  `ConcreteInstructionSet`
+   - Dynamically loaded via configuration
 
-#### Module Structure
-The core is organised into five functional pillars:
+4. Condition System\
+   Located in `core.conditions`
+   - Boolean logic (AND, OR, NOT)
+   - Numeric checks (e.g. zero, negative)
 
-1. **Compilation** – Lexing, parsing, and binary code generation.
-2. **Configuration** – XML-based initialisation and hardware constraints.
-3. **Instructions** – Operational logic including arithmetic, I/O, and control flow.
-4. **Conditions** – Guarded execution logic using Boolean algebra.
-5. **Runtime** – The virtual CPU, register bank, and execution loop.
+   Used for:
+   - conditional execution
+   - guarded instructions
+5. Configuration System\
+   Located in `core.config`:
+   - XML-based
+   - Parsed via `CoreConfigParser`
+   
+    Supports:
+   - instruction definitions
+   - operand definitions
+   - condition macros
+   - hardware constraints
 
-#### Encapsulation Policy
-Internal implementation details are located in `*.internal.*` packages and hidden from the module path to ensure binary compatibility and maintain strict architectural boundaries.
+#### Encapsualtion
+All internal implementation details are placed in:
+`*.internal.*`
 
-#### Extending the Instruction Set
-To implement custom hardware operations:
+These packages are not exported via JPMS.
 
-1. Extend `AbstractInstruction` to define execution logic.
-2. Register the new instruction in the `.jxml` configuration file, mapping it to a unique opcode.
-3. Optionally, implement `ICondition` to create specialised execution guards.
-
-#### Service Provider Interface (SPI)
-The configuration system is modular. Use the `.api` packages to implement custom logic integrating with the central `CoreConfigParser`.
-
----
-
-### `registermaschine-console`
-A console-based implementation similar to a compiler like `gcc`.
-
-- Compiles standard JASM programs targeting the default instruction set.
-- Provides a CLI interface for running and testing programs.
-
----
-
-### `registermaschine-ui`
-A base IDE-like application for interactive execution.
-
-- Supports any instruction set compatible with `registermaschine-core`.
-- Includes code editor, register display, and slowed-down execution.
----
-
-## Building
-
-This is a multi-module Maven project:
-
-```bash
-mvn clean install
-```
-
-- `core` builds the main runtime and API
-- `console` depends on `core` and builds the CLI tool
-- `ui` depends on `core` and builds the JavaFX-based IDE
+This ensures:
+- API stability
+- safe-refactoring
+- clear separation between API and implementation
 
 ---
 
-## Usage
+### `registermaschine-default-instructions`
+A standard instruction pack providing a basic instruction set.
+#### Included Instructions
+- Arithmetic: `ADD`, `SUB`, `MUL`, `DIV`
+- Data movement: `MOV`
+- Control flow: `JMP`, `HLT`
+- I/O: `INP`, `OUT`
+#### Purpose
+- Acts as a reference implementation
+- Provides a ready-to-use instruction set
+- Can be replaced or extended with custom instructions
+- Tailored by Prof. Dr. Tilo Strutz
 
-For the sake of simplicity, consider using a prepackaged bundle in a GitHub Release.
+---
+
+## Configuration `.jxml`
+Registermaschine uses a custom XML-based format for defining:
+- instructions
+- operands
+- condition macros
+- system constraints
+
+Examples:
+- `configuration.jxml` 
+- `core_condition_macros.jxml` 
+- `default.instructions.jxml`
+
+Validation is performed using DTDs:
+`resources/dtd/`
+
+---
+
+## Execution Model
+1. Load configuration (`.jxml`)
+2. Build instruction set
+3. Compile source code
+4. Execute program in virtual runtime
+
+---
+
+## Extending the System
+### Custom Instruction Handler
+Dependency: `registermaschine-api`
+1. Extend `AbstractInstruction`
+2. Implement execution logic
+3. Register in `.jxml` instruction set
+   ```xml
+   <instruction name="MULADD" handler="your.package.CustomInstruction">...</instruction> 
+   ```
+   
+_Look in the Wiki for more information_
+
+### Custom Conditions
+Dependency: `registermaschine-api`
+1. Implement `ICondition`
+2. Register via configuration or macro system
+
+_Look in the Wiki for more information_
+
+---
+
+## Upcoming:
+### v1.0.1
+- Several bug fixes (#46 #47 #48 #80)
+- source documentation (#78)
+
+### v1.1.0
+- Logging API (#77)
+- Plugin System (#69)
+
+### tbd
+...
+
+### v2.0.0
+- Multiple Instruction Handler (#28)
+- External Devices (#67)
+- Variables
