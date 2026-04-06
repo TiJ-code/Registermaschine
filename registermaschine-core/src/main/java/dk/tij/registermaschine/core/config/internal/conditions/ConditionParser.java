@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.core.config.internal.conditions;
 
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.AndNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.ConditionToken;
@@ -28,7 +28,7 @@ import java.util.List;
  * @author TiJ
  */
 public final class ConditionParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConditionParser.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConditionParser.class);
 
     /**
      * Private constructor to prevent instantiation of this utility class

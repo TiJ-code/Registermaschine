@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.conditions;
 
 import dk.tij.registermaschine.api.conditions.ICondition;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * <p>This implements a logical OR over one or more {@link ICondition} instances.</p>
  */
 public final class OrCondition implements ICondition {
-    private static final Logger log = LoggerFactory.getLogger(OrCondition.class);
+    private static final ILogger log = LoggerFactory.getLogger(OrCondition.class);
 
     private final ICondition[] conditions;
 

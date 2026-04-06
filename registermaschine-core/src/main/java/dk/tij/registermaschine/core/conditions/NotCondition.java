@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.conditions;
 
 import dk.tij.registermaschine.api.conditions.ICondition;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
@@ -14,7 +14,7 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  * @author TiJ
  */
 public final class NotCondition implements ICondition {
-    private static final Logger log = LoggerFactory.getLogger(NotCondition.class);
+    private static final ILogger log = LoggerFactory.getLogger(NotCondition.class);
 
     private final ICondition inner;
 

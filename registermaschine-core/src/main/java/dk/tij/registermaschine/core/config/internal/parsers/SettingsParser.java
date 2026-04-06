@@ -1,7 +1,7 @@
 package dk.tij.registermaschine.core.config.internal.parsers;
 
 import dk.tij.registermaschine.api.config.IConfigParser;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
  * @author TiJ
  */
 public final class SettingsParser implements IConfigParser {
-    private static final Logger log = LoggerFactory.getLogger(SettingsParser.class);
+    private static final ILogger log = LoggerFactory.getLogger(SettingsParser.class);
 
     /**
      * Parses numeric settings and updates the global {@link CoreConfig} state.
@@ -47,7 +47,6 @@ public final class SettingsParser implements IConfigParser {
             log.info("Parsed max jumps for configuration; interpreting {}", CoreConfig.MAX_JUMPS);
         } else
             log.warn("No <{}> element found in config", XmlConstants.TAG_CONFIG_MAX_JUMPS);
-        }
 
         NodeList customNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_CONFIG_CUSTOM);
         for (int i = 0; i < customNodeList.getLength(); i++) {

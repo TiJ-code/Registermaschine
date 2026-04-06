@@ -4,7 +4,7 @@ import dk.tij.registermaschine.api.compilation.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledProgram;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 
@@ -50,7 +50,7 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  * @author TiJ
  */
 public class Executor implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Executor.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(Executor.class);
 
     private static final long UNLIMITED_RATE_LIMIT_MS = 10;
 

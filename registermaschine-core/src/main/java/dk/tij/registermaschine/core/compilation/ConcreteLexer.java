@@ -3,7 +3,7 @@ package dk.tij.registermaschine.core.compilation;
 import dk.tij.registermaschine.api.compilation.ILexer;
 import dk.tij.registermaschine.api.compilation.lexing.IToken;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.compilation.internal.lexing.ConcreteToken;
 import dk.tij.registermaschine.core.config.CoreConfig;
@@ -70,7 +70,7 @@ import static dk.tij.registermaschine.api.compilation.lexing.TokenType.UNKNOWN;
  * @author TiJ
  */
 public final class ConcreteLexer implements ILexer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteLexer.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteLexer.class);
 
     private IInstructionSet instructionSet;
     private List<IToken> tokens;
