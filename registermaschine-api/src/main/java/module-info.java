@@ -8,7 +8,8 @@ module dk.tij.registermaschine.api {
     exports dk.tij.registermaschine.api.instructions;
     exports dk.tij.registermaschine.api.config;
     exports dk.tij.registermaschine.api.error;
+    exports dk.tij.registermaschine.api.log;
 
     requires java.xml;
-    requires org.slf4j;
+    requires java.logging;
 }
