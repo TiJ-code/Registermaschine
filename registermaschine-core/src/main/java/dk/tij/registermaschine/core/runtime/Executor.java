@@ -4,9 +4,9 @@ import dk.tij.registermaschine.api.compilation.compiling.ICompiledInstruction;
 import dk.tij.registermaschine.api.compilation.compiling.ICompiledProgram;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The {@link Executor} is responsible for executing a compiled program on the

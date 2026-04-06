@@ -6,12 +6,12 @@ import dk.tij.registermaschine.api.compilation.lexing.TokenType;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
 import dk.tij.registermaschine.api.error.SyntaxErrorException;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteSyntaxTree;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

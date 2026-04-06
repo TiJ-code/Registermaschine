@@ -4,11 +4,12 @@ import dk.tij.registermaschine.api.config.IConfigEventListener;
 import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import dk.tij.registermaschine.api.log.LogLevel;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -51,7 +53,7 @@ import java.util.Objects;
  * @author TiJ
  */
 public final class CoreConfigParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreConfigParser.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(CoreConfigParser.class);
 
     /**
      * Name of the instruction parser target
@@ -75,7 +77,7 @@ public final class CoreConfigParser {
     /**
      * Optional custom root path for user-editable configuration files
      */
-    private static Path ROOT_PATH = null;
+    private static Path ROOT_PATH = Paths.get(".");
 
     /**
      * Flag indicating whether the core configuration has been successfully parsed
@@ -137,6 +139,10 @@ public final class CoreConfigParser {
                 LOGGER.trace("Core configuration already parsed. Skipping init");
                 return;
             }
+
+            CoreConfig.LOG.setGlobalMinimumLevel(LogLevel.ERROR);
+            LOGGER.setPath(ROOT_PATH);
+            LOGGER.flog("Setting up logger");
 
             if (!onlyInternal) {
                 LOGGER.info("Copying default configuration files to root path {}", ROOT_PATH);

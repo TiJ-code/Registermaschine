@@ -1,8 +1,8 @@
 package dk.tij.registermaschine.core.config.internal.conditions;
 
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.ConditionToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

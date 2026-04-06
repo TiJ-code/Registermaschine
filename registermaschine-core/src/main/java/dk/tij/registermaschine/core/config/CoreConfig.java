@@ -2,8 +2,12 @@ package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.api.compilation.lexing.TokenType;
 import dk.tij.registermaschine.api.config.ConfigInstruction;
+import dk.tij.registermaschine.api.log.LogConfig;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Core configuration constants and global settings for the Registermaschine.
@@ -18,6 +22,8 @@ import java.util.*;
  */
 public final class CoreConfig {
     private CoreConfig() {}
+
+    public static final LogConfig LOG = LogConfig.instance();
 
     /**
      * Prefix for core implementations in the system

@@ -3,6 +3,8 @@ package dk.tij.registermaschine.core.config.internal.conditions;
 import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.error.ClassInstantiationException;
 import dk.tij.registermaschine.api.error.ConditionParseException;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.conditions.AndCondition;
 import dk.tij.registermaschine.core.conditions.NotCondition;
 import dk.tij.registermaschine.core.conditions.OrCondition;
@@ -13,8 +15,6 @@ import dk.tij.registermaschine.core.config.internal.conditions.nodes.LeafNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.MacroNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.NotNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.OrNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;

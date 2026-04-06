@@ -1,11 +1,11 @@
 package dk.tij.registermaschine.core.runtime;
 
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 import dk.tij.registermaschine.api.runtime.IExecutionContextListener;
 import dk.tij.registermaschine.core.config.CoreConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -1,9 +1,9 @@
 package dk.tij.registermaschine.core.conditions;
 
 import dk.tij.registermaschine.api.conditions.ICondition;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Condition that evaluates to the logical negation of an inner condition.

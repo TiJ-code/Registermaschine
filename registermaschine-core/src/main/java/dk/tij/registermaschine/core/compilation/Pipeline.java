@@ -9,8 +9,8 @@ import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import dk.tij.registermaschine.api.error.DefectPipelineException;
 import dk.tij.registermaschine.api.error.SyntaxErrorException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
