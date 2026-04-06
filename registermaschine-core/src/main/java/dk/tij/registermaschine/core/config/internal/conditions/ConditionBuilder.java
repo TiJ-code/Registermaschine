@@ -3,7 +3,7 @@ package dk.tij.registermaschine.core.config.internal.conditions;
 import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.error.ClassInstantiationException;
 import dk.tij.registermaschine.api.error.ConditionParseException;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.conditions.AndCondition;
 import dk.tij.registermaschine.core.conditions.NotCondition;
@@ -36,7 +36,7 @@ import java.util.Set;
  * @author TiJ
  */
 public final class ConditionBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConditionBuilder.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConditionBuilder.class);
 
     /**
      * Private constructor to enforce static entry point usage

@@ -9,7 +9,7 @@ import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import dk.tij.registermaschine.api.error.DefectPipelineException;
 import dk.tij.registermaschine.api.error.SyntaxErrorException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 
 import java.util.List;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * @author TiJ
  */
 public final class Pipeline {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Pipeline.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(Pipeline.class);
 
     private Pipeline() {}
 

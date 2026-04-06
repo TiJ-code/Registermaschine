@@ -13,7 +13,7 @@ import dk.tij.registermaschine.api.config.ConfigOperand;
 import dk.tij.registermaschine.api.error.SyntaxErrorException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
 import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledOperand;
@@ -59,7 +59,7 @@ import java.util.Map;
  * @author TiJ
  */
 public final class ConcreteCompiler implements ICompiler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteCompiler.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteCompiler.class);
 
     /**
      * Compiles the given {@link ISyntaxTree} into a {@link ICompiledProgram}.

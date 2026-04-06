@@ -6,7 +6,7 @@ import dk.tij.registermaschine.api.compilation.lexing.TokenType;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
 import dk.tij.registermaschine.api.error.SyntaxErrorException;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
@@ -36,7 +36,7 @@ import java.util.List;
  * @author TiJ
  */
 public final class ConcreteParser implements IParser {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteParser.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteParser.class);
 
     /**
      * List of tokens to parse

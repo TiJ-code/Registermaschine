@@ -5,7 +5,7 @@ import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
 import dk.tij.registermaschine.api.log.LogLevel;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
@@ -53,7 +53,7 @@ import java.util.Objects;
  * @author TiJ
  */
 public final class CoreConfigParser {
-    private static Logger LOGGER = LoggerFactory.getLogger(CoreConfigParser.class);
+    private static ILogger LOGGER = LoggerFactory.getLogger(CoreConfigParser.class);
 
     /**
      * Name of the instruction parser target

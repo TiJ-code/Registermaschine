@@ -9,7 +9,7 @@ import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.api.error.ClassInstantiationException;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
@@ -36,7 +36,7 @@ import java.util.List;
  * @author TiJ
  */
 public final class InstructionParser implements IConfigParser {
-    private static final Logger log = LoggerFactory.getLogger(InstructionParser.class);
+    private static final ILogger log = LoggerFactory.getLogger(InstructionParser.class);
 
     /**
      * Parses the global options and the complete list of instructions from the XML

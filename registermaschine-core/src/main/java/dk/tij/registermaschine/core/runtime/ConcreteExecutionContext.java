@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.core.runtime;
 
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
@@ -45,7 +45,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author TiJ
  */
 public final class ConcreteExecutionContext implements IExecutionContext {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteExecutionContext.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteExecutionContext.class);
 
     private static final byte FLAG_RUNNING = 0b0001,
             FLAG_ZERO = 0b0010,

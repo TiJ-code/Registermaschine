@@ -5,7 +5,7 @@ import dk.tij.registermaschine.api.error.ExistingInstructionException;
 import dk.tij.registermaschine.api.error.UnknownInstructionException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.Objects;
  * @author TiJ
  */
 public final class ConcreteInstructionSet implements IInstructionSet {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteInstructionSet.class);
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteInstructionSet.class);
 
     /**
      * Ordered list of registered instructions
