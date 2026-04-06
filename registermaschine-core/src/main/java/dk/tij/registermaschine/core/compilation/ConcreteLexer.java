@@ -5,6 +5,8 @@ import dk.tij.registermaschine.api.compilation.lexing.IToken;
 import dk.tij.registermaschine.core.compilation.internal.lexing.ConcreteToken;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,8 @@ import static dk.tij.registermaschine.api.compilation.lexing.TokenType.*;
  * @author TiJ
  */
 public final class ConcreteLexer implements ILexer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteLexer.class);
+
     private IInstructionSet instructionSet;
     private List<IToken> tokens;
     private int index, line, column;
@@ -71,6 +75,8 @@ public final class ConcreteLexer implements ILexer {
      */
     @Override
     public List<IToken> tokenize(String sourceCode, IInstructionSet instructions) {
+        LOGGER.debug("Starting tokenization (length={})", sourceCode != null ? sourceCode.length() : 0);
+
         instructionSet = instructions;
         source = sourceCode.replaceAll("\r\n", "\n");
         index = 0;
@@ -85,12 +91,16 @@ public final class ConcreteLexer implements ILexer {
                 case ' ', '\t' -> {}
 
                 case '\n' -> {
+                    LOGGER.trace("{} at line {}", EOL, line);
                     tokens.add(new ConcreteToken(EOL, "\\n", line, column - 1));
                     line++;
                     column = 1;
                 }
 
-                case ',' -> tokens.add(new ConcreteToken(COMMA, ",", line, column - 1));
+                case ',' -> {
+                    LOGGER.trace("{} at line {}, col {}", COMMA, line, column - 1);
+                    tokens.add(new ConcreteToken(COMMA, ",", line, column - 1));
+                }
                 case ';' -> readComment();
 
                 case '@' -> readAddress();
@@ -102,16 +112,20 @@ public final class ConcreteLexer implements ILexer {
                     } else if (Character.isLetter(c) || c == '_') {
                         readIdentifier(c);
                     } else {
+                        LOGGER.warn("Unknown character '{}' at line {}, col {}", c, line, column);
                         tokens.add(new ConcreteToken(UNKNOWN, String.valueOf(c), line, column));
                     }
                 }
             }
         }
 
-        if (!tokens.isEmpty() && tokens.getLast().type() != EOL)
+        if (!tokens.isEmpty() && tokens.getLast().type() != EOL) {
+            LOGGER.trace("Appending final {}", EOL);
             tokens.add(new ConcreteToken(EOL, "\\n", line, column));
+        }
 
         tokens.add(new ConcreteToken(EOF, null, line, column));
+        LOGGER.debug("Tokenization complete. Produced {} tokens", tokens.size());
         return tokens;
     }
 
@@ -122,7 +136,10 @@ public final class ConcreteLexer implements ILexer {
         int startCol = column - 1;
         StringBuilder sb = new StringBuilder();
 
+        LOGGER.trace("Reading immediate at line {}, col {}", line, startCol);
+
         if (!isNotAtEnd()) {
+            LOGGER.error("Expected number after '#' at line {}, col {}", line, startCol);
             tokens.add(new ConcreteToken(ERROR, "Expected number after '#'", line, startCol));
             return;
         }
@@ -142,10 +159,12 @@ public final class ConcreteLexer implements ILexer {
                 }
 
                 if (sb.length() == 2) {
+                    LOGGER.error("Missing hex digits after 0x at line {}, col {}", line, startCol);
                     tokens.add(new ConcreteToken(ERROR, "Expected hex digits after '0x'", line, startCol));
                     return;
                 }
 
+                LOGGER.debug("Parsed hex immediate: {}", sb);
                 tokens.add(new ConcreteToken(NUMBER, sb.toString(), line, startCol));
                 return;
             } else {
@@ -157,10 +176,12 @@ public final class ConcreteLexer implements ILexer {
             sb.append(advance());
 
         if (sb.isEmpty()) {
+            LOGGER.error("Expected number after '#' at line {}, col {}", line, column);
             tokens.add(new ConcreteToken(ERROR, "Expected number '#'", line, startCol));
             return;
         }
 
+        LOGGER.debug("Parsed immediate: {}", sb);
         tokens.add(new ConcreteToken(NUMBER, sb.toString(), line, startCol));
     }
 
@@ -172,13 +193,17 @@ public final class ConcreteLexer implements ILexer {
         StringBuilder sb = new StringBuilder();
         sb.append('@');
 
+        LOGGER.trace("Reading address at line {}, col {}", line, startCol);
+
         if (!isNotAtEnd() || peek() != '0') {
+            LOGGER.error("Invalid address format at line {}, col {}", line, startCol);
             tokens.add(new ConcreteToken(ERROR, "Addresses must be hexadecimal (starting with '@0x')", line, startCol));
             return;
         }
         sb.append(advance());
 
         if (!isNotAtEnd() || (peek() != 'x' && peek() != 'X')) {
+            LOGGER.error("Invalid address format at line {}, col {}", line, startCol);
             tokens.add(new ConcreteToken(ERROR, "Addresses must be hexadecimal (starting with '@0x')", line, startCol));
             return;
         }
@@ -193,6 +218,7 @@ public final class ConcreteLexer implements ILexer {
             return;
         }
 
+        LOGGER.debug("Parsed address: {}", sb);
         tokens.add(new ConcreteToken(ADDRESS, sb.toString(), line, startCol));
     }
 
@@ -207,6 +233,7 @@ public final class ConcreteLexer implements ILexer {
             sb.append(advance());
         }
 
+        LOGGER.trace("Parsed comment: {}", sb);
         tokens.add(new ConcreteToken(COMMENT, sb.toString(), line, startCol));
     }
 
@@ -222,6 +249,7 @@ public final class ConcreteLexer implements ILexer {
             sb.append(advance());
         }
 
+        LOGGER.error("Illegal number '{}', must start with '#'", sb);
         tokens.add(new ConcreteToken(ERROR, "Constants must start with '#': " + sb, line, startCol));
     }
 
@@ -239,12 +267,16 @@ public final class ConcreteLexer implements ILexer {
 
         String text = sb.toString();
 
+        LOGGER.trace("Read identifier '{}'", text);
+
         // label definition
         if (isNotAtEnd() && peek() == ':') {
             advance();
             if (CoreConfig.ALLOW_LABELS) {
+                LOGGER.debug("Parsed label definition: {}", text);
                 tokens.add(new ConcreteToken(LABEL_DEF, text, line, startCol));
             } else {
+                LOGGER.warn("Labels disabled but found '{}'", text);
                 tokens.add(new ConcreteToken(ERROR, "Symbolic labels are disabled: " + text, line, startCol));
             }
             return;
@@ -253,18 +285,22 @@ public final class ConcreteLexer implements ILexer {
         String textLower = text.toLowerCase();
 
         if (isRegister(textLower)) {
+            LOGGER.trace("Recognised register '{}'", textLower);
             tokens.add(new ConcreteToken(REGISTER, textLower, line, startCol));
             return;
         }
 
         if (instructionSet.contains(textLower)) {
+            LOGGER.trace("Recognised instruction '{}'", textLower);
             tokens.add(new ConcreteToken(INSTRUCTION, textLower, line, startCol));
             return;
         }
 
         if (CoreConfig.ALLOW_LABELS) {
+            LOGGER.debug("Treating '{}' as label reference", text);
             tokens.add(new ConcreteToken(LABEL, text, line, startCol));
         } else {
+            LOGGER.warn("Unknown identifier '{}' and labels disabled", text);
             tokens.add(new ConcreteToken(ERROR, "Symbolic labels are disabled: " + text, line, startCol));
         }
     }

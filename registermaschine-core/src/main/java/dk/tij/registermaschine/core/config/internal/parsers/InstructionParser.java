@@ -5,14 +5,19 @@ import dk.tij.registermaschine.api.compilation.compiling.OperandType;
 import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.config.ConfigInstruction;
 import dk.tij.registermaschine.api.config.ConfigOperand;
-import dk.tij.registermaschine.core.config.*;
-import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.api.config.IConfigParser;
-import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
 import dk.tij.registermaschine.api.error.ClassInstantiationException;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
-import org.w3c.dom.*;
+import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.config.internal.XmlConstants;
+import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +36,8 @@ import java.util.List;
  * @author TiJ
  */
 public final class InstructionParser implements IConfigParser {
+    private static final Logger log = LoggerFactory.getLogger(InstructionParser.class);
+
     /**
      * Parses the global options and the complete list of instructions from the XML
      *
@@ -38,11 +45,17 @@ public final class InstructionParser implements IConfigParser {
      */
     @Override
     public void parseConfig(Document xmlDocument) {
+        log.info("Started parsing instructions");
+
+        log.info("Parsing options for this instruction set");
         NodeList optionsList = xmlDocument.getElementsByTagName(XmlConstants.TAG_OPTION);
         for (int i = 0; i < optionsList.getLength(); i++) {
+            log.debug("Parsing <{}> tag {}", XmlConstants.TAG_OPTION, i);
+
             Element option = (Element) optionsList.item(i);
             if (XmlConstants.INSTR_OPTION_ALLOW_LABELS.equals(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_ID))) {
                 CoreConfig.ALLOW_LABELS = Boolean.parseBoolean(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_VALUE));
+                log.info("Parsed allow labels; this instruction set {}allows labels", CoreConfig.ALLOW_LABELS ? "" : "dis");
                 fireEvent(option, CoreConfig.ALLOW_LABELS);
             }
         }
@@ -52,19 +65,23 @@ public final class InstructionParser implements IConfigParser {
 
         List<ConfigInstruction> instructions = new ArrayList<>(instructionNodeList.getLength());
         for (int i = 0; i < instructionNodeList.getLength(); i++) {
+            log.debug("Parsing <{}> tag {}", XmlConstants.TAG_INSTRUCTION, i);
+
             Node instructionNode = instructionNodeList.item(i);
             if (instructionNode.getNodeType() != Node.ELEMENT_NODE) continue;
 
             try {
                 ConfigInstruction instruction = parseInstruction(instructionNode, instructions.size());
                 instructions.add(instruction);
+                log.debug("Successfully parsed <{}> tag {}: {}", XmlConstants.TAG_INSTRUCTION, i, instruction.mnemonic());
 
                 fireEvent((Element) instructionNode, instruction);
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                log.error("Error parsing <{}> tag {}: {}", XmlConstants.TAG_INSTRUCTION, i, e.getMessage());
             }
         }
 
+        log.debug("Moving all parsed instructions to {}", CoreConfig.class.getSimpleName());
         CoreConfig.INSTRUCTIONS.addAll(instructions);
     }
 
@@ -82,17 +99,26 @@ public final class InstructionParser implements IConfigParser {
         NodeList operandNodes = instructionElem.getElementsByTagName(XmlConstants.TAG_OPERAND);
 
         String instructionMnemonic = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_ID);
+        log.debug("Parsing mnemonic {} for instructionNode {}", instructionMnemonic, instructionNode);
+
         String instructionDescription = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_DESCRIPTION);
+        log.debug("Parsing description {} for instructionNode {}", instructionDescription, instructionNode);
+
         String instructionHandlerStr = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_HANDLER);
+        log.debug("Parsing handler {} for instructionNode {}", instructionHandlerStr, instructionNode);
+
         String instructionConditionStr = instructionElem.getAttribute(XmlConstants.ATTRIBUTE_INSTRUCTION_CONDITION);
+        log.debug("Parsing condition {} for instructionNode {}", instructionConditionStr, instructionNode);
 
         int resultCount = 0;
 
         List<ConfigOperand> operands = new ArrayList<>(operandNodes.getLength());
         for (int i = 0; i < operandNodes.getLength(); i++) {
+            log.debug("Parsing <{}> tag {}", XmlConstants.TAG_OPERAND, i);
             ConfigOperand operand = parseOperand(operandNodes.item(i));
 
             if (operand.concept() == OperandConcept.RESULT) {
+                log.debug("Parsed <{}> tag {} as concept {}", XmlConstants.TAG_OPERAND, i, OperandConcept.RESULT);
                 resultCount++;
             }
 
@@ -122,8 +148,13 @@ public final class InstructionParser implements IConfigParser {
         Element operandElem = (Element) operandNode;
 
         String typeStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_TYPE).toUpperCase();
+        log.debug("Parsing type {} for operandNode {}", typeStr, operandNode);
+
         String conceptStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_CONCEPT).toUpperCase();
+        log.debug("Parsing concept {} for operandNode {}", conceptStr, operandNode);
+
         String value = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_IMPLICIT_VALUE);
+        log.debug("Parsing value {} for operandNode {}", value, operandNode);
 
         validate(typeStr, conceptStr);
 
@@ -157,7 +188,8 @@ public final class InstructionParser implements IConfigParser {
         } catch (IllegalArgumentException e) {
             throw new ConfigurationParseException("Invalid value: " + e.getMessage());
         }
-        
+
+        log.debug("Validating operand type \"{}\" and concept \"{}\" combination", type, concept);
         boolean isIllegal = switch (parsedConcept) {
             case OperandConcept.RESULT -> parsedType != OperandType.REGISTER;
             case OperandConcept.OPERAND -> parsedType == OperandType.LABEL;
@@ -184,6 +216,7 @@ public final class InstructionParser implements IConfigParser {
         if (handlerString == null || handlerString.isEmpty())
             throw new IllegalStateException("Cannot parse empty instruction handler");
 
+        log.debug("Parsing instruction handler {}; looking on the classpath", handlerString);
         return Class.forName(handlerString.trim()).asSubclass(AbstractInstruction.class);
     }
 
@@ -201,6 +234,7 @@ public final class InstructionParser implements IConfigParser {
                                                                 int opcode, int operands, ICondition condition)
             throws ClassInstantiationException {
         try {
+            log.debug("Instantiating instruction handler {}", handlerClass.getName());
             return handlerClass
                     .getDeclaredConstructor(int.class, int.class, ICondition.class)
                     .newInstance(opcode, operands, condition);

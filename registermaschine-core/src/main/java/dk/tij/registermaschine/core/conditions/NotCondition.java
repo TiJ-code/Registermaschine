@@ -2,6 +2,8 @@ package dk.tij.registermaschine.core.conditions;
 
 import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Condition that evaluates to the logical negation of an inner condition.
@@ -12,6 +14,8 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  * @author TiJ
  */
 public final class NotCondition implements ICondition {
+    private static final Logger log = LoggerFactory.getLogger(NotCondition.class);
+
     private final ICondition inner;
 
     /**
@@ -25,6 +29,10 @@ public final class NotCondition implements ICondition {
 
     @Override
     public boolean test(IExecutionContext context) {
-        return !inner.test(context);
+        boolean result = !inner.test(context);
+
+        log.trace("Evaluated condition to {}", result);
+
+        return result;
     }
 }

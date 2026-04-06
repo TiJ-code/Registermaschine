@@ -5,11 +5,13 @@ import dk.tij.registermaschine.api.compilation.lexing.IToken;
 import dk.tij.registermaschine.api.compilation.lexing.TokenType;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
-import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteSyntaxTree;
+import dk.tij.registermaschine.api.error.SyntaxErrorException;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
-import dk.tij.registermaschine.api.error.SyntaxErrorException;
+import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteSyntaxTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +36,8 @@ import java.util.List;
  * @author TiJ
  */
 public final class ConcreteParser implements IParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteParser.class);
+
     /**
      * List of tokens to parse
      */
@@ -52,6 +56,8 @@ public final class ConcreteParser implements IParser {
      */
     @Override
     public ISyntaxTree parse(List<IToken> tokenList) throws SyntaxErrorException {
+        LOGGER.debug("Starting parsing of {} tokens", tokenList.size());
+
         currentIndex = 0;
         tokens = tokenList;
 
@@ -59,9 +65,13 @@ public final class ConcreteParser implements IParser {
 
         while (isNotAtEnd()) {
             ISyntaxTreeNode node = parseInstruction();
-            if (node != null) nodes.add(node);
+            if (node != null) {
+                LOGGER.trace("Parsed node: {}", node);
+                nodes.add(node);
+            }
         }
 
+        LOGGER.debug("Finished parsing. Generated {} syntax nodes", nodes.size());
         return new ConcreteSyntaxTree(nodes);
     }
 
@@ -72,32 +82,45 @@ public final class ConcreteParser implements IParser {
      * @throws SyntaxErrorException if the instruction or operands are invalid
      */
     private ISyntaxTreeNode parseInstruction() {
-        while (match(TokenType.EOL) || match(TokenType.COMMENT)) {}
+        while (match(TokenType.EOL) || match(TokenType.COMMENT)) {
+            LOGGER.trace("Skipping {} / {}", TokenType.EOL, TokenType.COMMENT);
+        }
 
-        if (peek().type() == TokenType.EOF) return null;
+        if (peek().type() == TokenType.EOF) {
+            LOGGER.trace("Reached {}", TokenType.EOF);
+            return null;
+        }
 
         if (peek().type() == TokenType.ERROR) {
+            LOGGER.error("Lexer {} token encountered: {}", TokenType.ERROR, peek());
             throw error(peek(), peek().value());
         }
 
         if (match(TokenType.LABEL_DEF)) {
             IToken label = previous();
+            LOGGER.debug("Parsed {} definition: {}", TokenType.LABEL_DEF, label.value());
             return new ConcreteLabelNode(label.value(), label.line());
         }
 
         IToken instr = consume(TokenType.INSTRUCTION, "Expected instruction");
+        LOGGER.debug("Parsing instruction '{}' at line {}", instr.value(), instr.line());
 
         List<ConcreteOperandNode> operands = new ArrayList<>();
 
         while (!check(TokenType.EOL) && !check(TokenType.EOF) && !check(TokenType.COMMENT)) {
-            operands.add(parseOperand());
+            var operand = parseOperand();
+            LOGGER.trace("Parsed operand: {}", operand);
+            operands.add(operand);
             match(TokenType.COMMA);
         }
 
         match(TokenType.COMMENT);
         match(TokenType.EOL);
 
-        return new ConcreteInstructionNode(instr.value(), operands, instr.line());
+        var node = new ConcreteInstructionNode(instr.value(), operands, instr.line());
+
+        LOGGER.debug("Built instruction node: {}", node);
+        return node;
     }
 
     /**
@@ -109,20 +132,25 @@ public final class ConcreteParser implements IParser {
      * @throws SyntaxErrorException if the token is not a valid operand
      */
     private ConcreteOperandNode parseOperand() {
-        while (match(TokenType.COMMENT)) {}
+        while (match(TokenType.COMMENT)) {
+            LOGGER.trace("Skipping {} inside operand", TokenType.COMMENT);
+        }
 
         if (match(TokenType.REGISTER)) {
             IToken t = previous();
+            LOGGER.trace("Matched {} '{}'", TokenType.REGISTER, t.value());
             return new ConcreteOperandNode(t.value(), true, false, t.line());
         }
 
         if (match(TokenType.NUMBER)) {
             IToken t = previous();
+            LOGGER.trace("Matched {} '{}'", TokenType.NUMBER, t.value());
             return new ConcreteOperandNode(t.value(), false, false, t.line());
         }
 
         if (match(TokenType.LABEL)) {
             IToken t = previous();
+            LOGGER.trace("Matched {} '{}'", TokenType.LABEL, t.value());
             return new ConcreteOperandNode(t.value(), false, true, t.line());
         }
 
@@ -133,9 +161,11 @@ public final class ConcreteParser implements IParser {
         
         if (match(TokenType.ERROR)) {
             IToken t = previous();
+            LOGGER.error("{} token in operand: {}", TokenType.ERROR, t.value());
             throw error(t, t.value());
         }
 
+        LOGGER.error("Unexpected token while parsing operand: {}", peek());
         throw error(peek(), "Expected operand");
     }
 
@@ -144,6 +174,7 @@ public final class ConcreteParser implements IParser {
      */
     private boolean match(TokenType type) {
         if (check(type)) {
+            LOGGER.trace("Matched token {} at index {}", type, currentIndex);
             advance();
             return true;
         }
@@ -155,6 +186,7 @@ public final class ConcreteParser implements IParser {
      */
     private IToken consume(TokenType type, String msg) {
         if (check(type)) return advance();
+        LOGGER.error("Expected token {} but found {}", type, peek());
         throw error(peek(), msg);
     }
 
@@ -198,6 +230,9 @@ public final class ConcreteParser implements IParser {
      * Constructs a {@link SyntaxErrorException} with token location info.
      */
     private SyntaxErrorException error(IToken token, String msg) {
+        LOGGER.error("Syntax error at line {}, col {}: {} (token={})",
+                token.line(), token.column(), msg, token);
+
         return new SyntaxErrorException(
                 "at line " + token.line() + ", col " + token.column() + ": " + msg
         );

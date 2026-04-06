@@ -2,6 +2,8 @@ package dk.tij.registermaschine.core.conditions;
 
 import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -12,6 +14,8 @@ import java.util.List;
  * <p>This implements a logical OR over one or more {@link ICondition} instances.</p>
  */
 public final class OrCondition implements ICondition {
+    private static final Logger log = LoggerFactory.getLogger(OrCondition.class);
+
     private final ICondition[] conditions;
 
     public OrCondition(List<ICondition> conditions) {
@@ -28,6 +32,8 @@ public final class OrCondition implements ICondition {
 
         for (ICondition c : conditions)
             result |= c.test(context);
+
+        log.trace("Evaluated condition to {}", result);
 
         return result;
     }

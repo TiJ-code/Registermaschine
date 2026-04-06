@@ -2,11 +2,13 @@ package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.api.config.IConfigEventListener;
 import dk.tij.registermaschine.api.config.IConfigParser;
+import dk.tij.registermaschine.api.error.ConfigurationParseException;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
-import dk.tij.registermaschine.api.error.ConfigurationParseException;
-import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -15,10 +17,16 @@ import org.xml.sax.SAXParseException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Core configuration parser for the Registermaschine.
@@ -43,6 +51,8 @@ import java.util.*;
  * @author TiJ
  */
 public final class CoreConfigParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreConfigParser.class);
+
     /**
      * Name of the instruction parser target
      */
@@ -117,30 +127,48 @@ public final class CoreConfigParser {
      * @throws ConfigurationParseException if any parsing or I/O errors occurs
      */
     public static void init(boolean onlyInternal, IConfigParser... postConfigParsers) {
-        if (coreConfigParsed) return;
+        if (coreConfigParsed) {
+            LOGGER.trace("Core configuration already parsed. Skipping init");
+            return;
+        }
 
         synchronized (INIT_LOCK) {
-            if (coreConfigParsed) return;
+            if (coreConfigParsed) {
+                LOGGER.trace("Core configuration already parsed. Skipping init");
+                return;
+            }
 
             if (!onlyInternal) {
+                LOGGER.info("Copying default configuration files to root path {}", ROOT_PATH);
                 copyDefaultFiles();
             }
 
             try (InputStream is = getSmartStream(CONFIGURATION_FILE, onlyInternal)) {
+                LOGGER.debug("Parsing core configuration file {}", CONFIGURATION_FILE);
                 Document doc = parseWithDtd(is, DTD_CONFIGURATION);
 
-                INTERNAL_CONFIG_PARSERS.forEach(parser -> parser.parseConfig(doc));
+                LOGGER.debug("Running internal config parsers");
+                INTERNAL_CONFIG_PARSERS.forEach(parser -> {
+                    LOGGER.trace("Parsing with internal parser {}", parser.getClass().getName());
+                    parser.parseConfig(doc);
+                });
+                LOGGER.debug("Finished internal config parsers");
 
                 if (postConfigParsers != null) {
+                    LOGGER.debug("Running post config parsers");
                     Arrays.stream(postConfigParsers)
                             .filter(Objects::nonNull)
                             .forEach(parser -> {
+                                LOGGER.trace("Parsing with post parser {}", parser.getClass().getName());
                                 parser.parseConfig(doc);
                             });
+                    LOGGER.debug("Finished post config parsers");
                 }
 
                 coreConfigParsed = true;
+                LOGGER.info("Core configuration successfully initialised");
             } catch (Exception e) {
+                LOGGER.error("Failed to initialise core configuration", e);
                 throw new ConfigurationParseException("Failed to initialise core configuration", e);
             }
 
@@ -169,19 +197,37 @@ public final class CoreConfigParser {
     public static void parseInstructionSet(String fileName, IInstructionSet set)
             throws ConfigurationParseException {
         if (!coreConfigParsed) {
-            throw new IllegalStateException("Core Configuration must be initialised via init() before parsing instruction sets.");
+            final String errorMsg = "Core Configuration must be initialised via init() before parsing instruction sets.";
+            LOGGER.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
         }
+
+        LOGGER.info("Parsing instruction set file {}", fileName);
 
         try (InputStream is = getSmartStream(fileName)) {
             Document doc = parseWithDtd(is, DTD_INSTRUCTION_SET);
 
             CoreConfig.INSTRUCTIONS.clear();
-            INSTRUCTION_PARSER.parseConfig(doc);
-            MACRO_PARSER.parseConfig(doc);
+            LOGGER.trace("Cleared existing instructions");
 
-            CoreConfig.INSTRUCTIONS.forEach(set::registerInstruction);
+            LOGGER.debug("Parsing instructions");
+            INSTRUCTION_PARSER.parseConfig(doc);
+            LOGGER.debug("Finished instruction parsing");
+
+            LOGGER.debug("Parsing macros for instruction set");
+            MACRO_PARSER.parseConfig(doc);
+            LOGGER.debug("Finished macro parsing");
+
+            CoreConfig.INSTRUCTIONS.forEach(instr -> {
+                set.registerInstruction(instr);
+                LOGGER.trace("Registered instruction '{}' with opcode {}", instr.mnemonic(), instr.opcode());
+            });
+
+            LOGGER.info("All instructions registered to {}", set);
         } catch (Exception e) {
-            throw new ConfigurationParseException("Failed to parse instruction set: " + fileName, e);
+            final String errorMsg = "Failed to parse instruction set: " + fileName;
+            LOGGER.error(errorMsg, e);
+            throw new ConfigurationParseException(errorMsg, e);
         }
     }
 
@@ -192,6 +238,7 @@ public final class CoreConfigParser {
      * @param listener the listener to register
      */
     public static void addListenerToTarget(String target, IConfigEventListener listener) {
+        LOGGER.trace("Registering listener {} to target {}", listener, target);
         if (PARSER_INSTRUCTIONS.equals(target))
             INSTRUCTION_PARSER.addListener(listener);
         else if (PARSER_CONFIGURATION.equals(target))
@@ -208,6 +255,7 @@ public final class CoreConfigParser {
      * @param customPath the root path
      */
     public static void setCustomRootPath(Path customPath) {
+        LOGGER.trace("Setting custom root path to {}", customPath);
         ROOT_PATH = customPath;
     }
 
@@ -228,12 +276,16 @@ public final class CoreConfigParser {
 
             if (!targetFile.exists()) {
                 try (InputStream is = CoreConfigParser.class.getClassLoader().getResourceAsStream(fileName)) {
-                    if (is != null)
+                    if (is != null) {
                         Files.copy(is, targetFile.toPath());
+                        LOGGER.info("Copied default file {} to {}", fileName, targetFile);
+                    } else
+                        LOGGER.warn("Resource {} not found in classpath", fileName);
                 } catch (Exception e) {
-                    System.err.printf("Warning: Could not extract %s: %s%n", fileName, e.getMessage());
+                    LOGGER.error("Could not extract content from {}. Error: {}", fileName, e.getMessage());
                 }
-            }
+            } else
+                LOGGER.trace("File {} already exists, skipping copy", targetFile);
         }
     }
 
@@ -282,13 +334,18 @@ public final class CoreConfigParser {
      * @throws ConfigurationParseException if loading or parsing fails
      */
     private static void loadDefaultMacros() {
+        LOGGER.debug("Loading default condition macros from {}", DEFAULT_CONDITION_MACROS_FILE);
         try (InputStream is = getResourceStream(DEFAULT_CONDITION_MACROS_FILE)) {
             if (is == null) throw new ConfigurationParseException(DEFAULT_CONDITION_MACROS_FILE + " is missing from internal resources!");
             
             Document doc = parseWithDtd(is, DTD_INSTRUCTION_SET);
+            LOGGER.trace("Parsing default condition macros");
             MACRO_PARSER.parseConfig(doc);
+            LOGGER.info("Default condition macros loaded successfully");
         } catch (Exception e) {
-            throw new ConfigurationParseException("Critical failure loading core condition macros", e);
+            final String errorMsg = "Failed to load default condition macros";
+            LOGGER.error(errorMsg, e);
+            throw new ConfigurationParseException(errorMsg, e);
         }
     }
 
@@ -301,6 +358,8 @@ public final class CoreConfigParser {
      * @throws Exception if parsing fails
      */
     private static Document parseWithDtd(InputStream is, String dtdName) throws Exception {
+        LOGGER.trace("Parsing XML with DTD {}", dtdName);
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(true);
         factory.setIgnoringElementContentWhitespace(true);
@@ -317,11 +376,16 @@ public final class CoreConfigParser {
 
         builder.setEntityResolver((_, systemId) -> {
             if (systemId != null && systemId.contains(dtdName)) {
+                LOGGER.trace("Resolving DTD {} from internal resources", dtdName);
                 return new InputSource(CoreConfigParser.class.getResourceAsStream("/" + dtdName));
             }
+            LOGGER.trace("No DTD match for {}", systemId);
             return new InputSource(new StringReader(""));
         });
-        return builder.parse(is);
+
+        final var doc = builder.parse(is);
+        LOGGER.trace("XML parsing complete for DTD {}", dtdName);
+        return doc;
     }
 
     /**
