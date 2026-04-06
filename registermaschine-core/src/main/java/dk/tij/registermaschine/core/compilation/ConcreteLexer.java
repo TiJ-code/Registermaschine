@@ -2,15 +2,26 @@ package dk.tij.registermaschine.core.compilation;
 
 import dk.tij.registermaschine.api.compilation.ILexer;
 import dk.tij.registermaschine.api.compilation.lexing.IToken;
+import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.compilation.internal.lexing.ConcreteToken;
 import dk.tij.registermaschine.core.config.CoreConfig;
-import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import static dk.tij.registermaschine.api.compilation.lexing.TokenType.*;
+
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.COMMA;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.COMMENT;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.EOF;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.EOL;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.ERROR;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.INSTRUCTION;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.LABEL;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.LABEL_DEF;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.NUMBER;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.REGISTER;
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.UNKNOWN;
 
 /**
  * Concrete implementation of {@link ILexer} for the Registermaschine.

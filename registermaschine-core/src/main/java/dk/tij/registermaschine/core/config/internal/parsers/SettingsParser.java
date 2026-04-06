@@ -1,10 +1,10 @@
 package dk.tij.registermaschine.core.config.internal.parsers;
 
 import dk.tij.registermaschine.api.config.IConfigParser;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

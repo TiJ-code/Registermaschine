@@ -5,10 +5,14 @@ import dk.tij.registermaschine.api.error.ExistingInstructionException;
 import dk.tij.registermaschine.api.error.UnknownInstructionException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import dk.tij.registermaschine.api.log.Logger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Concrete implementations of {@link IInstructionSet}.
