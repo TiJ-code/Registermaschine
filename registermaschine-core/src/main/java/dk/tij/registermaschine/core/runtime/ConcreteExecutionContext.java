@@ -1,9 +1,11 @@
 package dk.tij.registermaschine.core.runtime;
 
+import dk.tij.registermaschine.api.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 import dk.tij.registermaschine.api.runtime.IExecutionContextListener;
-import dk.tij.registermaschine.api.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.core.config.CoreConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,6 +45,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author TiJ
  */
 public final class ConcreteExecutionContext implements IExecutionContext {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteExecutionContext.class);
+
     private static final byte FLAG_RUNNING = 0b0001,
             FLAG_ZERO = 0b0010,
             FLAG_NEGATIVE = 0b0100,
@@ -77,6 +81,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
         this.programmeCounter = 0;
         this.exitCode = 0;
         this.flags = 0;
+
+        LOGGER.trace("{} initialized with {} registers", getClass().getSimpleName(), CoreConfig.REGISTERS);
     }
 
     /**
@@ -106,6 +112,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public void setRegister(int index, int value) {
+        LOGGER.debug("Register[{}] updated to {}", index, value);
+
         registers[index] = value;
         dirtyRegisters[index] = true;
         listeners.forEach(l -> l.onRegisterChanged(index, value));
@@ -148,6 +156,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     @Override
     public void step() {
         programmeCounter++;
+        LOGGER.trace("PC incremented to {}", programmeCounter);
+
         dirtyPc = true;
         listeners.forEach(l -> l.onProgrammeCounterChanged(programmeCounter));
     }
@@ -163,8 +173,12 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public void setProgrammeCounter(int pc) {
+        LOGGER.debug("Jumping to PC {}", pc);
+
         incJumpCounter();
         if (jumpCounter >= maxJumpCounter()) {
+            LOGGER.warn("Maximum jump count ({}) reached. Halting execution.", maxJumpCounter());
+
             listeners.forEach(IExecutionContextListener::onMaxJumpsReached);
             stopExecution();
             return;
@@ -180,6 +194,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public void startExecution() {
+        LOGGER.info("Execution started");
+
         flags |= FLAG_RUNNING;
         listeners.forEach(IExecutionContextListener::onExecutionStarted);
     }
@@ -189,6 +205,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public void stopExecution() {
+        LOGGER.info("Execution stopped");
+
         flags &= ~FLAG_RUNNING;
         listeners.forEach(IExecutionContextListener::onExecutionStopped);
     }
@@ -235,6 +253,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public void setFlags(boolean negative, boolean zero, boolean overflow) {
+        LOGGER.debug("Flags updated -> N: {}, Z: {}, V: {}", negative, zero, overflow);
+
         flags &= FLAG_RUNNING;
         flags |= negative ? FLAG_NEGATIVE : 0;
         flags |= zero ? FLAG_ZERO : 0;
@@ -250,6 +270,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public void setExitCode(byte code) {
+        LOGGER.info("Exist code set to {}", code);
+
         this.exitCode = code;
         listeners.forEach(l -> l.onExitCodeChanged(code));
     }
@@ -274,6 +296,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public void output(int value) {
+        LOGGER.debug("Output produced: {}", value);
+
         lastOutput = value;
         dirtyOutput = true;
         listeners.forEach(l -> l.onOutput(value));
@@ -289,14 +313,20 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public int input() {
+        LOGGER.debug("Input requested");
+
         listeners.forEach(IExecutionContextListener::onInputRequested);
         notifyInputRequested();
 
         try {
-            return inputQueue.take();
+            var value = inputQueue.take();
+            LOGGER.debug("Input received: {}", value);
+            return value;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Execution interrupted while waiting for input!");
+            final String errorMsg = "Execution interrupted while waiting for input";
+            LOGGER.error(errorMsg, e);
+            throw new RuntimeException(errorMsg);
         }
     }
 
@@ -350,6 +380,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
      */
     @Override
     public ExecutionSnapshot snapshotAndClearDirty() {
+        LOGGER.trace("Creating execution snapshot");
+
         Integer out = dirtyOutput ? lastOutput : null;
 
         Map<Integer, Integer> dirtyRegs = new HashMap<>();
@@ -362,6 +394,16 @@ public final class ConcreteExecutionContext implements IExecutionContext {
         ExecutionSnapshot snapshot = new ExecutionSnapshot(
                 programmeCounter,
                 dirtyRegs,
+                getNegativeFlag(),
+                getZeroFlag(),
+                getOverflowFlag(),
+                getExitCode(),
+                out
+        );
+
+        LOGGER.trace("Snapshot created: pc={}, dirtyRegs={}, flags=[N={}, Z={}, V={}], exit={}, out={}",
+                programmeCounter,
+                dirtyRegs.keySet(),
                 getNegativeFlag(),
                 getZeroFlag(),
                 getOverflowFlag(),

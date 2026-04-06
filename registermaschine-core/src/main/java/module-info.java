@@ -46,4 +46,5 @@ module dk.tij.registermaschine.core {
 
     requires dk.tij.registermaschine.api;
     requires java.xml;
+    requires org.slf4j;
 }

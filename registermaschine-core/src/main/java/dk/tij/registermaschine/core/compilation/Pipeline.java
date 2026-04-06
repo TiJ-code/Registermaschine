@@ -9,6 +9,8 @@ import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import dk.tij.registermaschine.api.error.DefectPipelineException;
 import dk.tij.registermaschine.api.error.SyntaxErrorException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -28,6 +30,8 @@ import java.util.Objects;
  * @author TiJ
  */
 public final class Pipeline {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Pipeline.class);
+
     private Pipeline() {}
 
     private static Class<? extends ILexer> pipelineLexer = ConcreteLexer.class;
@@ -42,6 +46,7 @@ public final class Pipeline {
      */
     public static void useLexer(Class<? extends ILexer> customLexer) {
         Objects.requireNonNull(customLexer, "Custom Lexer cannot be null");
+        LOGGER.info("Using custom lexer: {}", customLexer.getName());
         pipelineLexer = customLexer;
     }
 
@@ -52,6 +57,7 @@ public final class Pipeline {
      */
     public static void useParser(Class<? extends IParser> customParser) {
         Objects.requireNonNull(customParser, "Custom Parser cannot be null");
+        LOGGER.info("Using custom parser: {}", customParser.getName());
         pipelineParser = customParser;
     }
 
@@ -62,6 +68,7 @@ public final class Pipeline {
      */
     public static void useCompiler(Class<? extends ICompiler> customCompiler) {
         Objects.requireNonNull(customCompiler, "Custom Compiler cannot be null");
+        LOGGER.info("Using custom compiler: {}", customCompiler.getName());
         pipelineCompiler = customCompiler;
     }
 
@@ -72,6 +79,7 @@ public final class Pipeline {
      */
     public static void setGlobalInstructionSet(IInstructionSet set) {
         Objects.requireNonNull(set, "Custom global InstructionSet cannot be null");
+        LOGGER.info("Global instruction set configured: {}", set);
         globalInstructionSet = set;
     }
 
@@ -84,6 +92,7 @@ public final class Pipeline {
      * @throws DefectPipelineException if a pipeline stage cannot be instantiated
      */
     public static ICompiledProgram compileWithGlobal(String sourceCode) throws SyntaxErrorException, DefectPipelineException {
+        LOGGER.info("Starting compilation with global instruction set");
         return compile(sourceCode, globalInstructionSet);
     }
 
@@ -98,7 +107,16 @@ public final class Pipeline {
      */
     public static ICompiledProgram compile(String sourceCode, IInstructionSet set) throws SyntaxErrorException, DefectPipelineException {
         Objects.requireNonNull(set, "InstructionSet cannot be null");
-        return tokenize(sourceCode, set).parse().compile();
+
+        LOGGER.info("Starting compilation pipeline");
+        LOGGER.debug("Using Lexer={}, Parser={}, Compiler={}",
+                pipelineLexer.getSimpleName(), pipelineParser.getSimpleName(), pipelineCompiler.getSimpleName());
+
+        var program = tokenize(sourceCode, set).parse().compile();
+
+        LOGGER.info("Compilation finished successfully");
+
+        return program;
     }
 
     /**
@@ -122,8 +140,15 @@ public final class Pipeline {
      */
     public static TokenStage tokenize(String sourceCode, IInstructionSet instructionSet) throws DefectPipelineException {
         Objects.requireNonNull(instructionSet, "InstructionSet cannot be null");
+
+        LOGGER.debug("Tokenizing source (length={})", sourceCode != null ? sourceCode.length() : 0);
+
         ILexer lexer = newInstance(pipelineLexer);
-        return new TokenStage(lexer.tokenize(sourceCode, instructionSet), instructionSet);
+        var tokens = lexer.tokenize(sourceCode, instructionSet);
+
+        LOGGER.trace("Tokenization produced {} tokens", tokens.size());
+
+        return new TokenStage(tokens, instructionSet);
     }
 
     /**
@@ -140,8 +165,14 @@ public final class Pipeline {
          * @throws DefectPipelineException if the parser cannot be instantiated
          */
         public ParseStage parse() throws SyntaxErrorException, DefectPipelineException {
+            LOGGER.debug("Parsing {} tokens", tokens.size());
+
             IParser parser = newInstance(pipelineParser);
-            return new ParseStage(parser.parse(tokens), set);
+            var tree = parser.parse(tokens);
+
+            LOGGER.trace("Parsing completed. SyntaxTree: {}", tree);
+
+            return new ParseStage(tree, set);
         }
     }
 
@@ -158,8 +189,14 @@ public final class Pipeline {
          * @throws DefectPipelineException if the compiler cannot be instantiated
          */
         public ICompiledProgram compile() throws DefectPipelineException {
+            LOGGER.debug("Compiling syntax tree");
+
             ICompiler compiler = newInstance(pipelineCompiler);
-            return compiler.compile(syntaxTree, set);
+            var program = compiler.compile(syntaxTree, set);
+
+            LOGGER.trace("Compilation produced program of size {}", program.size());
+
+            return program;
         }
     }
 
@@ -173,8 +210,10 @@ public final class Pipeline {
      */
     private static <T> T newInstance(Class<? extends T> cls) throws DefectPipelineException {
         try {
+            LOGGER.trace("Instantiating pipeline component: {}", cls.getName());
             return cls.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
+            LOGGER.error("Failed to instantiate pipeline stage: {}", cls.getName(), e);
             throw new DefectPipelineException("Failed to instantiate pipeline stage: " + cls.getName(), e);
         }
     }

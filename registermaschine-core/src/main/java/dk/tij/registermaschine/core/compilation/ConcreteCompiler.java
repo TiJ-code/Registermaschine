@@ -17,6 +17,8 @@ import dk.tij.registermaschine.core.compilation.internal.compiling.ConcreteCompi
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
 import dk.tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -49,6 +51,8 @@ import java.util.*;
  * @author TiJ
  */
 public final class ConcreteCompiler implements ICompiler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteCompiler.class);
+
     /**
      * Compiles the given {@link ISyntaxTree} into a {@link ICompiledProgram}.
      *
@@ -59,32 +63,51 @@ public final class ConcreteCompiler implements ICompiler {
      */
     @Override
     public ICompiledProgram compile(ISyntaxTree tree, IInstructionSet instructionSet) {
+        LOGGER.debug("Starting compilation of syntax tree");
+
         List<ICompiledInstruction> program = new ArrayList<>();
         Map<String, Integer> symbolTable = new HashMap<>();
 
         int instructionIdx = 0;
         for (ISyntaxTreeNode node : tree) {
             if (node instanceof ConcreteLabelNode labelNode) {
+                LOGGER.trace("Registering label '{}' at instruction index {}", labelNode.label(), instructionIdx);
                 symbolTable.put(labelNode.label(), instructionIdx);
             } else if (node instanceof ConcreteInstructionNode) {
                 instructionIdx++;
             }
         }
 
+        LOGGER.debug("Symbol table built: {}", symbolTable);
+
         for (ISyntaxTreeNode node : tree) {
             if (node instanceof ConcreteInstructionNode instr) {
+                LOGGER.debug("Compiling instruction '{}' at line {}", instr.instruction(), instr.line);
+
                 ConfigInstruction config = instructionSet.getInstructions().stream()
                         .filter(c -> c.mnemonic().equalsIgnoreCase(instr.instruction()))
-                        .findFirst().orElseThrow(() -> new RuntimeException("Unknown: " + instr.instruction()));
+                        .findFirst().orElseThrow(() -> {
+                            LOGGER.error("Unknown instruction '{}'", instr.instruction());
+                            return new RuntimeException("Unknown: " + instr.instruction());
+                        });
+
+                LOGGER.trace("Matched instruction config: {}", config);
 
                 ICompiledOperand[] finalOperands = mergeOperands(config.operands(), instr.operands, symbolTable);
 
                 AbstractInstruction handler = instructionSet.getHandler(instr.instruction());
+
+                LOGGER.trace("Validating operands {}", Arrays.toString(finalOperands));
                 handler.validate(finalOperands);
+
+                LOGGER.trace("Instruction compiled -> opcode={}, operands={}",
+                        config.opcode(), Arrays.toString(finalOperands));
 
                 program.add(new ConcreteCompiledInstruction(config.opcode(), finalOperands));
             }
         }
+
+        LOGGER.info("Compilation finished. Program size: {}", program.size());
 
         return new ConcreteCompiledProgram(program);
     }
@@ -99,6 +122,8 @@ public final class ConcreteCompiler implements ICompiler {
      */
     private ICompiledOperand[] mergeOperands(List<ConfigOperand> template, List<ConcreteOperandNode> userNodes,
                                              Map<String, Integer> symbolTable) {
+        LOGGER.trace("Merging operands: tempalte={}, userNodes={}", template, userNodes);
+
         ICompiledOperand[] result = new ICompiledOperand[template.size()];
         int userIdx = 0;
 
@@ -106,13 +131,17 @@ public final class ConcreteCompiler implements ICompiler {
             ConfigOperand t = template.get(i);
 
             if (t.isImplicit()) {
+                LOGGER.trace("Using implicit operand at index {}: {}", i, t);
                 result[i] = parseInternalValue(t);
             } else {
                 if (userIdx >= userNodes.size()) {
+                    LOGGER.error("Missing operand at index {}", i);
                     throw new RuntimeException("Missing operand for template at index " + i);
                 }
 
                 ConcreteOperandNode userNode = userNodes.get(userIdx++);
+                LOGGER.trace("Mapping user operand {} -> template {}", userNode, t);
+
                 if (t.type() == OperandType.REGISTER && !userNode.isRegister)
                     throw error(userNode, "Operand %d must be a REGISTER, but got IMMEDIATE", i);
 
@@ -127,6 +156,7 @@ public final class ConcreteCompiler implements ICompiler {
         }
 
         if (userIdx < userNodes.size()) {
+            LOGGER.error("Too many operands provided: expected {}, got {}", template.size(), userNodes.size());
             throw new RuntimeException("Too many operands provided for this instruction definition.");
         }
 
@@ -137,6 +167,8 @@ public final class ConcreteCompiler implements ICompiler {
      * Parses implicit operand values defined in the configuration.
      */
     private ICompiledOperand parseInternalValue(ConfigOperand op) {
+        LOGGER.trace("Parsing internal operand: {}", op);
+
         ICompiledOperand result;
         String value = op.value();
         if (op.type() == OperandType.REGISTER && value.toLowerCase().startsWith("r")) {
@@ -144,11 +176,14 @@ public final class ConcreteCompiler implements ICompiler {
                                                  Integer.parseInt(value.substring(1)));
         } else {
             if (op.concept() == OperandConcept.TARGET && !value.startsWith("0x")) {
+                LOGGER.error("Invalid internal address '{}'", value);
                 throw new RuntimeException(String.format("XML Error: Address value '%s' must be hex.", value));
             }
             result = new ConcreteCompiledOperand(OperandType.IMMEDIATE, OperandConcept.OPERAND,
                                                  Integer.decode(value));
         }
+
+        LOGGER.trace("Parsed internal operand -> {}", result);
         return result;
     }
 
@@ -156,11 +191,14 @@ public final class ConcreteCompiler implements ICompiler {
      * Parses a user-provided operand into a compiled operand, resolving labels and addresses.
      */
     private ICompiledOperand parseUserValue(ConcreteOperandNode node, OperandConcept concept, Map<String, Integer> symbolTable) {
+        LOGGER.trace("Parsing user operand '{}' with concept {}", node, concept);
+
         ICompiledOperand result;
         if (node.isRegister) {
             int regIndex = Integer.parseInt(node.value().substring(1));
 
             if (regIndex >= CoreConfig.REGISTERS) {
+                LOGGER.error("Invalid register index {}", regIndex);
                 throw error(node, "Invalid register 'r%d'. The machine is configured with only %d registers (r0 - r%d).",
                         regIndex, CoreConfig.REGISTERS, CoreConfig.REGISTERS-1);
             }
@@ -172,30 +210,39 @@ public final class ConcreteCompiler implements ICompiler {
             if (concept == OperandConcept.TARGET) {
                 if (value.startsWith("@")) {
                     if (!value.startsWith("@0x") && !value.startsWith("@0X")) {
+                        LOGGER.error("Invalid address format '{}'", value);
                         throw error(node,
                                 "Invalid address format: %s. Addresses must be hexadecimal and start with '@0x'",
                                 value);
                     }
 
                     int addr = Integer.decode(value.substring(1)) - 1; // line number offset
+                    LOGGER.trace("Resolved direct address {} -> {}", value, addr);
+
                     return new ConcreteCompiledOperand(OperandType.IMMEDIATE, concept, addr);
                 } else {
                     if (!symbolTable.containsKey(value)) {
+                        LOGGER.error("Undefined label '{}'", value);
                         throw error(node, "Undefined label: %s", value);
                     }
 
                     int resolveAddress = symbolTable.get(value);
+                    LOGGER.trace("Resolved label '{}' -> {}", value, resolveAddress);
+
                     return new ConcreteCompiledOperand(OperandType.IMMEDIATE, concept, resolveAddress);
                 }
             }
 
             if (value.startsWith("@")) {
+                LOGGER.error("Illegal '@' usage in operand '{}'", value);
                 throw error(node, "Address prefix '@' is not allowed for this operand type.");
             }
 
             result = new ConcreteCompiledOperand(OperandType.IMMEDIATE, OperandConcept.OPERAND,
                                                  Integer.decode(value));
         }
+
+        LOGGER.trace("Parsed user operand -> {}", result);
         return result;
     }
 
@@ -203,6 +250,10 @@ public final class ConcreteCompiler implements ICompiler {
      * Constructs a {@link SyntaxErrorException} with node location and message formatting.
      */
     private SyntaxErrorException error(ConcreteAbstractSyntaxTreeNode node, String msg, Object... args) {
-        return new SyntaxErrorException(String.format("at line %d: %s", node.line, String.format(msg, args)));
+        String formatted = msg.formatted(args);
+
+        LOGGER.error("Compilation error at line {}: {}", node.line, formatted);
+
+        return new SyntaxErrorException(String.format("at line %d: %s", node.line, formatted));
     }
 }

@@ -1,6 +1,13 @@
 package dk.tij.registermaschine.core.config.internal.conditions;
 
-import dk.tij.registermaschine.core.config.internal.conditions.nodes.*;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.AndNode;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.ConditionToken;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.LeafNode;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.MacroNode;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.NotNode;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.OrNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -21,6 +28,8 @@ import java.util.List;
  * @author TiJ
  */
 public final class ConditionParser {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConditionParser.class);
+
     /**
      * Private constructor to prevent instantiation of this utility class
      */
@@ -34,10 +43,14 @@ public final class ConditionParser {
      * @throws RuntimeException if the syntax is invalid or the {@link ConditionToken.Type#EOF} is missing.
      */
     public static ConditionNode parse(List<ConditionToken> conditionTokens) {
+        LOGGER.debug("Starting parsing of {} tokens", conditionTokens.size());
+
         ParseContext context = new ParseContext(conditionTokens);
 
         ConditionNode expression = parseOr(context);
         expect(context, ConditionToken.Type.EOF);
+
+        LOGGER.debug("Finished parsing. Final AST: {}", expression);
         return expression;
     }
 
@@ -48,9 +61,13 @@ public final class ConditionParser {
      * @return the parsed {@link OrNode}
      */
     private static ConditionNode parseOr(ParseContext context) {
+        LOGGER.trace("Entering parseOr at position {}", context.pos);
+
         ConditionNode node = parseAnd(context);
         while (match(context, ConditionToken.Type.OR)) {
+            LOGGER.trace("Matched OR at position {}", context.pos - 1);
             node = new OrNode(node, parseAnd(context));
+            LOGGER.debug("Built OR node: {}", node);
         }
         return node;
     }
@@ -62,9 +79,13 @@ public final class ConditionParser {
      * @return the parsed {@link AndNode}
      */
     private static ConditionNode parseAnd(ParseContext context) {
+        LOGGER.trace("Entering parseAnd at position {}", context.pos);
+
         ConditionNode node = parseUnary(context);
         while (match(context, ConditionToken.Type.AND)) {
+            LOGGER.trace("Matched AND at position {}", context.pos - 1);
             node = new AndNode(node, parseUnary(context));
+            LOGGER.debug("Built AND node: {}", node);
         }
         return node;
     }
@@ -76,9 +97,15 @@ public final class ConditionParser {
      * @return the parsed {@link NotNode}
      */
     private static ConditionNode parseUnary(ParseContext context) {
+        LOGGER.trace("Entering parseUnary at position {}", context.pos);
+
         if (match(context, ConditionToken.Type.NOT)) {
-            return new NotNode(parseUnary(context));
+            LOGGER.trace("Matched NOT at position {}", context.pos - 1);
+            var node = new NotNode(parseUnary(context));
+            LOGGER.debug("Built NOT node: {}", node);
+            return node;
         }
+
         return parsePrimary(context);
     }
 
@@ -89,17 +116,29 @@ public final class ConditionParser {
      * @return the parsed {@link ConditionNode}
      */
     private static ConditionNode parsePrimary(ParseContext context) {
+        LOGGER.trace("Entering parsePrimary at position {}", context.pos);
+
         if (match(context, ConditionToken.Type.MACRO)) {
-            return new MacroNode(previous(context).text());
+            var name = previous(context).text();
+            LOGGER.trace("Matched {} '{}'", ConditionToken.Type.MACRO, name);
+            var node = new MacroNode(name);
+            LOGGER.debug("Built {} not: {}", ConditionToken.Type.MACRO, node);
+            return node;
         }
 
         if (match(context, ConditionToken.Type.IDENTIFIER)) {
-            return new LeafNode(previous(context).text());
+            var name = previous(context).text();
+            LOGGER.trace("Matched {} '{}'", ConditionToken.Type.IDENTIFIER, name);
+            var node = new LeafNode(name);
+            LOGGER.debug("Built {} not: {}", ConditionToken.Type.MACRO, node);
+            return node;
         }
 
         if (match(context, ConditionToken.Type.LEFT_PAREN)) {
+            LOGGER.trace("Matched {} at position {}", ConditionToken.Type.LEFT_PAREN, context.pos - 1);
             ConditionNode expr = parseOr(context);
             expect(context, ConditionToken.Type.RIGHT_PAREN);
+            LOGGER.trace("Closed parenthesis");
             return expr;
         }
 
@@ -114,7 +153,10 @@ public final class ConditionParser {
      * @return {@code true} if the next token is of {@code type}
      */
     private static boolean match(ParseContext context, ConditionToken.Type type) {
-        if (peek(context).type() == type) {
+        var token = peek(context);
+
+        if (token.type() == type) {
+            LOGGER.trace("Matched token {} at position {}", token, context.pos);
             context.pos++;
             return true;
         }
@@ -130,6 +172,7 @@ public final class ConditionParser {
      */
     private static void expect(ParseContext context, ConditionToken.Type type) {
         if (!match(context, type)) {
+            LOGGER.error("Expected token {} but found {}", type, peek(context));
             throw error(context, "Expected " + type);
         }
     }
@@ -161,8 +204,11 @@ public final class ConditionParser {
      * @return a {@link RuntimeException} instance
      */
     private static RuntimeException error(ParseContext context, String msg) {
+        var token = peek(context);
+        LOGGER.error("Parse error: {} at token {} (position {})", msg, token, context.pos);
+
         return new RuntimeException(
-                msg + " at token " + peek(context)
+                msg + " at token " + token
         );
     }
 

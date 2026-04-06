@@ -5,6 +5,8 @@ import dk.tij.registermaschine.api.error.ExistingInstructionException;
 import dk.tij.registermaschine.api.error.UnknownInstructionException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -30,6 +32,8 @@ import java.util.*;
  * @author TiJ
  */
 public final class ConcreteInstructionSet implements IInstructionSet {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConcreteInstructionSet.class);
+
     /**
      * Ordered list of registered instructions
      */
@@ -55,12 +59,16 @@ public final class ConcreteInstructionSet implements IInstructionSet {
     public void registerInstruction(ConfigInstruction configInstruction) {
         int opcode = configInstruction.opcode();
 
-        if (byOpcode.containsKey(opcode))
+        if (byOpcode.containsKey(opcode)) {
+            LOGGER.warn("Attempted to register duplicate opcode {} ({})", opcode, configInstruction);
             throw new ExistingInstructionException("Opcode " + opcode + " is already registered!");
+        }
 
         instructions.add(configInstruction);
         byName.put(configInstruction.mnemonic().toLowerCase(), configInstruction);
         byOpcode.put(opcode, configInstruction);
+
+        LOGGER.info("Registered instruction '{}' with opcode {}", configInstruction.mnemonic(), opcode);
     }
 
     /**
@@ -74,6 +82,8 @@ public final class ConcreteInstructionSet implements IInstructionSet {
      */
     @Override
     public void prohibitInstructionHandler(Class<? extends AbstractInstruction> instruction) {
+        LOGGER.info("Prohibiting instructions handled by {}", instruction.getName());
+
         List<ConfigInstruction> permittedInstructions = instructions.stream()
                     .filter(Objects::nonNull)
                     .filter(i -> Objects.nonNull(i.handler()))
@@ -83,49 +93,66 @@ public final class ConcreteInstructionSet implements IInstructionSet {
             byName.remove(instr.mnemonic().toLowerCase(), instr);
             byOpcode.remove(instr.opcode(), instr);
             instructions.remove(instr);
+            LOGGER.info("Removed instruction '{}' with opcode {}", instr.mnemonic(), instr.opcode());
         }
     }
 
     @Override
     public AbstractInstruction getHandler(String mnemonic) {
         ConfigInstruction entry = byName.get(mnemonic);
-        if (entry == null)
+        if (entry == null) {
+            LOGGER.debug("Instruction with mnemonic {} not found", mnemonic);
             throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);
+        }
+        LOGGER.debug("Retrieved handler for mnemonic '{}'", mnemonic);
         return entry.handler();
     }
 
     @Override
     public AbstractInstruction getHandler(int opcode) {
+        LOGGER.debug("Getting instruction handler by opcode {}", opcode);
+
         ConfigInstruction entry = byOpcode.get(opcode);
-        if (entry == null)
+        if (entry == null) {
+            LOGGER.debug("Instruction with opcode {} not found", opcode);
             throw new UnknownInstructionException("No instruction found with opcode " + opcode);
+        }
+        LOGGER.debug("Retrieved handler for opcode {}", opcode);
         return entry.handler();
     }
 
     @Override
     public String getMnemonic(int opcode) {
         ConfigInstruction entry = byOpcode.get(opcode);
-        if (entry == null)
+        if (entry == null) {
+            LOGGER.debug("Mnemonic lookup failed for opcode {}", opcode);
             throw new UnknownInstructionException("No instruction found with opcode " + opcode);
+        }
         return entry.mnemonic();
     }
 
     @Override
     public int getOpcode(String mnemonic) {
         ConfigInstruction entry = byName.get(mnemonic);
-        if (entry == null)
+        if (entry == null) {
+            LOGGER.debug("Opcode lookup failed for mnemonic '{}'", mnemonic);
             throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);
+        }
         return entry.opcode();
     }
 
     @Override
     public boolean contains(String mnemonic) {
-        return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.mnemonic().equals(mnemonic));
+        boolean result = instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.mnemonic().equals(mnemonic));
+        LOGGER.debug("Instruction set contains mnemonic '{}': {}", mnemonic, result);
+        return result;
     }
 
     @Override
     public boolean contains(int opcode) {
-        return instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.opcode() == opcode);
+        boolean result = instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.opcode() == mnemonic);
+        LOGGER.debug("Instruction set contains opcode '{}': {}", opcode, result);
+        return result;
     }
 
     /**
@@ -135,6 +162,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
      */
     @Override
     public List<ConfigInstruction> getInstructions() {
+        LOGGER.trace("Returning {} configured instructions", instructions.size());
         return List.copyOf(instructions);
     }
 }

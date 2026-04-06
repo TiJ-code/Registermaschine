@@ -10,4 +10,5 @@ module dk.tij.registermaschine.api {
     exports dk.tij.registermaschine.api.error;
 
     requires java.xml;
+    requires org.slf4j;
 }

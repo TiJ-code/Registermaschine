@@ -1,6 +1,8 @@
 package dk.tij.registermaschine.core.config.internal.conditions;
 
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.ConditionToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author TiJ
  */
 public final class ConditionLexer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConditionLexer.class);
+
     /**
      * Private constructor to prevent instantiation of this utility class
      */
@@ -39,6 +43,8 @@ public final class ConditionLexer {
      * @throws RuntimeException if an invalid or unexpected character is encountered
      */
     public static List<ConditionToken> tokenize(String source) {
+        LOGGER.debug("Starting tokenization of condition {}", source);
+
         List<ConditionToken> tokens = new ArrayList<>();
         AtomicInteger i = new AtomicInteger(0);
 
@@ -48,35 +54,44 @@ public final class ConditionLexer {
             switch (c) {
                 case ' ' -> i.incrementAndGet();
                 case '!' -> {
+                    LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.NOT, i);
                     tokens.add(new ConditionToken(ConditionToken.Type.NOT, "!"));
                     i.incrementAndGet();
                 }
                 case '*' -> {
+                    LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.AND, i);
                     tokens.add(new ConditionToken(ConditionToken.Type.AND, "*"));
                     i.incrementAndGet();
                 }
                 case '+' -> {
+                    LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.OR, i);
                     tokens.add(new ConditionToken(ConditionToken.Type.OR, "+"));
                     i.incrementAndGet();
                 }
                 case '(' -> {
+                    LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.LEFT_PAREN, i);
                     tokens.add(new ConditionToken(ConditionToken.Type.LEFT_PAREN, "("));
                     i.incrementAndGet();
                 }
                 case ')' -> {
+                    LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.RIGHT_PAREN, i);
                     tokens.add(new ConditionToken(ConditionToken.Type.RIGHT_PAREN, ")"));
                     i.incrementAndGet();
                 }
 
                 case '@' -> {
+                    LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.MACRO, i);
                     i.incrementAndGet();
                     tokens.add(readMacroIdentifier(source, i));
                 }
 
                 default -> {
                     if (Character.isJavaIdentifierStart(c)) {
-                        tokens.add(readIdentifier(source, i));
+                        var token = readIdentifier(source, i);
+                        LOGGER.debug("Parsed identifier token {}", token);
+                        tokens.add(token);
                     } else {
+                        LOGGER.error("Unexpected character '{}' at index {}", c, i);
                         throw new RuntimeException("Unexpected char: " + c);
                     }
                 }
@@ -84,6 +99,8 @@ public final class ConditionLexer {
         }
 
         tokens.add(new ConditionToken(ConditionToken.Type.EOF, null));
+        LOGGER.debug("Finished tokenization. Generated {} tokens", tokens.size());
+
         return tokens;
     }
 
@@ -100,7 +117,10 @@ public final class ConditionLexer {
         while (currentIndex.get() < source.length() && isValidIdentifierChar(source.charAt(currentIndex.get())))
             currentIndex.incrementAndGet();
 
-        return new ConditionToken(ConditionToken.Type.IDENTIFIER, source.substring(start, currentIndex.get()));
+        String value = source.substring(start, currentIndex.get());
+        LOGGER.trace("Identifier parsed: '{}'", value);
+
+        return new ConditionToken(ConditionToken.Type.IDENTIFIER, value);
     }
 
     /**
@@ -117,6 +137,12 @@ public final class ConditionLexer {
             currentIndex.incrementAndGet();
 
         String name = source.substring(start, currentIndex.get());
+
+        if (name.isEmpty())
+            LOGGER.warn("Empty macro identifier declared at index {}", currentIndex.get());
+        else
+            LOGGER.trace("Macro identifier parsed: '{}'", name);
+
         return new ConditionToken(ConditionToken.Type.MACRO, name);
     }
 

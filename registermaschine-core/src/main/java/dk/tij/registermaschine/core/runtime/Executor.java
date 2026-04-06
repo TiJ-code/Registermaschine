@@ -5,6 +5,8 @@ import dk.tij.registermaschine.api.compilation.compiling.ICompiledProgram;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@link Executor} is responsible for executing a compiled program on the
@@ -48,6 +50,8 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  * @author TiJ
  */
 public class Executor implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Executor.class);
+
     private static final long UNLIMITED_RATE_LIMIT_MS = 10;
 
     private Thread currentThread;
@@ -69,6 +73,7 @@ public class Executor implements Runnable {
         this.context = context;
         this.instructionSet = instructionSet;
         this.running = false;
+        LOGGER.trace("{} created with empty program", getClass().getSimpleName());
     }
 
     /**
@@ -81,6 +86,7 @@ public class Executor implements Runnable {
     public Executor(IExecutionContext context, IInstructionSet instructionSet, ICompiledProgram program) {
         this(context, instructionSet);
         this.program = program;
+        LOGGER.trace("{} created with program of size {}", getClass().getSimpleName(), program.size());
     }
 
     /**
@@ -98,45 +104,58 @@ public class Executor implements Runnable {
      */
     @Override
     public void run() {
+        LOGGER.info("Started execution thread");
+
         running = true;
         context.startExecution();
         currentThread = Thread.currentThread();
 
         try {
+            LOGGER.debug("Program size: {}", program.size());
+
             while (running && !context.isHalted() && context.getProgrammeCounter() < program.size()) {
                 long cycleStart = System.nanoTime();
 
                 int pc = context.getProgrammeCounter();
                 ICompiledInstruction instr = program.get(pc);
+
+                LOGGER.trace("Executing instruction at PC {}: {}", pc, instr);
+
                 context.step();
 
                 AbstractInstruction handler = instructionSet.getHandler(instr.opcode());
                 if (handler.shouldExecute(context)) {
                     try {
+                        LOGGER.trace("Execution handler {} with operands {}",
+                                handler.getClass().getSimpleName(), instr.operands());
                         handler.executeInstruction(context, instr.operands());
                     } catch (Exception e) {
-                        System.out.println("Execution interrupted during input, stopping!");
+                        LOGGER.error("Execution failed at PC {} with instruction {}", pc, handler.getClass().getSimpleName(), e);
                         break;
                     }
                 }
-
 
                 long cycleTimeNs = System.nanoTime() - cycleStart;
                 long targetCycleNs = delayMs * 1_000_000L;
                 long sleepNs = targetCycleNs - cycleTimeNs;
 
                 if (sleepNs > 0) {
+                    LOGGER.trace("Sleeping for {} ns to maintain rate", sleepNs);
                     Thread.sleep(sleepNs / 1_000_000L, (int)(sleepNs % 1_000_000L));
                 }
             }
         } catch (InterruptedException e ) {
-            System.err.println("Execution interrupted: " + e.getMessage());
+            LOGGER.warn("Execution thread interrupted", e);
             Thread.currentThread().interrupt();
         } finally {
             running = false;
             currentThread = null;
-            if (!context.isHalted())
+            if (!context.isHalted()) {
+                LOGGER.info("Stopping execution context");
                 context.stopExecution();
+            }
+
+            LOGGER.info("Execution thread terminated");
         }
     }
 
@@ -148,7 +167,12 @@ public class Executor implements Runnable {
      * @param program the compiled program to execute
      */
     public void setProgram(ICompiledProgram program) {
-        if (running) return;
+        if (running) {
+            LOGGER.warn("Attempted to set program while running. Ignored.");
+            return;
+        }
+
+        LOGGER.info("Program set with size {}", program != null ? program.size() : 0);
         this.program = program;
     }
 
@@ -166,8 +190,12 @@ public class Executor implements Runnable {
      * @param hertz the desired execution frequency in instructions per second
      */
     public void setSpeed(int hertz) {
-        if (running) return;
+        if (running) {
+            LOGGER.warn("Attempted to change speed while running. Ignored.");
+            return;
+        }
         this.delayMs = Math.max(UNLIMITED_RATE_LIMIT_MS, 1000 / hertz);
+        LOGGER.info("Execution speed set to {} Hz (delay={} ms)", hertz, delayMs);
     }
 
     /**
@@ -177,6 +205,8 @@ public class Executor implements Runnable {
      * execution thread if it is currently running.</p>
      */
     public void stop() {
+        LOGGER.info("Stopping execution requested");
+
         this.running = false;
         if (currentThread != null)
             currentThread.interrupt();
