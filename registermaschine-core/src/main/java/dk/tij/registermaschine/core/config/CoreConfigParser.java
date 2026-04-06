@@ -46,7 +46,8 @@ public final class CoreConfigParser {
     /**
      * Name of the instruction parser target
      */
-    public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName();
+    public static final String  PARSER_INSTRUCTIONS = InstructionParser.class.getName(),
+                                PARSER_CONFIGURATION = SettingsParser.class.getName();
 
     /**
      * Internal DTD names
@@ -193,6 +194,12 @@ public final class CoreConfigParser {
     public static void addListenerToTarget(String target, IConfigEventListener listener) {
         if (PARSER_INSTRUCTIONS.equals(target))
             INSTRUCTION_PARSER.addListener(listener);
+        else if (PARSER_CONFIGURATION.equals(target))
+            INTERNAL_CONFIG_PARSERS.stream()
+                    .filter(p -> p instanceof SettingsParser)
+                    .findFirst()
+                    .orElseThrow()
+                    .addListener(listener);
     }
 
     /**

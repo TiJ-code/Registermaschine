@@ -1,9 +1,10 @@
 package dk.tij.registermaschine.core.config.internal.parsers;
 
-import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.api.config.IConfigParser;
+import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
@@ -35,6 +36,12 @@ public final class SettingsParser implements IConfigParser {
         NodeList maxJumpsNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_CONFIG_MAX_JUMPS);
         if (maxJumpsNodeList.getLength() > 0) {
             CoreConfig.MAX_JUMPS = Math.max(Integer.parseInt(maxJumpsNodeList.item(0).getTextContent()), 1);
+        }
+
+        NodeList customNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_CONFIG_CUSTOM);
+        for (int i = 0; i < customNodeList.getLength(); i++) {
+            Element customElement = (Element) customNodeList.item(i);
+            fireEvent(customElement, customElement.getTextContent());
         }
     }
 }

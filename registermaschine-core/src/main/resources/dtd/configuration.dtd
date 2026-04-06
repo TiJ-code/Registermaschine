@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!ELEMENT configuration (registers, maxJumps, ANY*)>
+<!ELEMENT configuration (registers, maxJumps, custom?)>
 
 <!ELEMENT registers (#PCDATA)>
 <!ELEMENT maxJumps (#PCDATA)>
+
+<!ELEMENT custom (#PCDATA)>
+<!ATTLIST custom
+        key #REQUIRED>
 

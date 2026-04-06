@@ -23,7 +23,11 @@ public final class XmlConstants {
     /**
      * Tag for the max number of jumps (e.g., {@code <maxJumps>8</maxJumps>}
      */
-                                TAG_CONFIG_MAX_JUMPS = "maxJumps";
+                                TAG_CONFIG_MAX_JUMPS = "maxJumps",
+    /**
+     * Tag for custom config keys (e.g., {@code <custom key="custom.entry">value</custom>})
+     */
+                                TAG_CONFIG_CUSTOM = "custom";
 
     /**
      * Tag defining a machine instruction
