@@ -10,6 +10,8 @@ package dk.tij.registermaschine.core.config.internal;
  * @since 1.0.0
  * @author TiJ
  */
+import java.util.Set;
+
 public final class XmlConstants {
     /**
      * Private constructor to prevent instantiation of constant holder
@@ -46,7 +48,12 @@ public final class XmlConstants {
                                 TAG_CHAIN = "chain",
                                 TAG_STEP = "step",
                                 TAG_IN = "in",
-                                TAG_OUT = "out";
+                                TAG_OUT = "out",
+                                TAG_EXTERNAL_DEVICES = "externalDevices",
+                                TAG_SIZE = "size",
+                                TAG_EXTERNAL_DEVICE = "device",
+                                TAG_MEMORY_MAPPINGS = "memoryMappings",
+                                TAG_MEMORY_MAPPING = "memoryMapping";
 
     public static final String  ATTRIBUTE_INSTRUCTION_SET_VERSION = "version";
 
@@ -110,9 +117,20 @@ public final class XmlConstants {
                                 VALUE_CONCEPT_TARGET = "target",
                                 VALUE_CONCEPT_OPERAND = "operand";
 
+    public static final String  ATTRIBUTE_SIZE_UNIT = "unit",
+                                ATTRIBUTE_DEVICE_HANDLER = "handler",
+                                ATTRIBUTE_MEMORY_MAPPING_HANDLER = "handler";
+
     /**
      * Option ID toggle for enabling / disabling label support in assembly
      */
-
     public static final String INSTR_OPTION_ALLOW_LABELS = "allowLabels";
+
+    public static final String  VALUE_SIZE_UNIT_BYTE = "B",
+                                VALUE_SIZE_UNIT_KILO_BYTE = "KB",
+                                VALUE_SIZE_UNIT_MEGA_BYTE = "MB";
+
+    public static final Set<String> SIZE_UNIT_VALUES = Set.of(
+            VALUE_SIZE_UNIT_BYTE, VALUE_SIZE_UNIT_KILO_BYTE, VALUE_SIZE_UNIT_MEGA_BYTE
+    );
 }

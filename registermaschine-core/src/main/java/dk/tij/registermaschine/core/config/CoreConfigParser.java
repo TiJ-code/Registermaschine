@@ -9,6 +9,7 @@ import dk.tij.registermaschine.api.log.LogLevel;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
+import dk.tij.registermaschine.core.config.internal.parsers.ExternalDeviceParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
@@ -25,7 +26,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -122,6 +122,10 @@ public final class CoreConfigParser {
      * Parser for instruction set options
      */
     private static final IConfigParser INSTRUCTION_OPTION_PARSER = new InstructionSetOptionParser();
+    /**
+     * Parser for external devices
+     */
+    private static final IConfigParser EXTERNAL_DEVICE_PARSER = new ExternalDeviceParser();
 
     /**
      * Private constructor to prevent instantiation
@@ -261,6 +265,10 @@ public final class CoreConfigParser {
                 LOGGER.debug("Parsing instructions");
                 INSTRUCTION_PARSER.parseConfig(doc);
                 LOGGER.debug("Finished instruction parsing");
+
+                LOGGER.debug("Parsing external devices");
+                EXTERNAL_DEVICE_PARSER.parseConfig(doc);
+                LOGGER.debug("Finished external device parsing");
 
                 LOGGER.debug("Parsing macros for instruction set");
                 MACRO_PARSER.parseConfig(doc);
