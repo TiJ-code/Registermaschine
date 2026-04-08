@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE instruction-set SYSTEM "dtd/instruction_file.dtd">
+<instruction-set version="2">
+    <name>Registermaschine Instruction Set</name>
+    <options>
+        <option id="allowLabels" value="false"/>
+    </options>
+    <externalDevices>
+        <device handler="dk.tij.registermaschine.core.memory.RAM">
+            <size unit="KB">1</size>
+            <memoryMappings>
+                <memoryMapping handler="dk.tij.registermaschine.core.memory.mapping.Console">
+                    <size unit="B">512</size>
+                </memoryMapping>
+            </memoryMappings>
+        </device>
+    </externalDevices>
+    <instructions>
+        <instruction
+                id="hlt"
+                opcode="0x00"
+                description="End instruction to stop execution">
+            <operand name="operand1" type="immediate" concept="operand"/>
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.HaltStepHandler">
+                    <in ref="operand1"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="add"
+                opcode="0x01"
+                description="Adds register to accumulator register R0">
+            <operand name="result" type="register" concept="result" implicitValue="r0"/>
+            <operand name="operand1" type="register" concept="operand" implicitValue="r0"/>
+            <operand name="operand2" type="register" concept="operand"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.AdditionStepHandler">
+                    <in ref="operand1"/>
+                    <in ref="operand2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="sub"
+                opcode="0x02"
+                description="Subtracts register from accumulator register R0">
+            <operand name="result" type="register" concept="result" implicitValue="r0"/>
+            <operand name="operand1" type="register" concept="operand" implicitValue="r0"/>
+            <operand name="operand2" type="register" concept="operand"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.SubtractionStepHandler">
+                    <in ref="operand1"/>
+                    <in ref="operand2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="mul"
+                opcode="0x03"
+                description="Multiplies accumulator register R0 by register">
+            <operand name="result" type="register" concept="result" implicitValue="r0"/>
+            <operand name="operand1" type="register" concept="operand" implicitValue="r0"/>
+            <operand name="operand2" type="register" concept="operand"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.MultiplicationStepHandler">
+                    <in ref="operand1"/>
+                    <in ref="operand2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="div"
+                opcode="0x04"
+                description="Divides accumulator register R0 by register">
+            <operand name="result" type="register" concept="result" implicitValue="r0"/>
+            <operand name="operand1" type="register" concept="operand" implicitValue="r0"/>
+            <operand name="operand2" type="register" concept="operand"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.DivisionStepHandler">
+                    <in ref="operand1"/>
+                    <in ref="operand2"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="lda"
+                opcode="0x06"
+                description="Loads value from register into accumulator register R0">
+            <operand name="result" type="register" concept="result" implicitValue="r0"/>
+            <operand name="operand1" type="register" concept="operand"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.MoveStepHandler">
+                    <in ref="operand1"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="ldk"
+                opcode="0x07"
+                description="Loads constant value into accumulator register R0">
+            <operand name="result" type="register" concept="result" implicitValue="r0"/>
+            <operand name="operand1" type="immediate" concept="operand"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.MoveStepHandler">
+                    <in ref="operand1"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="sta"
+                opcode="0x08"
+                description="Stores value of accumulator register R0 into register">
+            <operand name="operand1" type="register" concept="operand" implicitValue="r0"/>
+            <operand name="result" type="register" concept="result"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.MoveStepHandler">
+                    <in ref="operand1"/>
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="inp"
+                opcode="0x09"
+                description="Awaits input to store in register">
+            <operand name="result" type="register" concept="result"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.InputStepHandler">
+                    <out to="result"/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="out"
+                opcode="0x0A"
+                description="Outputs content from accumulator register R0 onto output-stream">
+            <operand name="operand1" type="register" concept="operand" implicitValue="r0"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.OutputStepHandler">
+                    <in ref="operand1"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="jmp"
+                opcode="0x0B"
+                description="Jumps to program line">
+            <operand name="label" type="label" concept="target"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.JumpStepHandler">
+                    <in ref="label"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="jez"
+                opcode="0x0C"
+                description="Jumps to program line, if accumulator R0 is zero"
+                condition="core.conditions.EqualsZeroCondition">
+            <operand name="label" type="label" concept="target"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.JumpStepHandler">
+                    <in ref="label"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="jne"
+                opcode="0x0D"
+                description="Jumps to program line, if accumulator R0 is not zero"
+                condition="@core.conditions.NotEqualsZeroCondition">
+            <operand name="label" type="label" concept="target"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.JumpStepHandler">
+                    <in ref="label"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="jlz"
+                opcode="0x0E"
+                description="Jumps to program line, if accumulator R0 is less than zero"
+                condition="core.conditions.LessThanZeroCondition">
+            <operand name="label" type="label" concept="target"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.JumpStepHandler">
+                    <in ref="label"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="jle"
+                opcode="0x0F"
+                description="Jumps to program line, if accumulator R0 is less than or equal to zero"
+                condition="@core.conditions.LessThanOrEqualsToZeroCondition">
+            <operand name="label" type="label" concept="target"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.JumpStepHandler">
+                    <in ref="label"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="jgz"
+                opcode="0x10"
+                description="Jumps to program line, if accumulator R0 is greater than zero"
+                condition="@core.conditions.GreaterThanZeroCondition">
+            <operand name="label" type="label" concept="target"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.JumpStepHandler">
+                    <in ref="label"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+        <instruction
+                id="jge"
+                opcode="0x11"
+                description="Jumps to program line, if accumulator R0 is greater than or equal to zero"
+                condition="@core.conditions.GreaterThanOrEqualsToZeroCondition">
+            <operand name="label" type="label" concept="target"/>
+
+            <chain>
+                <step handler="dk.tij.registermaschine.instructions.JumpStepHandler">
+                    <in ref="label"/>
+                    <out/>
+                </step>
+            </chain>
+        </instruction>
+    </instructions>
+</instruction-set>
