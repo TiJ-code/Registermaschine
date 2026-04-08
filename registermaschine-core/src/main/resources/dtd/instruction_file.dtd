@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
-<!ELEMENT instruction-set (name, options?, conditionMacros?, instructions?)>
+<!ELEMENT instruction-set (name, options?, conditionMacros?, instructions?, externalDevices?)>
 <!ATTLIST instruction-set
         version (2) #REQUIRED>
 
@@ -50,3 +50,19 @@
 <!ELEMENT out EMPTY>
 <!ATTLIST out
         to CDATA #IMPLIED>
+
+<!ELEMENT externalDevices (device*)>
+
+<!ELEMENT device (size, memoryMappings)>
+<!ATTLIST device
+        handler #REQUIRED>
+
+<!ELEMENT size (#PCDATA)>
+<!ATTLIST size
+        unit (B|KB|MB) #REQUIRED>
+
+<!ELEMENT memoryMappings (memoryMapping*)>
+
+<!ELEMENT memoryMapping (size)>
+<!ATTLIST memoryMapping
+        handler #REQUIRED>
