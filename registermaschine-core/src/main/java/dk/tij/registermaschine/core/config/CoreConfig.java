@@ -2,6 +2,7 @@ package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.api.compilation.lexing.TokenType;
 import dk.tij.registermaschine.api.compilation.pre.IPrecompilerStage;
+import dk.tij.registermaschine.api.config.model.ConfigDevice;
 import dk.tij.registermaschine.api.config.model.ConfigInstruction;
 import dk.tij.registermaschine.api.instructions.ChainedInstruction;
 import dk.tij.registermaschine.api.instructions.IStepHandlerRegistry;
@@ -9,6 +10,7 @@ import dk.tij.registermaschine.api.log.LogConfig;
 import dk.tij.registermaschine.core.compilation.internal.pre.InstructionPrecompilerStage;
 import dk.tij.registermaschine.core.instructions.ConcreteStepHandlerRegistry;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,6 +70,8 @@ public final class CoreConfig {
      * List of all configured instructions in the runtime
      */
     public static final List<ConfigInstruction> INSTRUCTIONS = new LinkedList<>();
+
+    public static final List<ConfigDevice> EXTERNAL_DEVICES = new ArrayList<>();
 
     /**
      * Precompiler stage responsible for converting {@link ConfigInstruction}

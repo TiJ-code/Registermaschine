@@ -12,6 +12,7 @@ module dk.tij.registermaschine.api {
     exports dk.tij.registermaschine.api.plugin;
     exports dk.tij.registermaschine.api.log;
     exports dk.tij.registermaschine.api.config.model;
+    exports dk.tij.registermaschine.api.devices;
 
     requires java.xml;
     requires java.logging;
