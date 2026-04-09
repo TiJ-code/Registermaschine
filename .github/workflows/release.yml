@@ -104,12 +104,12 @@ jobs:
           git push origin release-v${{ steps.versioning.outputs.NEW_VER }}
 
       - name: Prepare Next Development Phase
-        if: steps.changelog.outputs.content != ''
         shell: bash
         run: |
-          EMPTY_TEMPLATE="# Version X.X.X\n## Changes\n### Core\n### API\n### Default Instruction Set & Handlers\n\n---\n## Breaking Changes\n### Core\n#### Minor\n#### Major\n### API\n#### Minor\n#### Major"
+          if [ -z CHANGELOG.md ]; then
+            rm CHANGELOG.md
+          fi
           
-          echo "$EMPTY_TEMPLATE" > CHANGELOG.md
           mvn versions:set -DnewVersion="${{ steps.versioning.outputs.NEW_VER }}-SNAPSHOT" -DgenerateBackupPoms=false
           
           git commit -am "[ACTION] preparing next development phase"

@@ -23,7 +23,7 @@ import dk.tij.registermaschine.api.conditions.ICondition;
  * @author TiJ
  */
 public final class HaltInstruction extends AbstractInstruction {
-    public HaltInstruction(byte opcode, int operandCount, ICondition condition) {
+    public HaltInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 

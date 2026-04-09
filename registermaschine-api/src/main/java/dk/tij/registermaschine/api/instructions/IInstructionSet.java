@@ -54,7 +54,7 @@ public interface IInstructionSet {
      * @param opcode the instruction opcode
      * @return the corresponding instruction handler
      */
-    AbstractInstruction getHandler(byte opcode);
+    AbstractInstruction getHandler(int opcode);
 
     /**
      * Returns the opcode associated with a mnemonic.
@@ -62,7 +62,7 @@ public interface IInstructionSet {
      * @param mnemonic the instruction mnemonic
      * @return the opcode
      */
-    byte getOpcode(String mnemonic);
+    int getOpcode(String mnemonic);
 
     /**
      * Returns the mnemonic associated with an opcode.
@@ -70,7 +70,7 @@ public interface IInstructionSet {
      * @param opcode the instruction opcode
      * @return the instruction mnemonic
      */
-    String getMnemonic(byte opcode);
+    String getMnemonic(int opcode);
 
     /**
      * Checks whether an instruction with the given mnemonic exists.
@@ -86,7 +86,7 @@ public interface IInstructionSet {
      * @param opcode the instruction opcode
      * @return {@code true} if present
      */
-    boolean contains(byte opcode);
+    boolean contains(int opcode);
 
     /**
      * Returns all registered instruction configurations.

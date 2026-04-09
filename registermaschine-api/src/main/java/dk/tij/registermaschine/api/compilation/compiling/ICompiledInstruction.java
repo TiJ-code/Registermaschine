@@ -20,7 +20,7 @@ public interface ICompiledInstruction {
      *
      * @return the opcode
      */
-    byte opcode();
+    int opcode();
 
     /**
      * Returns the compiled operands associated with this instruction.

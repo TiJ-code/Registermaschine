@@ -26,7 +26,7 @@ import dk.tij.registermaschine.api.conditions.ICondition;
  * @author TiJ
  */
 public final class OutputInstruction extends AbstractInstruction {
-    public OutputInstruction(byte opcode, int operandCount, ICondition condition) {
+    public OutputInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 
