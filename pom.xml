@@ -6,7 +6,7 @@
 
     <groupId>dk.tij</groupId>
     <artifactId>registermaschine</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Registermaschine</name>
 
@@ -60,7 +60,7 @@
             <dependency>
                 <groupId>dk.tij.registermaschine</groupId>
                 <artifactId>instructions</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.1-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
