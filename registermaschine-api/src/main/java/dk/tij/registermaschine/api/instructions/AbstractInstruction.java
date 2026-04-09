@@ -29,7 +29,7 @@ public abstract class AbstractInstruction {
     /**
      * Opcode identifying this instruction.
      */
-    public final byte OpCode;
+    public final int OpCode;
 
     /**
      * Expected number of operands.
@@ -48,7 +48,7 @@ public abstract class AbstractInstruction {
      * @param operandCount the required number of operands
      * @param condition optional execution condition, or {@code null}
      */
-    public AbstractInstruction(final byte opcode, final int operandCount, ICondition condition) {
+    public AbstractInstruction(final int opcode, final int operandCount, ICondition condition) {
         this.OpCode = opcode;
         this.operandCount = operandCount;
         this.condition = condition;

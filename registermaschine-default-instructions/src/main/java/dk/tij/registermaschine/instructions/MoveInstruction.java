@@ -29,7 +29,7 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  * @author TiJ
  */
 public final class MoveInstruction extends AbstractInstruction {
-    public MoveInstruction(byte opcode, int operandCount, ICondition condition) {
+    public MoveInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 

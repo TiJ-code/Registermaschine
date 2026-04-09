@@ -46,7 +46,7 @@ import java.util.Arrays;
  * @author TiJ
  */
 public final class DivisionInstruction extends AbstractInstruction {
-    public DivisionInstruction(byte opcode, int operandCount, ICondition condition) {
+    public DivisionInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 

@@ -41,7 +41,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
     /**
      * Map from opcode to configuration
      */
-    private final Map<Byte, ConfigInstruction> byOpcode = new HashMap<>();
+    private final Map<Integer, ConfigInstruction> byOpcode = new HashMap<>();
 
     /**
      * Registers a new instruction in the set.
@@ -53,7 +53,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
      */
     @Override
     public void registerInstruction(ConfigInstruction configInstruction) {
-        byte opcode = configInstruction.opcode();
+        int opcode = configInstruction.opcode();
 
         if (byOpcode.containsKey(opcode))
             throw new ExistingInstructionException("Opcode " + opcode + " is already registered!");
@@ -95,7 +95,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
     }
 
     @Override
-    public AbstractInstruction getHandler(byte opcode) {
+    public AbstractInstruction getHandler(int opcode) {
         ConfigInstruction entry = byOpcode.get(opcode);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with opcode " + opcode);
@@ -103,7 +103,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
     }
 
     @Override
-    public String getMnemonic(byte opcode) {
+    public String getMnemonic(int opcode) {
         ConfigInstruction entry = byOpcode.get(opcode);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with opcode " + opcode);
@@ -111,7 +111,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
     }
 
     @Override
-    public byte getOpcode(String mnemonic) {
+    public int getOpcode(String mnemonic) {
         ConfigInstruction entry = byName.get(mnemonic);
         if (entry == null)
             throw new UnknownInstructionException("No instruction found with mnemonic " + mnemonic);

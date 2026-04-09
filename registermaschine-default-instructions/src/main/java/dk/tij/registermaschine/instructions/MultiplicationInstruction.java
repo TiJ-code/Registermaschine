@@ -37,7 +37,7 @@ import java.util.Arrays;
  * @author TiJ
  */
 public final class MultiplicationInstruction extends AbstractInstruction {
-    public MultiplicationInstruction(byte opcode, int operandCount, ICondition condition) {
+    public MultiplicationInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 

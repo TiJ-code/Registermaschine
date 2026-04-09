@@ -37,7 +37,7 @@ import java.util.Arrays;
  * @author TiJ
  */
 public final class AdditionInstruction extends AbstractInstruction {
-    public AdditionInstruction(byte opcode, int operandCount, ICondition condition) {
+    public AdditionInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 

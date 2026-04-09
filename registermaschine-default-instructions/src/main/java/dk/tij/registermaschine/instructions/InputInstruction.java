@@ -23,7 +23,7 @@ import dk.tij.registermaschine.api.conditions.ICondition;
  * @author TiJ
  */
 public final class InputInstruction extends AbstractInstruction {
-    public InputInstruction(byte opcode, int operandCount, ICondition condition) {
+    public InputInstruction(int opcode, int operandCount, ICondition condition) {
         super(opcode, operandCount, condition);
     }
 

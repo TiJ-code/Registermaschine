@@ -15,7 +15,7 @@ import dk.tij.registermaschine.api.compilation.compiling.ICompiledOperand;
  * @since 1.0.0
  * @author TiJ
  */
-public record ConcreteCompiledInstruction(byte opcode, ICompiledOperand[] operands) implements ICompiledInstruction {
+public record ConcreteCompiledInstruction(int opcode, ICompiledOperand[] operands) implements ICompiledInstruction {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -56,7 +56,7 @@ public final class InstructionParser implements IConfigParser {
             if (instructionNode.getNodeType() != Node.ELEMENT_NODE) continue;
 
             try {
-                ConfigInstruction instruction = parseInstruction(instructionNode, (byte) instructions.size());
+                ConfigInstruction instruction = parseInstruction(instructionNode, instructions.size());
                 instructions.add(instruction);
 
                 fireEvent((Element) instructionNode, instruction);
@@ -76,7 +76,7 @@ public final class InstructionParser implements IConfigParser {
      * @return the parsed {@link ConfigInstruction}
      * @throws Exception if the instruction handler could not be parsed
      */
-    private static ConfigInstruction parseInstruction(Node instructionNode, final byte opcode)
+    private static ConfigInstruction parseInstruction(Node instructionNode, final int opcode)
             throws Exception {
         Element instructionElem = (Element) instructionNode;
         NodeList operandNodes = instructionElem.getElementsByTagName(XmlConstants.TAG_OPERAND);
@@ -198,11 +198,11 @@ public final class InstructionParser implements IConfigParser {
      * @throws ClassInstantiationException if the handler class could not be instantiated
      */
     private static AbstractInstruction createInstructionHandler(Class<? extends AbstractInstruction> handlerClass,
-                                                                byte opcode, int operands, ICondition condition)
+                                                                int opcode, int operands, ICondition condition)
             throws ClassInstantiationException {
         try {
             return handlerClass
-                    .getDeclaredConstructor(byte.class, int.class, ICondition.class)
+                    .getDeclaredConstructor(int.class, int.class, ICondition.class)
                     .newInstance(opcode, operands, condition);
         } catch (Exception e) {
             throw new ClassInstantiationException("Could not instantiate instruction handler class.", e);

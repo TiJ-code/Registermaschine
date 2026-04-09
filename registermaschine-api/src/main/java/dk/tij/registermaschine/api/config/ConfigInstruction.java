@@ -23,4 +23,4 @@ import java.util.List;
  * @author TiJ
  */
 public record ConfigInstruction(String mnemonic, String description,
-                                byte opcode, List<ConfigOperand> operands, AbstractInstruction handler) {}
+                                int opcode, List<ConfigOperand> operands, AbstractInstruction handler) {}
