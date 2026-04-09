@@ -56,12 +56,30 @@ public interface IExecutionContext {
     int getRegister(int index);
 
     /**
+     * Returns the LSB of the register value.
+     *
+     * @param index the register index
+     * @return the first byte of the value currently stored in the register
+     */
+    byte getRegisterByte(int index);
+
+    /**
      * Sets the value of the specified register.
      *
      * @param index the register index
      * @param value the value to store in the register
      */
     void setRegister(int index, int value);
+
+    /**
+     * Sets the LSB of the register value.
+     *
+     * <p>The remaining bits of the register are preserved</p>
+     *
+     * @param index the register index
+     * @param value the first byte value to store in the register
+     */
+    void setRegisterByte(int index, byte value);
 
     /**
      * Returns the current programme counter.
