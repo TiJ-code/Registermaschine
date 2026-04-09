@@ -48,6 +48,9 @@ public final class ConcreteExecutionContext implements IExecutionContext {
             FLAG_NEGATIVE = 0b0100,
             FLAG_OVERFLOW = 0b1000;
 
+    private static final byte FIRST_BYTE_BITMASK     = (byte) 0x000000FF,
+                              TOP_THREE_BYTE_BITMASK = (byte) 0xFFFFFF00;
+
     private final BlockingQueue<Integer> inputQueue = new LinkedBlockingQueue<>();
     private Runnable inputRequestCallback;
 
@@ -87,6 +90,11 @@ public final class ConcreteExecutionContext implements IExecutionContext {
         return registers[index];
     }
 
+    @Override
+    public byte getRegisterByte(int index) {
+        return (byte) (getRegister(index) & 0xFF);
+    }
+
     /**
      * Updates the value of a register.
      *
@@ -101,6 +109,13 @@ public final class ConcreteExecutionContext implements IExecutionContext {
         registers[index] = value;
         dirtyRegisters[index] = true;
         listeners.forEach(l -> l.onRegisterChanged(index, value));
+    }
+
+    @Override
+    public void setRegisterByte(int index, byte value) {
+        int reg = getRegister(index);
+        reg = (reg & 0xFFFFFF00) | (value & 0xFF);
+        setRegister(index, reg);
     }
 
     /**
