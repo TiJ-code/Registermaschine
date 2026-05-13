@@ -23,7 +23,7 @@ public final class ExternalDeviceParser implements IConfigParser {
         if (root == null)
             return;
 
-        for (Element deviceEl : childElements(root, XmlConstants.TAG_EXTERNAL_DEVICES)) {
+        for (Element deviceEl : childElements(root, XmlConstants.TAG_EXTERNAL_DEVICE)) {
             CoreConfig.EXTERNAL_DEVICES.add(parseDevice(deviceEl));
         }
     }
@@ -46,9 +46,9 @@ public final class ExternalDeviceParser implements IConfigParser {
         List<ConfigMemoryMapping> mappings = new ArrayList<>();
 
         for (Element mappingEl : childElements(mappingsElement, XmlConstants.TAG_MEMORY_MAPPING)) {
-            String handler = requiredAttribute(mappingsElement, XmlConstants.ATTRIBUTE_MEMORY_MAPPING_HANDLER);
+            String handler = requiredAttribute(mappingEl, XmlConstants.ATTRIBUTE_MEMORY_MAPPING_HANDLER);
 
-            Element sizeEl = getSingleChildElement(mappingsElement, XmlConstants.TAG_SIZE, true);
+            Element sizeEl = getSingleChildElement(mappingEl, XmlConstants.TAG_SIZE, true);
 
             mappings.add(new ConfigMemoryMapping(handler, parseSizeElement(sizeEl)));
         }
