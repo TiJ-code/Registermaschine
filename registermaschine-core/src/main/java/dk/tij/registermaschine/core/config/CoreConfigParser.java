@@ -185,20 +185,15 @@ public final class CoreConfigParser {
                 LOGGER.debug("Finished internal config parsers");
 
                 if (postConfigParsers != null) {
-                    LOGGER.debug("Running post config parsers");
                     Arrays.stream(postConfigParsers)
                             .filter(Objects::nonNull)
                             .forEach(parser -> {
-                                LOGGER.trace("Parsing with post parser {}", parser.getClass().getName());
                                 parser.parseConfig(doc);
                             });
-                    LOGGER.debug("Finished post config parsers");
                 }
 
                 coreConfigParsed = true;
-                LOGGER.info("Core configuration successfully initialised");
             } catch (Exception e) {
-                LOGGER.error("Failed to initialise core configuration", e);
                 throw new ConfigurationParseException("Failed to initialise core configuration", e);
             }
 
