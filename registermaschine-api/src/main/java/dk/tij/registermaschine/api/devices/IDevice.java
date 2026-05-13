@@ -7,7 +7,7 @@ public interface IDevice {
     byte getByte(long address);
     int getInt(long address);
 
-    void registerMapping(long startAddress, long endAddress);
+    void registerMapping(IMemoryMapping mapping, long startAddress, long endAddress);
 
     long getSize();
 }
