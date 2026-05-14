@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!ELEMENT patch (category*)>
+<!ELEMENT category (additions?, refactorings?, fixes?, removals?)>
+<!ELEMENT additions (entry*)>
+<!ELEMENT refactorings (entry*)>
+<!ELEMENT fixes (entry*)>
+<!ELEMENT removals (entry*)>
+<!ELEMENT entry (#PCDATA)>
+<!ATTLIST category name (api|core|instructions|dev-tools) #REQUIRED>
