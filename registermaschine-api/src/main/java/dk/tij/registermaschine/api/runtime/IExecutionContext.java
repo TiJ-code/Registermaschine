@@ -232,4 +232,12 @@ public interface IExecutionContext {
      * @return a snapshot representing the current execution state
      */
     ExecutionSnapshot snapshotAndClearDirty();
+
+    byte readByte(long address);
+
+    int readInt(long address);
+
+    void writeByte(long address, byte value);
+
+    void writeInt(long address, int value);
 }

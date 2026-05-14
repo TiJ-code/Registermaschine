@@ -7,6 +7,7 @@ import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.error.OutOfMemoryException;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
+import dk.tij.registermaschine.core.devices.DeviceFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -19,13 +20,15 @@ import java.util.Map;
 public final class ExternalDeviceParser implements IConfigParser {
     @Override
     public void parseConfig(Document xmlDocument) {
-        Element root = getSingleChildElement((Element) xmlDocument, XmlConstants.TAG_EXTERNAL_DEVICES, false);
+        Element root = getSingleChildElement(xmlDocument.getDocumentElement(), XmlConstants.TAG_EXTERNAL_DEVICES, false);
         if (root == null)
             return;
 
         for (Element deviceEl : childElements(root, XmlConstants.TAG_EXTERNAL_DEVICE)) {
             CoreConfig.EXTERNAL_DEVICES.add(parseDevice(deviceEl));
         }
+
+        DeviceFactory.createDevices(CoreConfig.EXTERNAL_DEVICES);
     }
 
     private static ConfigDevice parseDevice(Element deviceElement)
