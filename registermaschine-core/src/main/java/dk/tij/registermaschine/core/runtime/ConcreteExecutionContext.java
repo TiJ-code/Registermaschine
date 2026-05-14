@@ -6,6 +6,7 @@ import dk.tij.registermaschine.api.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 import dk.tij.registermaschine.api.runtime.IExecutionContextListener;
 import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.memory.MemoryBus;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,6 +58,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
 
     private final BlockingQueue<Integer> inputQueue = new LinkedBlockingQueue<>();
     private Runnable inputRequestCallback;
+
+    private final MemoryBus memoryBus = MemoryBus.instance();
 
     private final int[] registers;
     private int programmeCounter;
@@ -417,5 +420,32 @@ public final class ConcreteExecutionContext implements IExecutionContext {
         dirtyOutput = false;
 
         return snapshot;
+    }
+
+    @Override
+    public byte readByte(long address) {
+        return memoryBus.getByte(address);
+    }
+
+    @Override
+    public int readInt(long address) {
+        return memoryBus.getInt(address);
+    }
+
+    @Override
+    public void writeByte(long address, byte value) {
+        memoryBus.setByte(address, value);
+        listeners.forEach(l -> l.onAddressUpdated(address, value));
+    }
+
+    @Override
+    public void writeInt(long address, int value) {
+        memoryBus.setInt(address, value);
+        listeners.forEach(l -> {
+            l.onAddressUpdated(address, (byte) ((value) & 0xFF));
+            l.onAddressUpdated(address + 1, (byte) ((value >>  8) & 0xFF));
+            l.onAddressUpdated(address + 2, (byte) ((value >> 16) & 0xFF));
+            l.onAddressUpdated(address + 3, (byte) ((value >> 24) & 0xFF));
+        });
     }
 }
