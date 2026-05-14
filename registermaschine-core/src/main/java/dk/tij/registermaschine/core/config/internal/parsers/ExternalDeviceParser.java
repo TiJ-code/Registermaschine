@@ -17,7 +17,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Parser responsible for reading external device configuration from XML.
+ *
+ * <p>This parser interprets the <externalDevices> section of the configuration
+ * file and converts it into runtime {@link ConfigDevice} and
+ * {@link ConfigMemoryMapping} models.</p>
+ *
+ * <p>After parsing, all devices are immediately instantiated and registered
+ * via {@link DeviceFactory} into the global memory system.</p>
+ *
+ * <p>The parser also performs validation such as:
+ * <ul>
+ *     <li>Required attributes</li>
+ *     <li>Valid size units</li>
+ *     <li>Memory bounds checking</li>
+ *     <li>Single-child element constraints</li>
+ * </ul>
+ * </p>
+ *
+ * @since 2.0.0
+ * @author TiJ
+ */
 public final class ExternalDeviceParser implements IConfigParser {
+    /**
+     * Parses the external device configuration section from the XML document.
+     *
+     * <p>If no external device section is present, the method returns without
+     * modifying the configuration.</p>
+     *
+     * @param xmlDocument the XML configuration document
+     */
     @Override
     public void parseConfig(Document xmlDocument) {
         Element root = getSingleChildElement(xmlDocument.getDocumentElement(), XmlConstants.TAG_EXTERNAL_DEVICES, false);
@@ -31,6 +61,12 @@ public final class ExternalDeviceParser implements IConfigParser {
         DeviceFactory.createDevices(CoreConfig.EXTERNAL_DEVICES);
     }
 
+    /**
+     * Parses a single device element into a configuration model.
+     *
+     * @param deviceElement XML element describing a device
+     * @return parsed device configuration
+     */
     private static ConfigDevice parseDevice(Element deviceElement)
             throws ConfigurationParseException, OutOfMemoryException {
         String handler = requiredAttribute(deviceElement, XmlConstants.ATTRIBUTE_DEVICE_HANDLER);
@@ -44,6 +80,12 @@ public final class ExternalDeviceParser implements IConfigParser {
         return new ConfigDevice(handler, deviceSize, mappings);
     }
 
+    /**
+     * Parses all memory mappings inside a device.
+     *
+     * @param mappingsElement XML element containing mapping definitions
+     * @return list of parsed memory mappings
+     */
     private static List<ConfigMemoryMapping> parseMemoryMappings(Element mappingsElement)
             throws ConfigurationParseException, OutOfMemoryException {
         List<ConfigMemoryMapping> mappings = new ArrayList<>();
@@ -59,6 +101,20 @@ public final class ExternalDeviceParser implements IConfigParser {
         return mappings;
     }
 
+    /**
+     * Parses a <size> XML element into a raw byte size.
+     *
+     * <p>Supports unit conversion for:
+     * <ul>
+     *     <li>B</li>
+     *     <li>KB</li>
+     *     <li>MB</li>
+     * </ul>
+     * </p>
+     *
+     * @param sizeElement the XML size element
+     * @return size in bytes
+     */
     private static long parseSizeElement(Element sizeElement)
             throws ConfigurationParseException, OutOfMemoryException{
         final Map<String, Long> memorySizeMappings = Map.of(
@@ -84,6 +140,16 @@ public final class ExternalDeviceParser implements IConfigParser {
         return size * sizeFactor;
     }
 
+    /**
+     * Parses the numeric size value and validates system memory constraints.
+     *
+     * <p>Also ensures that configured memory does not exceed available JVM memory.</p>
+     *
+     * @param sizeElement XML size element
+     * @param sizeFactor unit multiplier
+     * @param unitStr unit string (e.g. KB, MB)
+     * @return parsed size in base units
+     */
     private static long parseSize(Element sizeElement, Long sizeFactor, String unitStr)
             throws ConfigurationParseException, OutOfMemoryException{
         if (sizeFactor == null) {
@@ -116,6 +182,14 @@ public final class ExternalDeviceParser implements IConfigParser {
         return memorySize;
     }
 
+    /**
+     * Returns a single child element with the given tag name.
+     *
+     * @param parent parent XML element
+     * @param tagName expected child tag name
+     * @param required whether the element must exist
+     * @return matching child element or null
+     */
     private static Element getSingleChildElement(Element parent, String tagName, boolean required)
             throws ConfigurationParseException {
         List<Element> matches = childElements(parent, tagName);
@@ -136,6 +210,13 @@ public final class ExternalDeviceParser implements IConfigParser {
         return matches.getFirst();
     }
 
+    /**
+     * Returns all direct child elements with the specified tag name.
+     *
+     * @param parent parent XML element
+     * @param tagName tag name to search for
+     * @return list of matching child elements
+     */
     private static List<Element> childElements(Element parent, String tagName) {
         List<Element> result = new ArrayList<>();
 
@@ -150,6 +231,13 @@ public final class ExternalDeviceParser implements IConfigParser {
         return result;
     }
 
+    /**
+     * Reads a required attribute from an XML element.
+     *
+     * @param element XML element
+     * @param attrName attribute name
+     * @return attribute value
+     */
     private static String requiredAttribute(Element element, String attrName)
             throws ConfigurationParseException {
         String value = element.getAttribute(attrName);
