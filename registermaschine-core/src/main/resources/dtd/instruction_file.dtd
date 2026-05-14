@@ -55,7 +55,7 @@
 
 <!ELEMENT device (size, memoryMappings)>
 <!ATTLIST device
-        handler #REQUIRED>
+        handler CDATA #REQUIRED>
 
 <!ELEMENT size (#PCDATA)>
 <!ATTLIST size
@@ -65,4 +65,4 @@
 
 <!ELEMENT memoryMapping (size)>
 <!ATTLIST memoryMapping
-        handler #REQUIRED>
+        handler CDATA #REQUIRED>
