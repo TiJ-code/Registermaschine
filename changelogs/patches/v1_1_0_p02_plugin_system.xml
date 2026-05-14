@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE patch SYSTEM "../patch.dtd">
+<patch>
+    <category name="api">
+        <additions>
+            <entry>IPlugin interface, that describes the plugin structure</entry>
+            <entry>PluginContext record, that communicates registered instructions between loader and plugin</entry>
+            <entry>IInstructionRegistry interface, that describes the layout of instruction registry implementations</entry>
+        </additions>
+    </category>
+    <category name="core">
+        <breaking kind="trivial">
+            <additions>
+                <entry>PluginLoader class, that can load (valid) plugins</entry>
+            </additions>
+        </breaking>
+        <breaking kind="minor">
+            <additions>
+                <entry>ConcreteInstructionRegistry, that is a global container of all possible instruction handlers registered at runtime</entry>
+            </additions>
+            <refactorings>
+                <entry>CoreConfig to conform to new global instruction registry structure</entry>
+                <entry>CoreConfigParser to conform to new global instruction registry structure</entry>
+                <entry>InstructionParser to conform to new global instruction registry structure</entry>
+            </refactorings>
+        </breaking>
+        <additions>
+            <entry>PluginConfig, that describes plugin config file structure</entry>
+            <entry>PluginConfigParser, XML parser that parses file into instances of PluginConfig</entry>
+            <entry>PluginConstants, XML constants class</entry>
+        </additions>
+    </category>
+    <category name="instructions">
+        <breaking kind="minor">
+            <additions>
+                <entry>RegistermaschinePlugin class, that describes the functionality of this default plugin. And enforces to use as plugin structure.</entry>
+                <entry>plugin.xml, that is the configuration of this default instruction set plugin.</entry>
+            </additions>
+            <refactorings>
+                <entry>package structure of this new plugin</entry>
+            </refactorings>
+        </breaking>
+    </category>
+</patch>
