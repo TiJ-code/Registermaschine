@@ -11,8 +11,9 @@ public final class Versioning {
     private static final String BUMP_MAJOR = "major";
     private static final String BUMP_MINOR = "minor";
     private static final String BUMP_PATCH = "patch";
+    private static final String BUMP_DO_SUFFIX = "do_suffix";
 
-    private static final String[] BUMPS = { BUMP_MAJOR, BUMP_MINOR, BUMP_PATCH };
+    private static final String[] BUMPS = { BUMP_MAJOR, BUMP_MINOR, BUMP_PATCH, BUMP_DO_SUFFIX };
 
     private Versioning() {}
 
@@ -63,9 +64,12 @@ public final class Versioning {
             }
         }
 
-        String releaseVersion = "%d.%d.%d".formatted(major, minor, patch);
+        String targetVersion = "%d.%d.%d".formatted(major, minor, patch);
+        if (BUMP_DO_SUFFIX.equals(args[0])) {
+            targetVersion = "%s-SNAPSHOT".formatted(targetVersion);
+        }
 
-        writeVersionToPom(originalVersionStr, releaseVersion);
+        writeVersionToPom(originalVersionStr, targetVersion);
     }
 
     private static void writeVersionToPom(String oldStr, String newStr) {
@@ -84,94 +88,9 @@ public final class Versioning {
 
     private static void updatePom(File pomFile, String oldVersion, String newVersion) {
         try {
-            var factory = DocumentBuilderFactory.newInstance();
-            factory.setIgnoringComments(true);
-            factory.setIgnoringElementContentWhitespace(true);
-
-            var builder = factory.newDocumentBuilder();
-            Document doc = builder.parse(pomFile);
-
-            Element root = doc.getDocumentElement();
-
-            if (root == null || !"project".equals(root.getTagName()))
-                return;
-
-            boolean updated = false;
-
-            var children = root.getChildNodes();
-
-            for (int i = 0; i < children.getLength(); i++) {
-                Node node = children.item(i);
-
-                if (node.getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-
-                Element el = (Element) node;
-
-                if ("version".equals(el.getTagName())) {
-                    String text = el.getTextContent();
-
-                    if (oldVersion.equals(text)) {
-                        el.setTextContent(newVersion);
-                        updated = true;
-                    }
-
-                    break;
-                }
-            }
-
-            var parentNodes = root.getElementsByTagName("parent");
-
-            for (int i = 0; i < parentNodes.getLength(); i++) {
-                Node node = parentNodes.item(i);
-
-                if (node.getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-
-                Element parentEl = (Element) node;
-
-                var parentChildren = parentEl.getChildNodes();
-
-                for (int j = 0; j < parentChildren.getLength(); j++) {
-                    Node child = parentChildren.item(j);
-
-                    if (child.getNodeType() != Node.ELEMENT_NODE)
-                        continue;
-
-                    Element childEl = (Element) child;
-
-                    if (!"version".equals(childEl.getTagName()))
-                        continue;
-
-                    String text = childEl.getTextContent();
-
-                    if (oldVersion.equals(text)) {
-                        childEl.setTextContent(newVersion);
-                        updated = true;
-                    }
-                }
-            }
-
-            if (!updated)
-                return;
-
-            
-            var transformer = javax.xml.transform.TransformerFactory
-                    .newInstance()
-                    .newTransformer();
-
-            transformer.setOutputProperty(
-                    javax.xml.transform.OutputKeys.INDENT,
-                    "yes"
-            );
-
-            transformer.transform(
-                    new javax.xml.transform.dom.DOMSource(doc),
-                    new javax.xml.transform.stream.StreamResult(pomFile)
-            );
-
-            System.out.println("Updated: " + pomFile.getPath());
-
+            String fileString = Files.readString(pomFile.toPath());
+            fileString = fileString.replace(oldVersion, newVersion);
+            Files.writeString(pomFile.toPath(), fileString);
         } catch (Exception e) {
             System.err.println("Failed updating " + pomFile.getPath());
             e.printStackTrace();
