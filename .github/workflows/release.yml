@@ -14,111 +14,75 @@ on:
           - test
 
 jobs:
-  version_bump:
+  prepare_release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     outputs:
       new_version: ${{ steps.versioning.outputs.NEW_VER }}
-      token: ${{ steps.generate_token.outputs.token }}
       changelog: ${{ steps.changelog.outputs.content }}
 
     steps:
-      - name: Generate Token
-        id: generate_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - uses: actions/checkout@v4
         with:
           ref: development
           fetch-depth: 0
-          token: ${{ steps.generate_token.outputs.token }}
 
-      - name: Setup Java
+      - name: Setup GraalVM
         uses: actions/setup-java@v4
         with:
+          distribution: graalvm
           java-version: 25
-          distribution: temurin
-          server-id: 'github'
+
+      - name: Install native-image
+        run: gu install native-image
+
+      - name: Build Changelog Tools
+        run: |
+          ./ChangelogPatchParser.tool
+          ./ChangelogFileBuilder.tool
 
       - name: Read Changelog
         id: changelog
-        shell: bash
         run: |
-          if [ -f "CHANGELOG.md" ]; then
-            {
-                echo 'content<<EOF'
-                cat CHANGELOG.md
-                echo 'EOF'
-            } >> $GITHUB_OUTPUT
-            rm CHANGELOG.md
-          else
-            echo "CHANGELOG.md not found."
-            echo "content=" >> $GITHUB_OUTPUT
-          fi
+          FILE="changelogs/CHANGELOG.md"
+          {
+            echo 'content<<EOF'
+            cat "$FILE"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
 
-      - name: Calculate & Set New Version
+      - name: Calculate Version
         id: versioning
-        shell: bash
         run: |
           CURRENT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          
+
           IFS='.' read -ra ADDR <<< "$CURRENT_VER"
           MAJOR=${ADDR[0]}
           MINOR=${ADDR[1]}
           PATCH=${ADDR[2]}
-          
-          echo "MAJOR = $MAJOR" 
-          echo "MINOR = $MINOR" 
-          echo "PATCH = $PATCH" 
-          
-          if [[ "${{ github.event.inputs.bump_type }}" == "major" ]]; then
-            NEW_VER="$((MAJOR + 1)).0.0"
-          elif [[ "${{ github.event.inputs.bump_type }}" == "minor" ]]; then
-            NEW_VER="$MAJOR.$((MINOR + 1)).0"
-          elif [[ "${{ github.event.inputs.bump_type }}" == "patch" ]]; then
-            NEW_VER="$MAJOR.$MINOR.$((PATCH + 1))"
-          else
-            NEW_VER="$MAJOR.$MINOR.$PATCH.test"
-          fi
-          
-          echo "New version = $NEW_VER"
-          
+
+          case "${{ github.event.inputs.bump_type }}" in
+            major) NEW_VER="$((MAJOR+1)).0.0" ;;
+            minor) NEW_VER="$MAJOR.$((MINOR+1)).0" ;;
+            patch) NEW_VER="$MAJOR.$MINOR.$((PATCH+1))" ;;
+            *) NEW_VER="$MAJOR.$MINOR.$PATCH.test" ;;
+          esac
+
           echo "NEW_VER=$NEW_VER" >> $GITHUB_OUTPUT
           mvn versions:set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
 
-      - name: Commit & Push
+      - name: Commit + Tag
         if: github.event.inputs.bump_type != 'test'
-        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.no-reply.github.com"
-          
-          git commit -am "[ACTION] bump version to ${{ steps.versioning.outputs.NEW_VER }}"
-          git push origin development
-          
-          git tag release-v${{ steps.versioning.outputs.NEW_VER }}
-          git push origin release-v${{ steps.versioning.outputs.NEW_VER }}
 
-      - name: Prepare Next Development Phase
-        shell: bash
-        run: |
-          if [ -z CHANGELOG.md ]; then
-            rm CHANGELOG.md
-          fi
-          
-          mvn versions:set -DnewVersion="${{ steps.versioning.outputs.NEW_VER }}-SNAPSHOT" -DgenerateBackupPoms=false
-          
-          git commit -am "[ACTION] preparing next development phase"
-          git push origin development
+          git commit -am "release ${{ steps.versioning.outputs.NEW_VER }}"
+          git tag "release-v${{ steps.versioning.outputs.NEW_VER }}"
+          git push origin development --tags
 
-  build:
-    needs: version_bump
-
-    name: Build Artifacts
+  build_and_release:
+    needs: prepare_release
     runs-on: ubuntu-latest
 
     permissions:
@@ -128,47 +92,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: release-v${{ needs.version_bump.outputs.new_version }}
-          fetch-depth: 0
-          fetch-tags: true
+          ref: release-v${{ needs.prepare_release.outputs.new_version }}
 
-      - name: Setup Java
+      - name: Setup Java (Temurin for build)
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 25
 
-      - name: Build Core Library
-        shell: bash
+      - name: Build Maven Project
         run: mvn -B clean package -DskipTests
 
-      - name: Deploy To Github Packages
-        shell: bash
+      - name: Deploy
         run: mvn clean deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PAT_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
 
       - name: Package Artifacts
-        shell: bash
         run: |
           rm -rf dist
-          mkdir -p dist
-          
+          mkdir dist
+
           cp registermaschine-api/target/*.jar dist/
           cp registermaschine-core/target/*.jar dist/
           cp registermaschine-default-instructions/target/*.jar dist/
 
-      - name: Upload to Single Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: release-v${{ needs.version_bump.outputs.new_version  }}
+          tag_name: release-v${{ needs.prepare_release.outputs.new_version }}
           files: dist/*
-          body: ${{ steps.changelog.outputs.content }}
-          append_body: true
+          body: ${{ needs.prepare_release.outputs.changelog }}
           make_latest: true
-          name: 'Core v${{ needs.version_bump.outputs.new_version }}'
-          generate_release_notes: true
-          draft: false
+          name: Core v${{ needs.prepare_release.outputs.new_version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
