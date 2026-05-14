@@ -30,6 +30,7 @@ public final class ChangelogPatchParser {
     private static final String TAG_CHANGELOG_ROOT = "changelog";
 
     private static final String TAG_CATEGORY = "category";
+    private static final String TAG_BREAKING = "breaking";
     private static final String TAG_ADDITIONS = "additions";
     private static final String TAG_REFACTORED = "refactored";
     private static final String TAG_FIXED = "fixes";
@@ -37,6 +38,7 @@ public final class ChangelogPatchParser {
     private static final String TAG_ENTRY = "entry";
 
     private static final String ATTRIBUTE_CATEGORY = "name";
+    private static final String ATTRIBUTE_BREAKING_KIND = "kind";
     private static final String ATTRIBUTE_VERSION = "version";
 
     private static final List<XmlEntry> additionsList = new ArrayList<>();
@@ -99,10 +101,12 @@ public final class ChangelogPatchParser {
                 if (!rootElement.getTagName().equals(TAG_PATCH_ROOT))
                     throw new ParseException("No <%s> defined".formatted(TAG_PATCH_ROOT), 0);
 
-                parseTags(TAG_ADDITIONS,  rootElement, additionsList);
-                parseTags(TAG_REFACTORED, rootElement, refactoringsList);
-                parseTags(TAG_FIXED,      rootElement, fixesList);
-                parseTags(TAG_REMOVALS,   rootElement, removalsList);
+                parseBreakingTags(rootElement, additionsList, refactoringsList, fixesList, removalsList);
+
+                parseTags(TAG_ADDITIONS,  rootElement, additionsList,    BreakingKind.NONE);
+                parseTags(TAG_REFACTORED, rootElement, refactoringsList, BreakingKind.NONE);
+                parseTags(TAG_FIXED,      rootElement, fixesList,        BreakingKind.NONE);
+                parseTags(TAG_REMOVALS,   rootElement, removalsList,     BreakingKind.NONE);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -229,68 +233,183 @@ public final class ChangelogPatchParser {
     }
 
     private static void addTags(Document doc, Element root, String tag, List<XmlEntry> list) {
-        Map<XmlEntryCategory, List<String>> sorted = list.stream()
-                .collect(Collectors.groupingBy(
+        Map<XmlEntryCategory, Map<BreakingKind, List<String>>> sorted =
+                list.stream().collect(Collectors.groupingBy(
                         XmlEntry::category,
-                        Collectors.mapping(
-                                XmlEntry::content,
-                                Collectors.toList()
+                        Collectors.groupingBy(
+                                XmlEntry::breakingKind,
+                                Collectors.mapping(
+                                        XmlEntry::content,
+                                        Collectors.toList()
+                                )
                         )
                 ));
 
-        for (var entry : sorted.entrySet()) {
-            var categoryElement = doc.createElement(TAG_CATEGORY);
-            categoryElement.setAttribute(ATTRIBUTE_CATEGORY, entry.getKey().label);
+        for (var categoryEntry : sorted.entrySet()) {
 
-            var tagElement = doc.createElement(tag);
+            Element categoryElement = doc.createElement(TAG_CATEGORY);
+            categoryElement.setAttribute(ATTRIBUTE_CATEGORY, categoryEntry.getKey().label);
 
-            for (var item : entry.getValue()) {
-                var itemElement = doc.createElement(TAG_ENTRY);
-                itemElement.setTextContent(item);
-                tagElement.appendChild(itemElement);
+            for (var breakingEntry : categoryEntry.getValue().entrySet()) {
+
+                BreakingKind kind = breakingEntry.getKey();
+                List<String> entries = breakingEntry.getValue();
+
+                Element container = categoryElement;
+
+                if (kind != BreakingKind.NONE) {
+                    Element breakingEl = doc.createElement(TAG_BREAKING);
+                    breakingEl.setAttribute(ATTRIBUTE_BREAKING_KIND, kind.value);
+                    container.appendChild(breakingEl);
+                    container = breakingEl;
+                }
+
+                Element tagElement = doc.createElement(tag);
+
+                for (String item : entries) {
+                    Element itemElement = doc.createElement(TAG_ENTRY);
+                    itemElement.setTextContent(item);
+                    tagElement.appendChild(itemElement);
+                }
+
+                container.appendChild(tagElement);
             }
 
-            categoryElement.appendChild(tagElement);
             root.appendChild(categoryElement);
         }
     }
 
-    private static void parseTags(String tag, Element rootElement, List<XmlEntry> listToAdd)
+    private static void parseTags(String tag, Element scope, List<XmlEntry> listToAdd, BreakingKind kind)
             throws ParseException {
-        var categoryNodes = rootElement.getElementsByTagName(TAG_CATEGORY);
 
-        for (int i = 0; i < categoryNodes.getLength(); i++) {
-            var categoryNode = categoryNodes.item(i);
+        var categoryNodes = directChildrenByTag(scope, TAG_CATEGORY);
 
-            if (categoryNode.getNodeType() != Node.ELEMENT_NODE)
-                throw new ParseException("<%s> is not an element".formatted(TAG_CATEGORY), 0);
-
-            var categoryEl = (Element) categoryNode;
+        for (Element categoryEl : categoryNodes) {
 
             String nodeCat = categoryEl.getAttribute(ATTRIBUTE_CATEGORY);
             XmlEntryCategory category = XmlEntryCategory.fromValue(nodeCat);
 
-            var tagNodes = categoryEl.getElementsByTagName(tag);
+            var tagNodes = directChildrenByTag(categoryEl, tag);
 
-            if (tagNodes.getLength() > 1)
-                throw new ParseException("More than one <%s> tag inside category '%s'".formatted(tag, nodeCat), 0);
+            if (tagNodes.size() > 1)
+                throw new ParseException("More than one <%s> tag inside category '%s'"
+                        .formatted(tag, nodeCat), 0);
 
-            for (int j = 0; j < tagNodes.getLength(); j++) {
-                var tagNode = tagNodes.item(j);
+            for (Element tagNode : tagNodes) {
 
-                if (tagNode.getNodeType() != Node.ELEMENT_NODE)
-                    throw new ParseException("<%s> tag is not an element".formatted(tag), 0);
+                var entries = directChildrenByTag(tagNode, TAG_ENTRY);
 
-                var tagEl = (Element) tagNode;
-
-                var entries = tagEl.getElementsByTagName(TAG_ENTRY);
-
-                addEntriesToList(entries, listToAdd, category);
+                for (Element entry : entries) {
+                    String text = entry.getTextContent();
+                    if (text != null && !text.isBlank()) {
+                        listToAdd.add(new XmlEntry(category, text.trim(), kind));
+                    }
+                }
             }
         }
     }
 
-    private static void addEntriesToList(NodeList entries, List<XmlEntry> listToAdd, XmlEntryCategory category) {
+    private static void parseBreakingTags(Element rootElement,
+                                          List<XmlEntry> additions,
+                                          List<XmlEntry> refactorings,
+                                          List<XmlEntry> fixes,
+                                          List<XmlEntry> removals)
+            throws ParseException {
+
+        var categoryNodes = directChildrenByTag(rootElement, TAG_CATEGORY);
+
+        for (Element categoryEl : categoryNodes) {
+
+            String nodeCat = categoryEl.getAttribute(ATTRIBUTE_CATEGORY);
+            XmlEntryCategory category = XmlEntryCategory.fromValue(nodeCat);
+
+            var breakingNodes = directChildrenByTag(categoryEl, TAG_BREAKING);
+
+            for (Element breakingEl : breakingNodes) {
+
+                String kind = breakingEl.getAttribute(ATTRIBUTE_BREAKING_KIND);
+
+                if (kind == null || kind.isBlank()) {
+                    throw new ParseException(
+                            "<%s> missing required attribute '%s'"
+                                    .formatted(TAG_BREAKING, ATTRIBUTE_BREAKING_KIND),
+                            0
+                    );
+                }
+
+                BreakingKind breakingKind = BreakingKind.fromValue(kind);
+
+                parseBreakingTag(
+                        breakingEl,
+                        TAG_ADDITIONS,
+                        additions,
+                        category,
+                        breakingKind
+                );
+
+                parseBreakingTag(
+                        breakingEl,
+                        TAG_REFACTORED,
+                        refactorings,
+                        category,
+                        breakingKind
+                );
+
+                parseBreakingTag(
+                        breakingEl,
+                        TAG_FIXED,
+                        fixes,
+                        category,
+                        breakingKind
+                );
+
+                parseBreakingTag(
+                        breakingEl,
+                        TAG_REMOVALS,
+                        removals,
+                        category,
+                        breakingKind
+                );
+            }
+        }
+    }
+
+    private static void parseBreakingTag(Element breakingEl,
+                                         String tag,
+                                         List<XmlEntry> list,
+                                         XmlEntryCategory category,
+                                         BreakingKind kind) {
+
+        var wrappers = directChildrenByTag(breakingEl, tag);
+
+        for (Element wrapper : wrappers) {
+
+            var entries = directChildrenByTag(wrapper, TAG_ENTRY);
+
+            for (Element entry : entries) {
+
+                String text = entry.getTextContent();
+
+                if (text == null || text.isBlank())
+                    continue;
+
+                list.add(new XmlEntry(category, text.trim(), kind));
+            }
+        }
+    }
+
+    private static void parseChildTagsFromBreaking(Element breakingEl, BreakingKind kind,
+                                                   List<XmlEntry> additions, List<XmlEntry> refactorings,
+                                                   List<XmlEntry> fixes, List<XmlEntry> removals)
+            throws ParseException {
+        parseTags(TAG_ADDITIONS,  breakingEl, additions,    kind);
+        parseTags(TAG_REFACTORED, breakingEl, refactorings, kind);
+        parseTags(TAG_FIXED,      breakingEl, fixes,        kind);
+        parseTags(TAG_REMOVALS,   breakingEl, removals,     kind);
+    }
+
+    private static void addEntriesToList(NodeList entries, List<XmlEntry> listToAdd, XmlEntryCategory category,
+                                         BreakingKind kind) {
         for (int i = 0; i < entries.getLength(); i++) {
             var node = entries.item(i);
 
@@ -303,8 +422,27 @@ public final class ChangelogPatchParser {
             if (text == null || text.isBlank())
                 continue;
 
-            listToAdd.add(new XmlEntry(category, text.trim()));
+            listToAdd.add(new XmlEntry(category, text.trim(), kind));
         }
+    }
+
+    private static List<Element> directChildrenByTag(Element parent, String tag) {
+        List<Element> result = new ArrayList<>();
+
+        var children = parent.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            var node = children.item(i);
+
+            if (node.getNodeType() != Node.ELEMENT_NODE)
+                continue;
+
+            if (!node.getNodeName().equals(tag))
+                continue;
+
+            result.add((Element) node);
+        }
+
+        return result;
     }
 
     private enum XmlEntryCategory {
@@ -324,13 +462,35 @@ public final class ChangelogPatchParser {
 
         static XmlEntryCategory fromValue(String catStr) {
             for (var xmlCat : XmlEntryCategory.values()) {
-                if (xmlCat.attr.equals(catStr)) {
+                if (xmlCat.attr.equals(catStr))
                     return xmlCat;
-                }
             }
-            return XmlEntryCategory.UNKNOWN;
+            return UNKNOWN;
         }
     }
 
-    private record XmlEntry(XmlEntryCategory category, String content) {}
+    private enum BreakingKind {
+        NONE(null),
+        TRIVIAL("trivial"),
+        MINOR("minor"),
+        MAJOR("major");
+
+        public final String value;
+
+        BreakingKind(String value) {
+            this.value = value;
+        }
+
+        static BreakingKind fromValue(String breStr) {
+            for (var breakingKind : BreakingKind.values()) {
+                if (breakingKind == NONE)
+                    continue;
+                if (breakingKind.value.equals(breStr))
+                    return breakingKind;
+            }
+            return NONE;
+        }
+    }
+
+    private record XmlEntry(XmlEntryCategory category, String content, BreakingKind breakingKind) {}
 }
