@@ -1,7 +1,6 @@
 *.*~
 
 dev-tools/*.class
-dev-tools/.build-cache/
 
 /configuration.jxml
 /default.instructions.jxml
