@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE patch SYSTEM "../patch.dtd">
+<patch>
+    <category name="dev-tools">
+        <additions>
+            <entry>Versioning dev-tool, that does the version bumps</entry>
+            <entry>ConfigPatchParser dev-tool, that cumulates all patches into one `cumulated.xml`</entry>
+            <entry>ConfigFileBuilder dev-tool, that builds the CHANGELOG.md from the cumulated XML file</entry>
+        </additions>
+        <refactorings>
+            <entry>the release workflow to use the dev-tools instead</entry>
+        </refactorings>
+    </category>
+</patch>
