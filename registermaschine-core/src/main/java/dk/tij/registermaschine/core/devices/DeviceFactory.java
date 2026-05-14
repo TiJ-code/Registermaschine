@@ -4,6 +4,7 @@ import dk.tij.registermaschine.api.config.model.ConfigDevice;
 import dk.tij.registermaschine.api.config.model.ConfigMemoryMapping;
 import dk.tij.registermaschine.api.devices.IDevice;
 import dk.tij.registermaschine.api.devices.IMemoryMapping;
+import dk.tij.registermaschine.api.error.OutOfMemoryException;
 import dk.tij.registermaschine.core.memory.MemoryBus;
 
 import java.util.List;
@@ -17,13 +18,20 @@ public final class DeviceFactory {
         for (ConfigDevice config : configs) {
             IDevice device = createDevice(config, currentAddress);
 
+            long deviceStart = currentAddress;
+            long deviceEnd = deviceStart + config.size() - 1;
+
+            if (deviceEnd < deviceStart) {
+                throw new OutOfMemoryException("Device size overflow detected for " + config.deviceHandler());
+            }
+
             MemoryBus.instance().registerDevice(
                     device,
-                    currentAddress,
-                    currentAddress + config.size() - 1
+                    deviceStart,
+                    deviceEnd
             );
 
-            currentAddress += config.size();
+            currentAddress = deviceEnd + 1;
         }
     }
 
@@ -39,7 +47,7 @@ public final class DeviceFactory {
             long localEnd = localStart + size - 1;
 
             if (localEnd >= config.size()) {
-                throw new RuntimeException(
+                throw new OutOfMemoryException(
                         "Memory mapping exceeds device size. Mapping end=%d, device size=%d"
                                 .formatted(localEnd, config.size())
                 );
@@ -47,6 +55,10 @@ public final class DeviceFactory {
 
             long absStart = globalStartAddress + localStart;
             long absEnd = globalStartAddress + localEnd;
+
+            if (absEnd < absStart) {
+                throw new OutOfMemoryException("Memory mapping overflow detected in device " + config.deviceHandler());
+            }
 
             IMemoryMapping mapping = instantiateMapping(mappingConfig, absStart);
 
