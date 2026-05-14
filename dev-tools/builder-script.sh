@@ -140,3 +140,4 @@ build_tool() {
 
 build_tool "ChangelogPatchParser"
 build_tool "ChangelogFileBuilder"
+build_tool "Versioning"
