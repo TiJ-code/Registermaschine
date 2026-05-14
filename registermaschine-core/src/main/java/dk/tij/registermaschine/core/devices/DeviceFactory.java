@@ -6,21 +6,16 @@ import dk.tij.registermaschine.api.devices.IDevice;
 import dk.tij.registermaschine.api.devices.IMemoryMapping;
 import dk.tij.registermaschine.core.memory.MemoryBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class DeviceFactory {
     private DeviceFactory() {}
 
-    public static List<IDevice> createDevices(List<ConfigDevice> configs) {
-        List<IDevice> devices = new ArrayList<>();
-
+    public static void createDevices(List<ConfigDevice> configs) {
         long currentAddress = 0;
 
         for (ConfigDevice config : configs) {
             IDevice device = createDevice(config, currentAddress);
-
-            devices.add(device);
 
             MemoryBus.instance().registerDevice(
                     device,
@@ -30,12 +25,10 @@ public final class DeviceFactory {
 
             currentAddress += config.size();
         }
-
-        return devices;
     }
 
     private static IDevice createDevice(ConfigDevice config, long globalStartAddress) {
-        IDevice device = instantiateDevice(config.deviceHandler(), config.size());
+        IDevice device = instantiateDevice(config.deviceHandler(), globalStartAddress, config.size());
 
         long currentOffset = 0;
 
@@ -65,13 +58,13 @@ public final class DeviceFactory {
         return device;
     }
 
-    private static IDevice instantiateDevice(String className, long size) {
+    private static IDevice instantiateDevice(String className, long startAddress, long size) {
         try {
             Class<? extends IDevice> clazz = Class.forName(className).asSubclass(IDevice.class);
 
             return clazz
-                    .getDeclaredConstructor(long.class)
-                    .newInstance(size);
+                    .getDeclaredConstructor(long.class, long.class)
+                    .newInstance(startAddress, startAddress + size - 1);
         } catch (Exception e) {
             throw new RuntimeException("Failed to instantiate device " + className, e);
         }

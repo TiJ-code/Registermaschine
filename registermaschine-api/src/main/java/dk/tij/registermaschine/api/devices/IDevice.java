@@ -9,5 +9,7 @@ public interface IDevice {
 
     void registerMapping(IMemoryMapping mapping, long startAddress, long endAddress);
 
+    long getStartAddress();
+    long getEndAddress();
     long getSize();
 }
