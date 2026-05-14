@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE patch SYSTEM "../patch.dtd">
+<patch>
+    <category name="api">
+        <breaking kind="major">
+            <additions>
+                <entry>ChainedInstruction class, representing a new full instruction orchestrator</entry>
+                <entry>IStepHandler interface, representing an atomic executable step handler</entry>
+                <entry>ICompiledStep interface, representing the compiled variant of a step handler</entry>
+                <entry>ConfigStep record, representing the structure parsed from the XML file</entry>
+            </additions>
+            <refactorings>
+                <entry>IInstructionSet to store new instruction layout</entry>
+                <entry>IStepHandlerRegistry, to take the responsibility of an singleton step handler registry</entry>
+                <entry>PluginContext, to use IStepHandlerRegistry instead</entry>
+            </refactorings>
+            <removals>
+                <entry>AbstractInstruction, since it is not required in the new instruction layout</entry>
+                <entry>IInstructionRegistry, since the concept of instructions was removed</entry>
+            </removals>
+        </breaking>
+        <breaking kind="trivial">
+            <refactorings>
+                <entry>ConfigInstruction, by moving it to `dk.tij.registermaschine.api.config.model`</entry>
+                <entry>ConfigOperand, by moving it to `dk.tij.registermaschine.api.config.model`</entry>
+            </refactorings>
+        </breaking>
+        <additions>
+            <entry>InvalidOperandException, to make error reporting more precise</entry>
+            <entry>IPrecompilerStage interface, to add stageable precompilation of config instructions to real instructions</entry>
+        </additions>
+    </category>
+    <category name="core">
+        <breaking kind="major">
+            <refactorings>
+                <entry>DTD for instruction files completely</entry>
+                <entry>InstructionParser to parse according to the new file structure</entry>
+                <entry>ConcreteCompiler, to compile the new instruction layout</entry>
+                <entry>Executor, to work with new instruction layout</entry>
+            </refactorings>
+        </breaking>
+        <breaking kind="trivial">
+            <refactorings>
+                <entry>ConcreteInstructionSet, by moving it to `dk.tij.registermaschine.core.instructions`</entry>
+            </refactorings>
+        </breaking>
+        <additions>
+            <entry>InstructionSetMigrator, to migrate instruction sets files throughout all (upcoming) versions</entry>
+            <entry>InstructionSetOptionParser</entry>
+            <entry>ConcreteCompiledStep class, representing a working default implementation</entry>
+            <entry>ConcreteStepHandlerRegistry singleton, containing all "singleton" instruction step handlers</entry>
+            <entry>InstructionPrecompilerStage, default precompilation stage, to convert ConfigInstructions into ChainedInstructions</entry>
+            <entry>InstructionStepPrecompilerStage, default step precompilation stage, to convert ConfigSteps into fitting IStepHandler. Used by InstructionPrecompilerStage.</entry>
+        </additions>
+        <refactorings>
+            <entry>XmlConstants to contain tags and attributes of the new XML file structure</entry>
+            <entry>InstructionParser, to only have the responsibility of parsing the actual instructions</entry>
+            <entry>InstructionParser, to use the new StepHandlerRegistry</entry>
+            <entry>CoreConfig, to store a precompilation pipeline</entry>
+            <entry>CoreConfigParser, to use the precompilation pipeline</entry>
+        </refactorings>
+    </category>
+    <category name="instructions">
+        <breaking kind="major">
+            <refactorings>
+                <entry>default instruction set file</entry>
+                <entry>all `*Instruction.java` files, to be `*StepHandler.java` files in the new instruction layout</entry>
+            </refactorings>
+        </breaking>
+    </category>
+</patch>
