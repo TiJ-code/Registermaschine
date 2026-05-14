@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE patch SYSTEM "../patch.dtd">
+<patch>
+    <category name="api">
+        <additions>
+            <entry>ILogger interface for logger instances</entry>
+            <entry>DefaultLogger, that provides a default implementation of a logger</entry>
+            <entry>LoggerFactory, to create class specific instances</entry>
+            <entry>LogConfig, a global config Logger instances must conform to</entry>
+            <entry>LogLevel enum to display severity of log messages</entry>
+        </additions>
+    </category>
+    <category name="core">
+        <refactorings>
+            <entry>every file to use the Logging API</entry>
+        </refactorings>
+    </category>
+</patch>
