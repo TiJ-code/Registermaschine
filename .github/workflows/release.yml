@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      new_version: ${{ steps.versioning.outputs.NEW_VER }}
+      new_version: ${{ steps.release_version.outputs.NEW_VER }}
       changelog: ${{ steps.changelog.outputs.content }}
 
     steps:
@@ -37,6 +37,25 @@ jobs:
         run: gu install native-image
 
       - name: Build Changelog Tools
+        shell: bash
+        run: ./changelogs/builder-script.sh
+
+      - name: Apply Release Version
+        id: release_version
+        if: github.event.inputs.bump_type != 'test'
+        run: |
+            ./Versioning.tool "${{ github.event.inputs.bump_type }}"
+            
+            NEW_VER=$(mvn help:evaluate \
+              -Dexpression=project.version \
+              -q \
+              -DforceStdout)
+            
+            echo "NEW_VER=$NEW_VER" >> $GITHUB_OUTPUT
+            
+            echo "Release version: $NEW_VER"
+
+      - name: Build Changelog
         run: |
           ./ChangelogPatchParser.tool
           ./ChangelogFileBuilder.tool
@@ -45,41 +64,47 @@ jobs:
         id: changelog
         run: |
           FILE="changelogs/CHANGELOG.md"
+                
           {
             echo 'content<<EOF'
             cat "$FILE"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
-      - name: Calculate Version
-        id: versioning
-        run: |
-          CURRENT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-
-          IFS='.' read -ra ADDR <<< "$CURRENT_VER"
-          MAJOR=${ADDR[0]}
-          MINOR=${ADDR[1]}
-          PATCH=${ADDR[2]}
-
-          case "${{ github.event.inputs.bump_type }}" in
-            major) NEW_VER="$((MAJOR+1)).0.0" ;;
-            minor) NEW_VER="$MAJOR.$((MINOR+1)).0" ;;
-            patch) NEW_VER="$MAJOR.$MINOR.$((PATCH+1))" ;;
-            *) NEW_VER="$MAJOR.$MINOR.$PATCH.test" ;;
-          esac
-
-          echo "NEW_VER=$NEW_VER" >> $GITHUB_OUTPUT
-          mvn versions:set -DnewVersion=$NEW_VER -DgenerateBackupPoms=false
-
-      - name: Commit + Tag
+      - name: Commit Release + Tag
         if: github.event.inputs.bump_type != 'test'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.no-reply.github.com"
+            
+          git add .
+            
+          git commit -m "release v${{ steps.release_version.outputs.NEW_VER }}"
+            
+          git tag "release-v${{ steps.release_version.outputs.NEW_VER }}"
 
-          git commit -am "release ${{ steps.versioning.outputs.NEW_VER }}"
-          git tag "release-v${{ steps.versioning.outputs.NEW_VER }}"
-          git push origin development --tags
+      - name: Apply Snapshot Suffix
+        if: github.event.inputs.bump_type != 'test'
+        run: |
+          ./Versioning.tool do_suffix
+
+      - name: Commit Next Dev Version
+        if: github.event.inputs.bump_type != 'test'
+        run: |
+          NEXT_DEV_VER=$(mvn help:evaluate \
+            -Dexpression=project.version \
+            -q \
+            -DforceStdout)
+
+          git add .
+
+          git commit -m "prepare next development version ${NEXT_DEV_VER}"
+
+      - name: Push Commits + Tags
+        if: github.event.inputs.bump_type != 'test'
+        run: |
+          git push origin development
+          git push origin --tags
 
   build_and_release:
     needs: prepare_release
@@ -94,7 +119,7 @@ jobs:
         with:
           ref: release-v${{ needs.prepare_release.outputs.new_version }}
 
-      - name: Setup Java (Temurin for build)
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -113,7 +138,7 @@ jobs:
         run: |
           rm -rf dist
           mkdir dist
-
+          
           cp registermaschine-api/target/*.jar dist/
           cp registermaschine-core/target/*.jar dist/
           cp registermaschine-default-instructions/target/*.jar dist/
