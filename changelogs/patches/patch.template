@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE patch SYSTEM "../patch.dtd">
 <patch>
+    <category name="api">
+        <breaking kind="trivial">
+            <additions>
+                <entry>Entry</entry>
+            </additions>
+        </breaking>
+        <additions>
+            <entry>Entry</entry>
+        </additions>
+    </category>
 </patch>

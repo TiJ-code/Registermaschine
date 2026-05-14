@@ -1,6 +1,4 @@
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
+import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
@@ -9,30 +7,74 @@ import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public final class ChangelogFileBuilder {
+
     private static final File CHANGELOG_DIR = new File("changelogs");
-    private static final File CHANGELOG_FILE= new File(CHANGELOG_DIR, "CHANGELOG.md");
+    private static final File CHANGELOG_FILE = new File(CHANGELOG_DIR, "CHANGELOG.md");
     private static final File CHANGELOG_CURRENT_DIR = new File(CHANGELOG_DIR, "cumulated");
     private static final File CHANGELOG_ARCHIVE_DIR = new File(CHANGELOG_DIR, "archive");
 
-    private static final String MD_HEADING_1 = "#";
-    private static final String MD_HEADING_2 = "##";
-    private static final String MD_HEADING_3 = "###";
-    private static final String MD_HEADING_4 = "####";
-    private static final String MD_SEPARATOR = "---";
-
     private static final String TAG_ROOT = "changelog";
     private static final String TAG_CATEGORY = "category";
+    private static final String TAG_BREAKING = "breaking";
     private static final String TAG_ENTRY = "entry";
 
     private static final String ATTRIBUTE_CATEGORY = "name";
+    private static final String ATTRIBUTE_BREAKING_KIND = "kind";
 
-    private ChangelogFileBuilder() {}
+    // ---------------- ENTRY MODEL ----------------
+
+    private enum EntryCategory {
+        UNKNOWN(null, null),
+        ADDITION("additions", "added %s"),
+        REFACTORING("refactorings", "refactored %s"),
+        FIX("fixes", "fixed %s"),
+        REMOVAL("removals", "removed %s");
+
+        final String xmlWrapper;
+        final String mdPhrase;
+
+        EntryCategory(String xml, String md) {
+            this.xmlWrapper = xml;
+            this.mdPhrase = md;
+        }
+    }
+
+    private enum BreakingKind {
+        TRIVIAL("trivial"),
+        MINOR("minor"),
+        MAJOR("major"),
+        NONE(null);
+
+        final String value;
+
+        BreakingKind(String value) {
+            this.value = value;
+        }
+
+        static BreakingKind from(String v) {
+            for (var k : values()) {
+                if (k.value != null && k.value.equals(v)) return k;
+            }
+            return NONE;
+        }
+    }
+
+    private record XmlEntry(EntryCategory category, String text) {}
+
+    private record BreakingGroup(BreakingKind kind, List<XmlEntry> entries) {}
+
+    private record XmlCategory(
+            String name,
+            Map<EntryCategory, List<XmlEntry>> normal,
+            List<BreakingGroup> breaking
+    ) {}
+
+    // ---------------- MAIN ----------------
 
     public static void main(String[] args) {
         File cumulationFile = getFirstFileInCumulation();
@@ -51,25 +93,7 @@ public final class ChangelogFileBuilder {
         }
     }
 
-    private static File getFirstFileInCumulation() {
-        File[] files = CHANGELOG_CURRENT_DIR.listFiles();
-
-        if (files == null)
-            throw new RuntimeException("No file in cumulative dir!");
-
-        if (files.length > 1)
-            System.err.println("Too many files in cumulative dir, there should only be 1! Taking first deleting others");
-
-        for (int i = 1; i < files.length; i++) {
-            try {
-                Files.deleteIfExists(files[i].toPath());
-            } catch (Exception e) {
-                throw new RuntimeException("Cannot delete useless file!");
-            }
-        }
-
-        return files[0];
-    }
+    // ---------------- PARSING ----------------
 
     private static List<XmlCategory> parseXml(File file) {
         List<XmlCategory> categories = new ArrayList<>();
@@ -78,31 +102,28 @@ public final class ChangelogFileBuilder {
             var factory = DocumentBuilderFactory.newInstance();
             factory.setIgnoringComments(true);
             factory.setIgnoringElementContentWhitespace(true);
-            var builder = factory.newDocumentBuilder();
 
+            var builder = factory.newDocumentBuilder();
             Document doc = builder.parse(file);
 
             Element root = doc.getDocumentElement();
 
             if (!TAG_ROOT.equals(root.getTagName()))
-                throw new ParseException("Root tag is not <%s>".formatted(TAG_ROOT), 0);
+                throw new ParseException("Invalid root", 0);
 
             var categoryNodes = root.getElementsByTagName(TAG_CATEGORY);
 
             for (int i = 0; i < categoryNodes.getLength(); i++) {
-                var node = categoryNodes.item(i);
+                Element catEl = (Element) categoryNodes.item(i);
 
-                if (node.getNodeType() != Node.ELEMENT_NODE)
-                    continue;
+                String name = catEl.getAttribute(ATTRIBUTE_CATEGORY);
 
-                var catEl = (Element) node;
+                Map<EntryCategory, List<XmlEntry>> normal = parseNormal(catEl);
+                List<BreakingGroup> breaking = parseBreaking(catEl);
 
-                String categoryName = catEl.getAttribute(ATTRIBUTE_CATEGORY);
-
-                List<XmlEntry> entries = parseCategoryEntries(catEl);
-
-                categories.add(new XmlCategory(categoryName, entries));
+                categories.add(new XmlCategory(name, normal, breaking));
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -110,166 +131,216 @@ public final class ChangelogFileBuilder {
         return categories;
     }
 
-    private static List<XmlEntry> parseCategoryEntries(Element catEl) {
-        List<XmlEntry> result = new ArrayList<>();
+    private static Map<EntryCategory, List<XmlEntry>> parseNormal(Element catEl) {
+        Map<EntryCategory, List<XmlEntry>> map = new EnumMap<>(EntryCategory.class);
 
-        for (EntryCategory category : EntryCategory.values()) {
-            if (category == EntryCategory.UNKNOWN)
-                continue;
+        for (EntryCategory cat : EntryCategory.values()) {
+            if (cat == EntryCategory.UNKNOWN) continue;
 
-            var wrappers = catEl.getElementsByTagName(category.xmlWrapper);
+            var wrappers = directChildren(catEl, cat.xmlWrapper);
+            if (wrappers.isEmpty()) continue;
 
-            if (wrappers.getLength() == 0)
-                continue;
+            List<XmlEntry> list = new ArrayList<>();
 
-            var wrapper = (Element) wrappers.item(0);
+            for (Element w : wrappers) {
+                var entries = w.getElementsByTagName(TAG_ENTRY);
 
-            var entryNodes = wrapper.getElementsByTagName(TAG_ENTRY);
+                for (int i = 0; i < entries.getLength(); i++) {
+                    Node n = entries.item(i);
+                    if (n.getNodeType() != Node.ELEMENT_NODE) continue;
 
-            List<String> entries = new ArrayList<>();
-
-            for (int i = 0; i < entryNodes.getLength(); i++) {
-                var node = entryNodes.item(i);
-
-                if (node.getNodeType() != Node.ELEMENT_NODE)
-                    continue;
-
-                String text = node.getTextContent();
-
-                if (text == null || text.isBlank())
-                    continue;
-
-                entries.add(text.trim());
+                    String text = n.getTextContent();
+                    if (text != null && !text.isBlank())
+                        list.add(new XmlEntry(cat, text.trim()));
+                }
             }
 
-            result.add(new XmlEntry(category, entries));
+            map.put(cat, list);
+        }
+
+        return map;
+    }
+
+    private static List<BreakingGroup> parseBreaking(Element catEl) {
+        List<BreakingGroup> result = new ArrayList<>();
+
+        var breakingNodes = directChildren(catEl, TAG_BREAKING);
+
+        for (Element b : breakingNodes) {
+            BreakingKind kind = BreakingKind.from(b.getAttribute(ATTRIBUTE_BREAKING_KIND));
+
+            List<XmlEntry> entries = new ArrayList<>();
+
+            for (EntryCategory cat : EntryCategory.values()) {
+                if (cat == EntryCategory.UNKNOWN) continue;
+
+                var wrappers = directChildren(b, cat.xmlWrapper);
+
+                for (Element w : wrappers) {
+                    var entryNodes = w.getElementsByTagName(TAG_ENTRY);
+
+                    for (int i = 0; i < entryNodes.getLength(); i++) {
+                        Node n = entryNodes.item(i);
+                        if (n.getNodeType() != Node.ELEMENT_NODE) continue;
+
+                        String text = n.getTextContent();
+                        if (text != null && !text.isBlank())
+                            entries.add(new XmlEntry(cat, text.trim()));
+                    }
+                }
+            }
+
+            result.add(new BreakingGroup(kind, entries));
         }
 
         return result;
     }
 
+    // ---------------- MARKDOWN ----------------
+
     private static String buildMarkdown(List<XmlCategory> categories) {
         StringBuilder md = new StringBuilder();
 
-        final int lastCatIdx = categories.size() - 1;
-        for (int i = 0; i < categories.size(); i++) {
-            var category = categories.get(i);
+        List<BreakingKind> breakingOrder = List.of(
+                BreakingKind.TRIVIAL,
+                BreakingKind.MINOR,
+                BreakingKind.MAJOR
+        );
 
-            md.append(MD_HEADING_1)
-                    .append(" ")
-                    .append(category.name())
+        for (int i = 0; i < categories.size(); i++) {
+            XmlCategory cat = categories.get(i);
+
+            md.append("# ")
+                    .append(cat.name())
                     .append("\n\n");
 
-            for (var entryGroup : category.entries()) {
-                if (entryGroup.entries().isEmpty())
+            // ---------------- NORMAL ENTRIES ----------------
+
+            for (EntryCategory ec : EntryCategory.values()) {
+                if (ec == EntryCategory.UNKNOWN)
                     continue;
 
+                List<XmlEntry> entries =
+                        cat.normal().getOrDefault(ec, List.of());
 
-                for (var entry : entryGroup.entries()) {
+                for (XmlEntry entry : entries) {
                     md.append("- ")
-                            .append(formatEntry(entryGroup.category(), entry))
+                            .append(format(ec, entry.text()))
                             .append("\n");
                 }
-
-                md.append("\n");
             }
 
-            if (i != lastCatIdx)
-                md.append(MD_SEPARATOR);
+            // ---------------- BREAKING CHANGES ----------------
 
-            md.append("\n\n");
+            boolean hasBreaking = cat.breaking().stream()
+                    .anyMatch(g -> !g.entries().isEmpty());
+
+            if (hasBreaking) {
+                md.append("\n")
+                        .append("## Breaking Changes")
+                        .append("\n\n");
+
+                for (BreakingKind kind : breakingOrder) {
+
+                    List<XmlEntry> entriesForKind = new ArrayList<>();
+
+                    for (BreakingGroup group : cat.breaking()) {
+                        if (group.kind() == kind) {
+                            entriesForKind.addAll(group.entries());
+                        }
+                    }
+
+                    if (entriesForKind.isEmpty())
+                        continue;
+
+                    md.append("### ")
+                            .append(capitalize(kind.value))
+                            .append("\n");
+
+                    for (XmlEntry entry : entriesForKind) {
+                        md.append("- ")
+                                .append(format(entry.category(), entry.text()))
+                                .append("\n");
+                    }
+
+                    md.append("\n");
+                }
+            }
+
+            if (i != categories.size() - 1) {
+                md.append("---\n\n");
+            }
         }
 
         return md.toString();
     }
 
-    private static File resolveMarkdownFile(File cumulationFile) {
-        String name = cumulationFile.getName();
-
-        int dotIdx = name.lastIndexOf('.');
-
-        if (dotIdx != -1)
-            name = name.substring(0, dotIdx);
-
-        name += ".md";
-
-        return new File(cumulationFile.getParentFile(), name);
+    private static String format(EntryCategory cat, String text) {
+        return cat.mdPhrase == null ? text : cat.mdPhrase.formatted(text);
     }
 
-    private static void archiveFile(File xmlFile, File mdFile) {
-        try {
-            if (!CHANGELOG_ARCHIVE_DIR.exists()) {
-                if (!CHANGELOG_ARCHIVE_DIR.mkdirs())
-                    throw new RuntimeException("Cannot create archive dir!");
+    private static String capitalize(String str) {
+        if (str == null || str.isBlank())
+            return str;
+
+        return Character.toUpperCase(str.charAt(0))
+                + str.substring(1).toLowerCase();
+    }
+
+    // ---------------- HELPERS ----------------
+
+    private static List<Element> directChildren(Element parent, String tag) {
+        List<Element> out = new ArrayList<>();
+        NodeList nodes = parent.getChildNodes();
+
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node n = nodes.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE && n.getNodeName().equals(tag)) {
+                out.add((Element) n);
             }
+        }
+        return out;
+    }
 
-            String archiveName = xmlFile.getName();
-            int dotIdx = archiveName.lastIndexOf('.');
-            if (dotIdx != -1)
-                archiveName = archiveName.substring(0, dotIdx);
+    private static File getFirstFileInCumulation() {
+        File[] files = CHANGELOG_CURRENT_DIR.listFiles();
+        if (files == null || files.length == 0)
+            throw new RuntimeException("No cumulative file");
 
-            archiveName += ".zip";
+        return files[0];
+    }
 
-            File archiveFile = new File(CHANGELOG_ARCHIVE_DIR, archiveName);
+    private static File resolveMarkdownFile(File xml) {
+        return new File(xml.getParentFile(), xml.getName().replace(".xml", ".md"));
+    }
 
-            try (var fos = new FileOutputStream(archiveFile);
-                 var zos = new ZipOutputStream(fos)) {
-                addFileZoZip(xmlFile, zos);
-                addFileZoZip(mdFile, zos);
+    private static void archiveFile(File xml, File md) {
+        try {
+            if (!CHANGELOG_ARCHIVE_DIR.exists())
+                CHANGELOG_ARCHIVE_DIR.mkdirs();
+
+            File zip = new File(CHANGELOG_ARCHIVE_DIR,
+                    xml.getName().replace(".xml", ".zip"));
+
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+                add(zos, xml);
+                add(zos, md);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void addFileZoZip(File file, ZipOutputStream zos) throws Exception {
-        try (var fis = new FileInputStream(file)) {
-            var entry = new ZipEntry(file.getName());
-
-            zos.putNextEntry(entry);
-
-            byte[] buffer = new byte[8192];
-
-            int len;
-            while ((len = fis.read(buffer)) > 0)
-                zos.write(buffer, 0, len);
-
-            zos.closeEntry();
+    private static void add(ZipOutputStream zos, File f) throws Exception {
+        zos.putNextEntry(new ZipEntry(f.getName()));
+        try (FileInputStream fis = new FileInputStream(f)) {
+            fis.transferTo(zos);
         }
+        zos.closeEntry();
     }
 
-    private static void moveMarkdownToRoot(File mdFile) {
-        try {
-            Files.move(mdFile.toPath(), CHANGELOG_FILE.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private static void moveMarkdownToRoot(File md) throws Exception {
+        Files.move(md.toPath(), CHANGELOG_FILE.toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
     }
-
-    private static String formatEntry(EntryCategory category, String text) {
-        if (category.mdPhrase == null)
-            return text;
-
-        return category.mdPhrase.formatted(text);
-    }
-
-    private enum EntryCategory {
-        UNKNOWN(null, null),
-        ADDITION("additions", "added %s"),
-        REFACTORING("refactorings", "refactored %s"),
-        FIX("fixes", "fixed %s"),
-        REMOVAL("removals", "removed %s");
-
-        public final String xmlWrapper;
-        public final String mdPhrase;
-
-        EntryCategory(String xml, String md) {
-            this.xmlWrapper = xml;
-            this.mdPhrase = md;
-        }
-    }
-
-    private record XmlCategory(String name, List<XmlEntry> entries) {}
-
-    private record XmlEntry(EntryCategory category, List<String> entries) {}
 }

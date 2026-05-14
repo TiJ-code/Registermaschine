@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!ELEMENT patch (category*)>
-<!ELEMENT category (additions?, refactorings?, fixes?, removals?)>
+<!ELEMENT category (breaking*, additions?, refactorings?, fixes?, removals?)>
 <!ELEMENT additions (entry*)>
 <!ELEMENT refactorings (entry*)>
 <!ELEMENT fixes (entry*)>
 <!ELEMENT removals (entry*)>
 <!ELEMENT entry (#PCDATA)>
+<!ELEMENT breaking (additions?, refactorings?, fixes?, removals?)>
 <!ATTLIST category name (api|core|instructions|dev-tools) #REQUIRED>
+<!ATTLIST breaking kind (trivial|minor|major) #REQUIRED>
