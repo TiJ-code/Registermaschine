@@ -84,6 +84,8 @@ public interface IExecutionContextListener {
      */
     void onOutput(int value);
 
+    void onAddressUpdated(long address, byte value);
+
     /**
      * Invoked when input is requested.
      *
