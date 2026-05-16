@@ -1,6 +1,8 @@
 package dk.tij.registermaschine.core.plugin;
 
 import dk.tij.registermaschine.api.error.ClassInstantiationException;
+import dk.tij.registermaschine.api.log.ILogger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.api.plugin.IPlugin;
 import dk.tij.registermaschine.api.plugin.PluginContext;
 import dk.tij.registermaschine.core.config.CoreConfig;
@@ -24,6 +26,8 @@ import java.util.jar.JarFile;
  * @author TiJ
  */
 public final class PluginLoader {
+    private static final ILogger LOGGER = LoggerFactory.getLogger(PluginLoader.class);
+
     private static final PluginLoader INSTANCE = new PluginLoader();
 
     private final Map<PluginConfig, IPlugin> loadedPlugins = new ConcurrentHashMap<>();
@@ -34,6 +38,7 @@ public final class PluginLoader {
     private PluginLoader() {}
 
     public void init() {
+        LOGGER.debug("Initializing PluginLoader");
         this.pluginContext = new PluginContext(CoreConfig.INSTRUCTION_REGISTRY);
         this.initialised = true;
     }
@@ -41,17 +46,22 @@ public final class PluginLoader {
     public void loadPlugins(Path pluginsPath) {
         ensureInitialised();
 
+        LOGGER.debug("Loading possible plugin files");
         File[] jars = new File(pluginsPath.toUri()).listFiles(f -> f.getName().endsWith(".jar"));
 
         if (jars == null)
             return;
 
+        LOGGER.info("Found {} possible plugin files", jars.length);
+
         try {
             for (File jar : jars) {
+                LOGGER.trace("Trying to load plugin \"{}\"", jar.getName());
                 loadPlugin(jar);
+                LOGGER.trace("Done loading plugin \"{}\"", jar.getName());
             }
         } catch (Exception e) {
-            System.err.printf("[dk.tij.registermaschine.core.plugin.PluginLoader] %s%n", e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -88,7 +98,7 @@ public final class PluginLoader {
     public void registerPlugin(PluginConfig config, IPlugin plugin) {
         ensureInitialised();
 
-        System.out.printf("loading plugin: \"%s:%s\"%n", config.name(), config.version());
+        LOGGER.info("Registering plugin: \"{}:{}\"", config.name(), config.version());
         plugin.onLoad();
         loadedPlugins.put(config, plugin);
     }
@@ -96,6 +106,7 @@ public final class PluginLoader {
     public void enablePlugins() {
         ensureInitialised();
 
+        LOGGER.info("Enabling all {} plugins!", loadedPlugins.size());
         loadedPlugins.values().forEach(p -> p.onEnable(pluginContext));
     }
 
