@@ -15,7 +15,7 @@ import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
-import dk.tij.registermaschine.core.instructions.StepHandlerRegistry;
+import dk.tij.registermaschine.core.instructions.ConcreteStepHandlerRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -211,7 +211,7 @@ public final class InstructionParser implements IConfigParser {
      * </ul>
      *
      * <p>The handler is resolved dynamically via reflection and cached using
-     * {@link StepHandlerRegistry} to avoid repeated instantiation.</p>
+     * {@link ConcreteStepHandlerRegistry} to avoid repeated instantiation.</p>
      *
      * <p>Input and output references correspond to operand names defined at the
      * instruction level and are resolved later during precompilation.</p>
@@ -255,7 +255,7 @@ public final class InstructionParser implements IConfigParser {
             }
         }
 
-        IStepHandler handler = StepHandlerRegistry.getOrCreate(handlerClass, InstructionParser::createInstructionHandler);
+        IStepHandler handler = CoreConfig.STEP_HANDLER_REGISTRY.getOrCreate(handlerClass, InstructionParser::createInstructionHandler);
 
         return new ConfigStep(handler, condition, inputs, output);
     }
