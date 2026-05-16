@@ -12,6 +12,15 @@ on:
           - minor
           - major
           - test
+      dev_type:
+        description: 'Level of (dev) version bump, after a release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
   prepare_release:
@@ -44,7 +53,7 @@ jobs:
         id: release_version
         if: github.event.inputs.bump_type != 'test'
         run: |
-            ./Versioning.tool "${{ github.event.inputs.bump_type }}"
+            ./Versioning.tool ${{ github.event.inputs.bump_type }}
             
             NEW_VER=$(mvn help:evaluate \
               -Dexpression=project.version \
@@ -86,6 +95,7 @@ jobs:
       - name: Apply Snapshot Suffix
         if: github.event.inputs.bump_type != 'test'
         run: |
+          ./Versioning.tool ${{ github.event.inputs.dev_type }}
           ./Versioning.tool do_suffix
 
       - name: Commit Next Dev Version
