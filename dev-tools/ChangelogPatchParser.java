@@ -245,15 +245,25 @@ public final class ChangelogPatchParser {
                         )
                 ));
 
-        for (var categoryEntry : sorted.entrySet()) {
+        List<XmlEntryCategory> orderedCategories = sorted.keySet()
+                .stream()
+                .sorted((a, b) -> Integer.compare(a.ordinal(), b.ordinal()))
+                .toList();
+
+        for (var category : orderedCategories) {
+            Map<BreakingKind, List<String>> breakingMap = sorted.get(category);
 
             Element categoryElement = doc.createElement(TAG_CATEGORY);
-            categoryElement.setAttribute(ATTRIBUTE_CATEGORY, categoryEntry.getKey().label);
+            categoryElement.setAttribute(ATTRIBUTE_CATEGORY, category.label);
 
-            for (var breakingEntry : categoryEntry.getValue().entrySet()) {
+            List<BreakingKind> orderedKinds = breakingMap.keySet()
+                    .stream()
+                    .sorted((a, b) -> Integer.compare(a.ordinal(), b.ordinal()))
+                    .toList();
 
-                BreakingKind kind = breakingEntry.getKey();
-                List<String> entries = breakingEntry.getValue();
+            for (BreakingKind kind : orderedKinds) {
+
+                List<String> entries = breakingMap.get(kind);
 
                 Element container = categoryElement;
 

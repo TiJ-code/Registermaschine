@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE patch SYSTEM "../patch.dtd">
+<patch>
+    <category name="dev-tools">
+        <refactorings>
+            <entry>ChangelogPatchParser to sort result according to category and breaking change precedence</entry>
+        </refactorings>
+    </category>
+</patch>
