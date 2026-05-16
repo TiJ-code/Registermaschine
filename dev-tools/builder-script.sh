@@ -127,6 +127,7 @@ build_tool() {
 
   native-image \
     --initialize-at-build-time \
+    -H:IncludeResources="changelog/patch.dtd|changelog/patches/.*\\.xml" \
     -H:+ReportExceptionStackTraces \
     -o "../${TOOL}.tool" "$TOOL" || exit 1
 

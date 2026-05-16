@@ -30,6 +30,9 @@ jobs:
       new_version: ${{ steps.release_version.outputs.NEW_VER }}
       changelog: ${{ steps.changelog.outputs.content }}
 
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,12 +45,11 @@ jobs:
           distribution: graalvm
           java-version: 25
 
-      - name: Install native-image
-        run: gu install native-image
-
       - name: Build Changelog Tools
         shell: bash
-        run: ./changelogs/builder-script.sh
+        run: |
+          cd dev-tools
+          ./builder-script.sh
 
       - name: Apply Release Version
         id: release_version
@@ -161,5 +163,6 @@ jobs:
           body: ${{ needs.prepare_release.outputs.changelog }}
           make_latest: true
           name: Core v${{ needs.prepare_release.outputs.new_version }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
