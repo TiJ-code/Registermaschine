@@ -10,6 +10,7 @@ import dk.tij.rm.instructions.InputInstruction;
 import dk.tij.rm.instructions.JumpInstruction;
 import dk.tij.rm.instructions.MoveInstruction;
 import dk.tij.rm.instructions.MultiplicationInstruction;
+import dk.tij.rm.instructions.NoOperationInstruction;
 import dk.tij.rm.instructions.OutputInstruction;
 import dk.tij.rm.instructions.SubtractionInstruction;
 
@@ -47,6 +48,7 @@ public class RegistermaschinePlugin implements IPlugin {
         registerInstruction(HaltInstruction.class);
         registerInstruction(MoveInstruction.class);
         registerInstruction(JumpInstruction.class);
+        registerInstruction(NoOperationInstruction.class);
     }
 
     @Override
