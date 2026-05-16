@@ -1,6 +1,7 @@
 package dk.tij.registermaschine.core.instructions;
 
 import dk.tij.registermaschine.api.instructions.IStepHandler;
+import dk.tij.registermaschine.api.instructions.IStepHandlerRegistry;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,16 +21,18 @@ import java.util.function.Function;
  * @since 2.0.0
  * @author TiJ
  */
-public final class StepHandlerRegistry {
+public final class ConcreteStepHandlerRegistry implements IStepHandlerRegistry {
+    private static final IStepHandlerRegistry INSTANCE = new ConcreteStepHandlerRegistry();
+
     /**
      * Internal thread-safe registry mapping handler classes to their instances
      */
-    private static final Map<Class<? extends IStepHandler>, IStepHandler> REGISTRY = new ConcurrentHashMap<>();
+    private final Map<Class<? extends IStepHandler>, IStepHandler> REGISTRY = new ConcurrentHashMap<>();
 
     /**
      * Private constructor to prevent instantiation.
      */
-    private StepHandlerRegistry() {}
+    private ConcreteStepHandlerRegistry() {}
 
     /**
      * Registers a handler instance for the specified class.
@@ -37,7 +40,7 @@ public final class StepHandlerRegistry {
      * @param clazz   the class of the handler
      * @param handler the handler instance to register
      */
-    public static void register(Class<? extends IStepHandler> clazz,  IStepHandler handler) {
+    public void register(Class<? extends IStepHandler> clazz,  IStepHandler handler) {
         REGISTRY.put(clazz, handler);
     }
 
@@ -46,7 +49,7 @@ public final class StepHandlerRegistry {
      * @param clazz the class of the handler
      * @return the handler instance or {@code null} if it does not exist
      */
-    public static IStepHandler get(Class<? extends IStepHandler> clazz) {
+    public IStepHandler get(Class<? extends IStepHandler> clazz) {
         return REGISTRY.get(clazz);
     }
 
@@ -59,8 +62,12 @@ public final class StepHandlerRegistry {
      *                 if one is not already registered
      * @return the existing or newly created {@link IStepHandler} instance
      */
-    public static IStepHandler getOrCreate(Class<? extends IStepHandler> clazz,
+    public IStepHandler getOrCreate(Class<? extends IStepHandler> clazz,
                                            Function<Class<? extends IStepHandler>, IStepHandler> function) {
         return REGISTRY.computeIfAbsent(clazz, function);
+    }
+
+    public static IStepHandlerRegistry instance() {
+        return INSTANCE;
     }
 }

@@ -75,7 +75,7 @@ public final class PluginLoader {
      */
     public void init() {
         LOGGER.debug("Initializing PluginLoader");
-        this.pluginContext = new PluginContext(CoreConfig.INSTRUCTION_REGISTRY);
+        this.pluginContext = new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY);
         this.initialised = true;
     }
 
