@@ -54,7 +54,7 @@ public final class ConcreteInstructionRegistry implements IInstructionRegistry {
 
         try {
             return clazz
-                    .getDeclaredConstructor(byte.class, int.class, ICondition.class)
+                    .getDeclaredConstructor(int.class, int.class, ICondition.class)
                     .newInstance(opcode, operandCount, condition);
         } catch (Exception e) {
             throw new ClassInstantiationException("Could not instantiate %s".formatted(className), e);

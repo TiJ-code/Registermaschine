@@ -147,7 +147,10 @@ public final class ConcreteInstructionSet implements IInstructionSet {
 
     @Override
     public boolean contains(String mnemonic) {
-        boolean result = instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.mnemonic().equals(mnemonic));
+        boolean result = instructions
+                .stream()
+                .filter(Objects::nonNull)
+                .anyMatch(i -> i.mnemonic().equalsIgnoreCase(mnemonic));
         LOGGER.debug("Instruction set contains mnemonic '{}': {}", mnemonic, result);
         return result;
     }
