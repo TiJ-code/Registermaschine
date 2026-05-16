@@ -1,6 +1,8 @@
 package dk.tij.registermaschine.core.plugin;
 
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
+import dk.tij.registermaschine.api.log.ILogger;
+import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
@@ -23,6 +25,8 @@ import java.nio.file.Path;
  * @author TiJ
  */
 public final class PluginConfigParser {
+    private static final ILogger LOGGER = LoggerFactory.getLogger(PluginConfigParser.class);
+
     private static final PluginConfigParser INSTANCE = new PluginConfigParser();
 
     public static final Path PLUGIN_PATH = Path.of("plugins");
@@ -40,6 +44,7 @@ public final class PluginConfigParser {
 
     private static Document parseWithDtd(InputStream is, PluginConstants.FileVersion fileVersion)
             throws IOException, ParserConfigurationException, SAXException {
+        LOGGER.trace("Parsing input stream with DTD");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(true);
         factory.setIgnoringElementContentWhitespace(true);
@@ -72,6 +77,7 @@ public final class PluginConfigParser {
 
     private static Document parseWithoutDtd(InputStream is)
             throws IOException, ParserConfigurationException, SAXException {
+        LOGGER.trace("Parsing input stream without DTD");
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(false);
         factory.setIgnoringElementContentWhitespace(true);
@@ -92,7 +98,7 @@ public final class PluginConfigParser {
 
     public PluginConfig parse(InputStream is)
             throws IOException, ParserConfigurationException, SAXException {
-
+        LOGGER.trace("Begin parsing of plugin configuration file");
         byte[] data = is.readAllBytes();
 
         Document doc = parseWithoutDtd(new ByteArrayInputStream(data));
@@ -111,10 +117,12 @@ public final class PluginConfigParser {
             case null, default -> config = parseV1(doc);
         }
 
+        LOGGER.trace("Done parsing of plugin configuration file");
         return config;
     }
 
     private PluginConfig parseV1(Document xmlDocument) {
+        LOGGER.trace("Parsing plugin configuration of version 1");
         String nameStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_NAME)
                 .item(0).getTextContent();
         String descriptionStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_DESCRIPTION)
