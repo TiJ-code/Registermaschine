@@ -154,7 +154,7 @@ public final class ConcreteInstructionSet implements IInstructionSet {
 
     @Override
     public boolean contains(int opcode) {
-        boolean result = instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.opcode() == mnemonic);
+        boolean result = instructions.stream().filter(Objects::nonNull).anyMatch(i -> i.opcode() == opcode);
         LOGGER.debug("Instruction set contains opcode '{}': {}", opcode, result);
         return result;
     }

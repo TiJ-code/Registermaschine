@@ -11,6 +11,7 @@ import dk.tij.registermaschine.core.config.CoreConfig;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dk.tij.registermaschine.api.compilation.lexing.TokenType.ADDRESS;
 import static dk.tij.registermaschine.api.compilation.lexing.TokenType.COMMA;
 import static dk.tij.registermaschine.api.compilation.lexing.TokenType.COMMENT;
 import static dk.tij.registermaschine.api.compilation.lexing.TokenType.EOF;

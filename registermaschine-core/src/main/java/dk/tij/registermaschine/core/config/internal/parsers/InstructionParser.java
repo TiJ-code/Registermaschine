@@ -2,22 +2,13 @@ package dk.tij.registermaschine.core.config.internal.parsers;
 
 import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
 import dk.tij.registermaschine.api.compilation.compiling.OperandType;
-import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.config.ConfigInstruction;
 import dk.tij.registermaschine.api.config.ConfigOperand;
 import dk.tij.registermaschine.api.config.IConfigParser;
-import dk.tij.registermaschine.api.error.ClassInstantiationException;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.AbstractInstruction;
 import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
-import dk.tij.registermaschine.core.config.CoreConfig;
-import dk.tij.registermaschine.core.config.internal.XmlConstants;
-import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
@@ -137,6 +128,8 @@ public final class InstructionParser implements IConfigParser {
                     instructionMnemonic));
         }
 
+        instructionHandlerStr = migrateInstructionHandlerString(instructionHandlerStr);
+
         AbstractInstruction instructionHandler = CoreConfig.INSTRUCTION_REGISTRY
                 .instantiate(instructionHandlerStr, opcode,
                              operands.size(), ConditionBuilder.build(instructionConditionStr));
@@ -211,42 +204,21 @@ public final class InstructionParser implements IConfigParser {
     }
 
     /**
-     * Loads the handler class from the provided string.
+     * Since the default-instructions-plugin has migrated its package structure from
+     * {@code dk.tij.regsitermaschine.} to {@code dk.tij.rm.}, and not cause a breaking change,
+     * handler strings are automatically parsed as "migrated" ones.
      *
-     * @param handlerString the raw handler string
-     * @return the {@link Class} of the handler
-     * @throws IllegalStateException if the handler string is {@code null} or empty
-     * @throws ClassNotFoundException if the handler class could not be found
+     * @param handlerStr the parsed handler string from an instruction set file
+     * @return {@code handlerStr} if no migration was needed, a migrated variant otherwise
      */
-    private static Class<? extends AbstractInstruction> parseInstructionHandler(String handlerString)
-            throws IllegalStateException, ClassNotFoundException {
-        if (handlerString == null || handlerString.isEmpty())
-            throw new IllegalStateException("Cannot parse empty instruction handler");
+    private static String migrateInstructionHandlerString(String handlerStr) {
+        final String oldHandlerPrefix = "dk.tij.registermaschine.instructions";
+        final String newHandlerPrefix = "dk.tij.rm.instructions";
 
-        log.debug("Parsing instruction handler {}; looking on the classpath", handlerString);
-        return Class.forName(handlerString.trim()).asSubclass(AbstractInstruction.class);
-    }
-
-    /**
-     * Creates a handler class instance
-     *
-     * @param handlerClass the class to create an instance from
-     * @param opcode the opcode of this instruction
-     * @param operands the operands of this instruction
-     * @param condition the condition of this instruction
-     * @return an instantiated {@link AbstractInstruction}
-     * @throws ClassInstantiationException if the handler class could not be instantiated
-     */
-    private static AbstractInstruction createInstructionHandler(Class<? extends AbstractInstruction> handlerClass,
-                                                                int opcode, int operands, ICondition condition)
-            throws ClassInstantiationException {
-        try {
-            log.debug("Instantiating instruction handler {}", handlerClass.getName());
-            return handlerClass
-                    .getDeclaredConstructor(int.class, int.class, ICondition.class)
-                    .newInstance(opcode, operands, condition);
-        } catch (Exception e) {
-            throw new ClassInstantiationException("Could not instantiate instruction handler class.", e);
+        if (handlerStr.contains(oldHandlerPrefix)) {
+            return handlerStr.replace(oldHandlerPrefix, newHandlerPrefix);
         }
+
+        return handlerStr;
     }
 }

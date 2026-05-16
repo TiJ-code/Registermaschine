@@ -41,7 +41,7 @@ public final class ConcreteInstructionRegistry implements IInstructionRegistry {
 
     @Override
     public AbstractInstruction instantiate(String className,
-                                           byte opcode, int operandCount, ICondition condition)
+                                           int opcode, int operandCount, ICondition condition)
             throws ClassInstantiationException {
         Class<? extends AbstractInstruction> clazz = registry.get(className);
 
