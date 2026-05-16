@@ -21,18 +21,46 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
+ * Parses plugin configuration files ({@link PluginConstants#PLUGIN_FILENAME})
+ * into {@link PluginConfig} instances.
+ *
+ * <p>The parser supports versioned plugin configuration formats and validates
+ * XML documents against their corresponding DTDs.</p>
+ *
+ * <p>Parsing is performed in two steps</p>
+ * <ol>
+ *     <li>Initial parsing without DTD validation to determine file version</li>
+ *     <li>Validation and parsing using the correct DTD</li>
+ * </ol>
+ *
  * @since 1.1.0
  * @author TiJ
  */
 public final class PluginConfigParser {
     private static final ILogger LOGGER = LoggerFactory.getLogger(PluginConfigParser.class);
 
+    /**
+     * Singleton parser instance.
+     */
     private static final PluginConfigParser INSTANCE = new PluginConfigParser();
 
+    /**
+     * Default plugin directory path.
+     */
     public static final Path PLUGIN_PATH = Path.of("plugins");
 
+    /**
+     * Private constructor to prevent external instantiation
+     */
     private PluginConfigParser() {}
 
+    /**
+     * Returns the plugin directory path.
+     *
+     * <p>The directory is automatically created if it does not exist.</p>
+     *
+     * @return plugin directory path
+     */
     public Path getPluginDirectory() {
         try {
             Files.createDirectories(PLUGIN_PATH);
@@ -42,6 +70,17 @@ public final class PluginConfigParser {
         }
     }
 
+    /**
+     * Parses and validates an XML document using specified DTD.
+     *
+     * @param is input stream containing the XML document
+     * @param fileVersion plugin file version used to determine the DTD
+     * @return parsed XML document
+     *
+     * @throws IOException if the input stream cannot be read
+     * @throws ParserConfigurationException if the XML parser configuration fails
+     * @throws SAXException if XML validation fails
+     */
     private static Document parseWithDtd(InputStream is, PluginConstants.FileVersion fileVersion)
             throws IOException, ParserConfigurationException, SAXException {
         LOGGER.trace("Parsing input stream with DTD");
@@ -51,9 +90,7 @@ public final class PluginConfigParser {
 
         DocumentBuilder builder = factory.newDocumentBuilder();
         builder.setErrorHandler(new ErrorHandler() {
-            @Override
-            public void warning(SAXParseException e) throws SAXException {
-            }
+            @Override public void warning(SAXParseException e) throws SAXException {}
 
             @Override
             public void error(SAXParseException e) throws SAXException {
@@ -75,6 +112,19 @@ public final class PluginConfigParser {
         return builder.parse(is);
     }
 
+    /**
+     * Parses an XML document without DTD validation.
+     *
+     * <p>External DTD loading and entity processing are disabled
+     * to avoid unnecessary network access and security risks.</p>
+     *
+     * @param is input stream containing the XML document
+     * @return parsed XML document
+     *
+     * @throws IOException if the input stream cannot be read
+     * @throws ParserConfigurationException if the XML parser configuration fails
+     * @throws SAXException if parsing fails
+     */
     private static Document parseWithoutDtd(InputStream is)
             throws IOException, ParserConfigurationException, SAXException {
         LOGGER.trace("Parsing input stream without DTD");
@@ -92,10 +142,27 @@ public final class PluginConfigParser {
         return builder.parse(is);
     }
 
+    /**
+     * Returns the singleton parser instance.
+     *
+     * @return parser instance
+     */
     public static PluginConfigParser instance() {
         return INSTANCE;
     }
 
+    /**
+     * Parses a plugin configuration XML document.
+     *
+     * <p>The parser first determines the plugin file version
+     * and then validates the XML document using the correct DTD.</p>
+     *
+     * @param is input stream containing the plugin configuration XML
+     * @return parsed plugin configuration
+     * @throws IOException if the input stream cannot be read
+     * @throws ParserConfigurationException if the XML parser configuration fails
+     * @throws SAXException if XML aprsing or validation fails
+     */
     public PluginConfig parse(InputStream is)
             throws IOException, ParserConfigurationException, SAXException {
         LOGGER.trace("Begin parsing of plugin configuration file");
@@ -121,6 +188,12 @@ public final class PluginConfigParser {
         return config;
     }
 
+    /**
+     * Parses a version 1 plugin configuration document.
+     *
+     * @param xmlDocument parsed XML document
+     * @return parsed plugin configuration
+     */
     private PluginConfig parseV1(Document xmlDocument) {
         LOGGER.trace("Parsing plugin configuration of version 1");
         String nameStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_NAME)
