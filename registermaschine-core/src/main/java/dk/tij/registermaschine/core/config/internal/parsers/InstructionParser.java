@@ -2,16 +2,20 @@ package dk.tij.registermaschine.core.config.internal.parsers;
 
 import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
 import dk.tij.registermaschine.api.compilation.compiling.OperandType;
-import dk.tij.registermaschine.api.config.ConfigInstruction;
-import dk.tij.registermaschine.api.config.ConfigOperand;
+import dk.tij.registermaschine.api.conditions.ICondition;
 import dk.tij.registermaschine.api.config.IConfigParser;
+import dk.tij.registermaschine.api.config.model.ConfigInstruction;
+import dk.tij.registermaschine.api.config.model.ConfigOperand;
+import dk.tij.registermaschine.api.config.model.ConfigStep;
+import dk.tij.registermaschine.api.error.ClassInstantiationException;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
-import dk.tij.registermaschine.api.instructions.AbstractInstruction;
+import dk.tij.registermaschine.api.instructions.IStepHandler;
 import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.XmlConstants;
 import dk.tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
+import dk.tij.registermaschine.core.instructions.ConcreteStepHandlerRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -43,21 +47,6 @@ public final class InstructionParser implements IConfigParser {
      */
     @Override
     public void parseConfig(Document xmlDocument) {
-        log.info("Started parsing instructions");
-
-        log.info("Parsing options for this instruction set");
-        NodeList optionsList = xmlDocument.getElementsByTagName(XmlConstants.TAG_OPTION);
-        for (int i = 0; i < optionsList.getLength(); i++) {
-            log.debug("Parsing <{}> tag {}", XmlConstants.TAG_OPTION, i);
-
-            Element option = (Element) optionsList.item(i);
-            if (XmlConstants.INSTR_OPTION_ALLOW_LABELS.equals(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_ID))) {
-                CoreConfig.ALLOW_LABELS = Boolean.parseBoolean(option.getAttribute(XmlConstants.ATTRIBUTE_OPTION_VALUE));
-                log.info("Parsed allow labels; this instruction set {}allows labels", CoreConfig.ALLOW_LABELS ? "" : "dis");
-                fireEvent(option, CoreConfig.ALLOW_LABELS);
-            }
-        }
-
         NodeList instructionNodeList = xmlDocument.getElementsByTagName(XmlConstants.TAG_INSTRUCTION);
         if (instructionNodeList.getLength() < 0) return;
 
@@ -112,30 +101,25 @@ public final class InstructionParser implements IConfigParser {
 
         List<ConfigOperand> operands = new ArrayList<>(operandNodes.getLength());
         for (int i = 0; i < operandNodes.getLength(); i++) {
-            log.debug("Parsing <{}> tag {}", XmlConstants.TAG_OPERAND, i);
             ConfigOperand operand = parseOperand(operandNodes.item(i));
 
             if (operand.concept() == OperandConcept.RESULT) {
-                log.debug("Parsed <{}> tag {} as concept {}", XmlConstants.TAG_OPERAND, i, OperandConcept.RESULT);
                 resultCount++;
             }
 
             operands.add(operand);
         }
 
-        if (resultCount < 0 || resultCount > 1) {
+        if (resultCount > 1) {
             throw new ConfigurationParseException(String.format("Instruction %s must have exactly one result.",
                     instructionMnemonic));
         }
 
-        instructionHandlerStr = migrateInstructionHandlerString(instructionHandlerStr);
+        List<ConfigStep> steps = parseChain(instructionElem);
 
-        AbstractInstruction instructionHandler = CoreConfig.INSTRUCTION_REGISTRY
-                .instantiate(instructionHandlerStr, opcode,
-                             operands.size(), ConditionBuilder.build(instructionConditionStr));
+        ICondition condition = ConditionBuilder.build(instructionConditionStr);
 
-        return new ConfigInstruction(instructionMnemonic, instructionDescription,
-                                     opcode, operands, instructionHandler);
+        return new ConfigInstruction(instructionMnemonic, instructionDescription, opcode, condition, operands, steps);
     }
 
     /**
@@ -147,6 +131,7 @@ public final class InstructionParser implements IConfigParser {
     private static ConfigOperand parseOperand(Node operandNode) {
         Element operandElem = (Element) operandNode;
 
+        String nameStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_NAME);
         String typeStr = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_TYPE).toUpperCase();
         log.debug("Parsing type {} for operandNode {}", typeStr, operandNode);
 
@@ -156,6 +141,10 @@ public final class InstructionParser implements IConfigParser {
         String value = operandElem.getAttribute(XmlConstants.ATTRIBUTE_OPERAND_IMPLICIT_VALUE);
         log.debug("Parsing value {} for operandNode {}", value, operandNode);
 
+        if (nameStr.isEmpty()) {
+            throw new ConfigurationParseException("Operand %s must have a name.".formatted(operandElem));
+        }
+
         validate(typeStr, conceptStr);
 
         OperandType type = OperandType.valueOf(typeStr);
@@ -163,7 +152,112 @@ public final class InstructionParser implements IConfigParser {
 
         if (value.isEmpty()) value = null;
 
-        return new ConfigOperand(type, concept, value);
+        return new ConfigOperand(nameStr, type, concept, value);
+    }
+
+    /**
+     * Parses the {@code <chain>} element of an instruction and converts it into a list
+     * of {@link ConfigStep} definitions.
+     *
+     * <p>An instruction must define exactly one {@code <chain>} element, which contains
+     * one or more {@code <step>} elements describing the execution sequence.</p>
+     *
+     * <p>Validation rules:</p>
+     * <ul>
+     *     <li>Exactly one {@code <chain>} element must be present</li>
+     *     <li>The chain must contain at least one {@code <step>}</li>
+     * </ul>
+     *
+     * @param instructionElement the XML element representing the instruction
+     * @return a list of parsed {@link ConfigStep} objects in execution order
+     * @throws ConfigurationParseException if the chain is missing, duplicated, or contains no steps
+     * @throws ClassNotFoundException      if a step handler class cannot be resolved
+     * @throws IllegalStateException       if handler configuration is invalid
+     */
+    private static List<ConfigStep> parseChain(Element instructionElement)
+            throws ConfigurationParseException, ClassNotFoundException, IllegalStateException {
+        NodeList chainNodes = instructionElement.getElementsByTagName(XmlConstants.TAG_CHAIN);
+
+        if (chainNodes.getLength() == 0) {
+            throw new ConfigurationParseException("Instruction %s is missing chain.".formatted(instructionElement));
+        } else if (chainNodes.getLength() > 1) {
+            throw new ConfigurationParseException("Instruction %s must have exactly one chain.".formatted(instructionElement));
+        }
+
+        Element chainElement = (Element) chainNodes.item(0);
+
+        NodeList stepNodes = chainElement.getElementsByTagName(XmlConstants.TAG_STEP);
+        if (stepNodes.getLength() == 0) {
+            throw new ConfigurationParseException("Instruction %s is missing step.".formatted(instructionElement));
+        }
+
+        List<ConfigStep> steps = new ArrayList<>(stepNodes.getLength());
+        for (int i = 0; i < stepNodes.getLength(); i++) {
+            steps.add(parseStep(stepNodes.item(i)));
+        }
+
+        return steps;
+    }
+
+    /**
+     * Parses a single {@code <step>} element into a {@link ConfigStep}.
+     *
+     * <p>A step defines a single execution unit within an instruction chain. It consists of:</p>
+     * <ul>
+     *     <li>A required handler class ({@code handler})</li>
+     *     <li>An optional execution condition</li>
+     *     <li>Zero or more input references ({@code <in ref="..."/>})</li>
+     *     <li>An optional output reference ({@code <out to="..."/>})</li>
+     * </ul>
+     *
+     * <p>The handler is resolved dynamically via reflection and cached using
+     * {@link ConcreteStepHandlerRegistry} to avoid repeated instantiation.</p>
+     *
+     * <p>Input and output references correspond to operand names defined at the
+     * instruction level and are resolved later during precompilation.</p>
+     *
+     * @param stepNode the XML node representing the step
+     * @return the parsed {@link ConfigStep}
+     *
+     * @throws ConfigurationParseException if the step definition is invalid
+     * @throws ClassNotFoundException      if the handler class cannot be found
+     * @throws IllegalStateException       if the handler attribute is missing or invalid
+     */
+    private static ConfigStep parseStep(Node stepNode)
+            throws ConfigurationParseException, ClassNotFoundException, IllegalStateException {
+        Element stepElem = (Element) stepNode;
+
+        String handlerStr = stepElem.getAttribute(XmlConstants.ATTRIBUTE_STEP_HANDLER);
+        String conditionStr = stepElem.getAttribute(XmlConstants.ATTRIBUTE_STEP_CONDITION);
+
+        Class<? extends IStepHandler> handlerClass = parseInstructionHandler(handlerStr);
+
+        ICondition condition = ConditionBuilder.build(conditionStr);
+
+        NodeList children = stepElem.getChildNodes();
+
+        List<String> inputs = new ArrayList<>(children.getLength() - 1);
+        String output = null;
+
+        for (int i = 0; i < children.getLength(); i++) {
+            Node node = children.item(i);
+            if (node.getNodeType() != Node.ELEMENT_NODE)
+                continue;
+
+            Element element = (Element) node;
+
+            switch (element.getTagName()) {
+                case XmlConstants.TAG_IN -> inputs.add(element.getAttribute(XmlConstants.ATTRIBUTE_IN_REF));
+                case XmlConstants.TAG_OUT -> {
+                    String outAttr = element.getAttribute(XmlConstants.ATTRIBUTE_OUT_TO);
+                    output = outAttr.isEmpty() ? null : outAttr;
+                }
+            }
+        }
+
+        IStepHandler handler = CoreConfig.STEP_HANDLER_REGISTRY.getOrCreate(handlerClass, InstructionParser::createInstructionHandler);
+
+        return new ConfigStep(handler, condition, inputs, output);
     }
 
     /**
@@ -203,22 +297,23 @@ public final class InstructionParser implements IConfigParser {
         }
     }
 
-    /**
-     * Since the default-instructions-plugin has migrated its package structure from
-     * {@code dk.tij.regsitermaschine.} to {@code dk.tij.rm.}, and not cause a breaking change,
-     * handler strings are automatically parsed as "migrated" ones.
-     *
-     * @param handlerStr the parsed handler string from an instruction set file
-     * @return {@code handlerStr} if no migration was needed, a migrated variant otherwise
-     */
-    private static String migrateInstructionHandlerString(String handlerStr) {
-        final String oldHandlerPrefix = "dk.tij.registermaschine.instructions";
-        final String newHandlerPrefix = "dk.tij.rm.instructions";
-
-        if (handlerStr.contains(oldHandlerPrefix)) {
-            return handlerStr.replace(oldHandlerPrefix, newHandlerPrefix);
+    private static Class<? extends IStepHandler> parseInstructionHandler(String handlerString)
+            throws IllegalStateException, ClassNotFoundException {
+        if (handlerString == null || handlerString.isEmpty()) {
+            throw new IllegalStateException("Cannot parse empty instruction handler.");
         }
 
-        return handlerStr;
+        return Class.forName(handlerString.trim()).asSubclass(IStepHandler.class);
+    }
+
+    private static IStepHandler createInstructionHandler(Class<? extends IStepHandler> handlerClass)
+            throws ClassInstantiationException {
+        try {
+            return handlerClass
+                    .getDeclaredConstructor()
+                    .newInstance();
+        } catch (Exception e) {
+            throw new ClassInstantiationException("Could not instantiate instruction handler class.", e);
+        }
     }
 }
