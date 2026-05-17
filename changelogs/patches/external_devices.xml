@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE patch SYSTEM "../patch.dtd">
+<patch>
+    <category name="api">
+        <breaking kind="minor">
+            <additions>
+                <entry>memory interaction methods to IExecutionContext</entry>
+                <entry>event listener methods for memory interactions to IExecutionContextListener</entry>
+            </additions>
+        </breaking>
+        <additions>
+            <entry>ConfigDevice that represents the configured XML structure for a device</entry>
+            <entry>ConfigMemoryMapping that represents the configured XML structure for a memory mapping</entry>
+            <entry>IDevice interface to create memory devices</entry>
+            <entry>IMemoryMapping interface to create memory mapped devices</entry>
+            <entry>OutOfMemoryException that will be thrown if the host system has not enough memory</entry>
+        </additions>
+    </category>
+    <category name="core">
+        <breaking kind="minor">
+            <refactorings>
+                <entry>the instruction set DTD file to accommodate the new device structure</entry>
+            </refactorings>
+        </breaking>
+        <additions>
+            <entry>ExternalDeviceParser that will parse the XML structure of devices and their mappings</entry>
+            <entry>more XML tag and attribute constants to XmlConstants</entry>
+            <entry>MemoryBus that is orchestrating all the memory interactions</entry>
+            <entry>DeviceFactory to create and register IDevice and IMemoryMapping instances</entry>
+        </additions>
+    </category>
+</patch>

@@ -85,6 +85,14 @@ public interface IExecutionContextListener {
     void onOutput(int value);
 
     /**
+     * Called when a byte is written to a memory-mapped I/O region.
+     *
+     * @param address the memory address that was written to
+     * @param value the value written to the address
+     */
+    void onMemoryWrite(long address, byte value);
+
+    /**
      * Invoked when input is requested.
      *
      * <p>Default implementation does nothing. Override if user input or prompt is required.</p>

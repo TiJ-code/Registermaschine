@@ -232,4 +232,38 @@ public interface IExecutionContext {
      * @return a snapshot representing the current execution state
      */
     ExecutionSnapshot snapshotAndClearDirty();
+
+    /**
+     * Reads a single byte from the specified memory address.
+     *
+     * @param address the memory address to read from
+     * @return the byte value stored at the given address
+     */
+    byte readByte(long address);
+
+    /**
+     * Reads a 32-bit integer (4 bytes) starting at the specified address.
+     * The bytes are interpreted in little-endian order.
+     *
+     * @param address the starting memory address
+     * @return the 32-bit integer value composed of 4 consecutive bytes
+     */
+    int readInt(long address);
+
+    /**
+     * Writes a single byte to the specified memory address.
+     *
+     * @param address the memory address to write to
+     * @param value the byte value to store
+     */
+    void writeByte(long address, byte value);
+
+    /**
+     * Writes a 32-bit integer (4 bytes) starting at the specified address.
+     * The value is stored in little-endian byte order.
+     *
+     * @param address the starting memory address
+     * @param value the integer value to store
+     */
+    void writeInt(long address, int value);
 }
