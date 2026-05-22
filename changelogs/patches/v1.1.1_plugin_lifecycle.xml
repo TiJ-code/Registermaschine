@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<patch version="1">
+    <topic name="api">
+        <category name="additions">
+            <entry>API documentation to `IPlugin`</entry>
+            <entry>API documentation to `PluginContext`</entry>
+        </category>
+    </topic>
+    <topic name="core">
+        <category name="additions">
+            <entry>`IPlugin#onDisable` call to already loaded plugins</entry>
+        </category>
+        <category name="refactorings">
+            <entry>Plugin loading lifecycle, to handle errors that might prevent other plugins from getting properly disabled</entry>
+        </category>
+    </topic>
+</patch>

@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: development
+          ref: main
           fetch-depth: 0
 
       - name: Setup GraalVM
@@ -45,17 +45,53 @@ jobs:
           distribution: graalvm
           java-version: 25
 
-      - name: Build Changelog Tools
+      - name: Download dev-tools via GitHub API
         shell: bash
         run: |
-          cd dev-tools
-          ./builder-script.sh
+          REPO="TiJ-code/ChangelogTool"
+          TAG="releases/0.1.0"
+          API="https://api.github.com/repos/$REPO/releases/tags/$TAG"
+          
+          AUTH_HEADER=()
+          if [ -n "${GITHUB_TOKEN:-}" ]; then
+            AUTH_HEADER=(-H "Authorization: Bearer $GITHUB_TOKEN")
+          fi
+          
+          echo "Fetching release metadata for tag: $TAG"
+          
+          JSON=$(curl -sSL "${AUTH_HEADER[@]}" "$API")
+          
+          download_asset () {
+            local NAME="$1"
+            
+            ID=$(echo "$JSON" | jq -r ".assets[] | select(.name==\"$NAME\") | .id")
+            
+            if [ -z "$ID" ] || [ "$ID" = "null" ]; then
+              echo "Asset not found: $NAME"
+              exit 1
+            fi
+            
+            echo "Downloading $NAME (asset id: $ID)"
+            
+            curl -sSL \
+              "${AUTH_HEADER[@]}" \
+              -H "Accept: application/octet-stream" \
+              "https://api.github.com/repos/$REPO/releases/assets/$ID" \
+              -o "$NAME"
+          }
+          
+          download_asset "ChangelogArchiver.tool"
+          download_asset "ChangelogMarkdownBuilder.tool"
+          download_asset "ChangelogPatchParser.tool"
+          download_asset "ChangelogVersioning.tool"
+          
+          chmod +x *.tool
 
       - name: Apply Release Version
         id: release_version
         if: github.event.inputs.bump_type != 'test'
         run: |
-            ./Versioning.tool ${{ github.event.inputs.bump_type }}
+            ./ChangelogVersioning.tool ${{ github.event.inputs.bump_type }}
             
             NEW_VER=$(mvn help:evaluate \
               -Dexpression=project.version \
@@ -68,8 +104,9 @@ jobs:
 
       - name: Build Changelog
         run: |
-          ./ChangelogPatchParser.tool
-          ./ChangelogFileBuilder.tool
+          ./ChangelogPatchParser.tool config_registermaschine.xml
+          ./ChangelogMarkdownBuilder.tool config_registermaschine.xml
+          ./ChangelogArchiver.tool
 
       - name: Read Changelog
         id: changelog
@@ -97,8 +134,7 @@ jobs:
       - name: Apply Snapshot Suffix
         if: github.event.inputs.bump_type != 'test'
         run: |
-          ./Versioning.tool ${{ github.event.inputs.dev_type }}
-          ./Versioning.tool do_suffix
+          ./ChangelogVersioning.tool do_suffix
 
       - name: Commit Next Dev Version
         if: github.event.inputs.bump_type != 'test'
@@ -115,7 +151,7 @@ jobs:
       - name: Push Commits + Tags
         if: github.event.inputs.bump_type != 'test'
         run: |
-          git push origin development
+          git push origin main
           git push origin --tags
 
   build_and_release:

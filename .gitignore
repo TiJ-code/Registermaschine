@@ -1,7 +1,6 @@
 *.*~
 
-dev-tools/*.class
-
+/*.tool
 /configuration.jxml
 /default.instructions.jxml
 
