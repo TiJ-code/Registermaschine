@@ -4,14 +4,12 @@ import dk.tij.registermaschine.api.config.IConfigEventListener;
 import dk.tij.registermaschine.api.config.IConfigParser;
 import dk.tij.registermaschine.api.error.ConfigurationParseException;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
-import dk.tij.registermaschine.api.log.LogLevel;
 import dk.tij.registermaschine.api.log.ILogger;
+import dk.tij.registermaschine.api.log.LogLevel;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import dk.tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import dk.tij.registermaschine.core.config.internal.parsers.SettingsParser;
-import dk.tij.registermaschine.api.error.ConfigurationParseException;
-import dk.tij.registermaschine.api.instructions.IInstructionSet;
 import dk.tij.registermaschine.core.plugin.PluginConfigParser;
 import dk.tij.registermaschine.core.plugin.PluginLoader;
 import org.w3c.dom.Document;
@@ -186,11 +184,11 @@ public final class CoreConfigParser {
 
             PluginLoader.instance().init();
             try {
-                System.out.println("loading plugins");
+                LOGGER.info("loading plugins");
                 PluginLoader.instance().loadPlugins(PluginConfigParser.PLUGIN_PATH);
             } catch (Exception e) {
-                System.err.println(e.getMessage());
-                e.printStackTrace();
+                LOGGER.error("Error loading plugins", e);
+                PluginLoader.instance().disablePlugins();
             }
 
             PluginLoader.instance().enablePlugins();
