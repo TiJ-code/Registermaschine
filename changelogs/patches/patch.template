@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE patch SYSTEM "../patch.dtd">
 <patch>
-    <category name="api">
-        <breaking kind="trivial">
-            <additions>
+    <topic name="api">
+        <category name="additions">
+            <breaking severity="trivial">
                 <entry>Entry</entry>
-            </additions>
-        </breaking>
-        <additions>
+            </breaking>
             <entry>Entry</entry>
-        </additions>
-    </category>
+        </category>
+    </topic>
 </patch>

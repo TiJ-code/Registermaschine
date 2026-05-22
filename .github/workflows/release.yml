@@ -45,17 +45,30 @@ jobs:
           distribution: graalvm
           java-version: 25
 
-      - name: Build Changelog Tools
-        shell: bash
+      - name: Download dev-tools Release
         run: |
-          cd dev-tools
-          ./builder-script.sh
+          mkdir -p dev-tools
+          
+          curl -L -o dev-tools/ChangelogArchiver.tool \
+            https://github.com/TiJ-code/ChangelogTool/releases/tag/releases%2F0.1.0/download/ChangelogArchiver.tool
+          curl -L -o dev-tools/ChangelogMarkdownBuilder.tool \
+            https://github.com/TiJ-code/ChangelogTool/releases/tag/releases%2F0.1.0/download/ChangelogMarkdownBuilder.tool
+          curl -L -o dev-tools/ChangelogPatchParser.tool \
+            https://github.com/TiJ-code/ChangelogTool/releases/tag/releases%2F0.1.0/download/ChangelogPatchParser.tool
+          curl -L -o dev-tools/ChangelogVersioning.tool \
+            https://github.com/TiJ-code/ChangelogTool/releases/tag/releases%2F0.1.0/download/ChangelogVersioning.tool
+          
+          chmod +x dev-tools/*.tool
+          
+          mv dev-tools/*.tool .
+          
+          rm -fr dev-tools
 
       - name: Apply Release Version
         id: release_version
         if: github.event.inputs.bump_type != 'test'
         run: |
-            ./Versioning.tool ${{ github.event.inputs.bump_type }}
+            ./ChangelogVersioning.tool ${{ github.event.inputs.bump_type }}
             
             NEW_VER=$(mvn help:evaluate \
               -Dexpression=project.version \
@@ -69,7 +82,8 @@ jobs:
       - name: Build Changelog
         run: |
           ./ChangelogPatchParser.tool
-          ./ChangelogFileBuilder.tool
+          ./ChangelogMarkdownBuilder.tool
+          ./ChangelogArchiver.tool
 
       - name: Read Changelog
         id: changelog
@@ -97,8 +111,7 @@ jobs:
       - name: Apply Snapshot Suffix
         if: github.event.inputs.bump_type != 'test'
         run: |
-          ./Versioning.tool ${{ github.event.inputs.dev_type }}
-          ./Versioning.tool do_suffix
+          ./ChangelogVersioning.tool do_suffix
 
       - name: Commit Next Dev Version
         if: github.event.inputs.bump_type != 'test'
