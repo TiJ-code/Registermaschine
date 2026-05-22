@@ -76,6 +76,17 @@ public final class PluginLoader {
     public void init() {
         LOGGER.debug("Initializing PluginLoader");
         this.pluginContext = new PluginContext(CoreConfig.INSTRUCTION_REGISTRY);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOGGER.info("JVM shutdown detected");
+
+            try {
+                disablePlugins();
+            } catch (Exception e) {
+                LOGGER.error("Failed during plugin shutdown", e);
+            }
+        }));
+
         this.initialised = true;
     }
 
@@ -171,8 +182,14 @@ public final class PluginLoader {
         ensureInitialised();
 
         LOGGER.info("Registering plugin: \"{}:{}\"", config.name(), config.version());
-        plugin.onLoad();
         loadedPlugins.put(config, plugin);
+
+        try {
+            plugin.onLoad();
+        } catch (Exception e) {
+            loadedPlugins.remove(config);
+            throw e;
+        }
     }
 
     /**
@@ -186,7 +203,31 @@ public final class PluginLoader {
         ensureInitialised();
 
         LOGGER.info("Enabling all {} plugins!", loadedPlugins.size());
-        loadedPlugins.values().forEach(p -> p.onEnable(pluginContext));
+        loadedPlugins.values().forEach(p -> {
+            try {
+                p.onEnable(pluginContext);
+            } catch (Exception e) {
+                LOGGER.error("Failed to enable plugin {}", p.getClass().getName(), e);
+            }
+        });
+    }
+
+    /**
+     * Disables all previously loaded plugins.
+     *
+     * @throws IllegalStateException if the loader has not been initialised
+     */
+    public void disablePlugins() {
+        ensureInitialised();
+
+        LOGGER.info("Disabling all {} plugins!", loadedPlugins.size());
+        loadedPlugins.values().forEach(p -> {
+            try {
+                p.onDisable();
+            } catch (Exception e) {
+                LOGGER.error("Failed to disable plugin {}", p.getClass().getName(), e);
+            }
+        });
     }
 
     /**
