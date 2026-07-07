@@ -1,0 +1,86 @@
+name: Commit Workflow
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        type: choice
+        required: true
+        options:
+          - patch
+          - minor
+          - major
+        description: 'Level of version bump'
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download dev-tool via GitHub API
+        shell: bash
+        run: |
+          API="https://api.github.com/repos/TiJ-code/ChangelogTool/releases/latest"
+          
+          AUTH_HEADER=()
+          if [ -n "${GITHUB_TOKEN:-}" ]; then
+            AUTH_HEADER=(-H "Authorization: Bearer $GITHUB_TOKEN")
+          fi
+          
+          echo "Fetching release metadata for tag: $TAG"
+          
+          JSON=$(curl -sSL "${AUTH_HEADER[@]}" "$API")
+          
+          download_asset () {
+            local NAME="$1"
+          
+            ID=$(echo "$JSON" | jq -r ".assets[] | select(.name==\"$NAME\") | .id")
+          
+            if [ -z "$ID" ] || [ "$ID" = "null" ]; then
+              echo "Asset not found: $NAME"
+              exit 1
+            fi
+          
+            echo "Downloading $NAME (asset id: $ID)"
+          
+            curl -sSL \
+              "${AUTH_HEADER[@]}" \
+              -H "Accept: application/octet-stream" \
+              "https://api.github.com/repos/$REPO/releases/assets/$ID" \
+              -o "$NAME"
+          }
+          
+          download_asset "ChangelogVersioning.tool"
+          chmod +x *.tool
+
+      - name: Apply Commit Version
+        id: commit
+        run: |
+          ./ChangelogVersioning.tool config_registermaschine.xml --stage ${{ github.event.inputs.bump_type }}
+          ./ChangelogVersioning.tool config_registermaschine.xml --suffix
+          
+          NEW_VER=$(mvn help:evaluate \
+              -Dexpression=project.version \
+              -q \
+              -DforceStdout)
+          
+            echo "NEW_VER=$NEW_VER" >> $GITHUB_OUTPUT
+
+      - name: Do Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.no-reply.github.com"
+          
+          git add pom.xml
+          git add */pom.xml
+          
+          git commit -m "prepare next development version ${{ steps.commit.outputs.NEW_VER }}
+
+      - name: Push
+        run: git push origin ${{ github.ref_name }}
