@@ -39,7 +39,9 @@ jobs:
       - name: Download dev-tools via GitHub API
         shell: bash
         run: |
-          API="https://api.github.com/repos/TiJ-code/ChangelogTool/releases/latest"
+          REPO="TiJ-code/ChangelogTool"
+          TAG="releases/0.3.2"
+          API="https://api.github.com/repos/$REPO/releases/tags/$TAG"
           
           AUTH_HEADER=()
           if [ -n "${GITHUB_TOKEN:-}" ]; then

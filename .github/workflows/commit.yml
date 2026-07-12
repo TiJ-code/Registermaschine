@@ -26,7 +26,9 @@ jobs:
       - name: Download dev-tool via GitHub API
         shell: bash
         run: |
-          API="https://api.github.com/repos/TiJ-code/ChangelogTool/releases/latest"
+          REPO="TiJ-code/ChangelogTool"
+          TAG="releases/0.3.2"
+          API="https://api.github.com/repos/$REPO/releases/tags/$TAG"
           
           AUTH_HEADER=()
           if [ -n "${GITHUB_TOKEN:-}" ]; then
@@ -57,7 +59,7 @@ jobs:
           }
           
           download_asset "ChangelogVersioning.tool"
-          chmod +x *.tool
+          chmod +x ChangelogVersioning.tool
 
       - name: Apply Commit Version
         id: commit
@@ -70,7 +72,7 @@ jobs:
               -q \
               -DforceStdout)
           
-            echo "NEW_VER=$NEW_VER" >> $GITHUB_OUTPUT
+          echo "NEW_VER=$NEW_VER" >> $GITHUB_OUTPUT
 
       - name: Do Commit
         run: |
@@ -80,7 +82,7 @@ jobs:
           git add pom.xml
           git add */pom.xml
           
-          git commit -m "prepare next development version ${{ steps.commit.outputs.NEW_VER }}
+          git commit -m "prepare next development version ${{ steps.commit.outputs.NEW_VER }}"
 
       - name: Push
         run: git push origin ${{ github.ref_name }}
