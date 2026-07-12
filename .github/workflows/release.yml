@@ -121,7 +121,7 @@ jobs:
             
           git commit -m "release v${{ steps.release_version.outputs.NEW_VER }}"
             
-          git tag "release-v${{ steps.release_version.outputs.NEW_VER }}"
+          git tag "releases/v${{ steps.release_version.outputs.NEW_VER }}"
 
       - name: Apply Snapshot Suffix
         if: github.event.inputs.bump_type != 'skip'
@@ -159,7 +159,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: release-v${{ needs.prepare_release.outputs.new_version }}
+          ref: releases/v${{ needs.prepare_release.outputs.new_version }}
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -188,7 +188,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: release-v${{ needs.prepare_release.outputs.new_version }}
+          tag_name: releases/v${{ needs.prepare_release.outputs.new_version }}
           files: dist/*
           body: ${{ needs.prepare_release.outputs.changelog }}
           make_latest: true
@@ -196,3 +196,13 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  generate_javadoc:
+    needs: [prepare_release, build_and_release]
+    uses: ./.github/workflows/javadoc.yml
+
+    with:
+      tag: releases/v${{ needs.prepare_release.outputs.new_version }}
+
+    permissions:
+      contents: write

@@ -1,0 +1,65 @@
+name: Generate Javadoc
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Git tag to generate Javadoc from"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  javadoc:
+    name: Build and Publish Javadoc
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+
+      - name: Generate aggregated Javadoc
+        run: |
+          mvn -B clean verify -Pjavadoc
+
+      - name: Publish to gh-pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          mkdir /tmp/javadoc
+          cp -r target/reports/apidocs/* /tmp/javadoc/
+
+          git fetch origin gh-pages || true
+
+          if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
+            git worktree add /tmp/gh-pages gh-pages
+            rm -rf /tmp/gh-pages/*
+          else
+            mkdir /tmp/gh-pages
+            cd /tmp/gh-pages
+            git init
+            git checkout --orphan gh-pages
+          fi
+
+          cp -r /tmp/javadoc/* /tmp/gh-pages/
+
+          cd /tmp/gh-pages
+
+          git add .
+          git commit -m "Update Javadoc for ${{ inputs.tag }}"
+
+          git branch -M gh-pages
+          git push origin gh-pages --force
