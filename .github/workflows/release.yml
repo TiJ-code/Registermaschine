@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       bump_type:
-        description: 'Level of version bump'
+        description: 'Level of version bump after release'
         required: true
         default: 'patch'
         type: choice
@@ -11,16 +11,7 @@ on:
           - patch
           - minor
           - major
-          - test
-      dev_type:
-        description: 'Level of (dev) version bump, after a release'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+          - skip
 
 jobs:
   prepare_release:
@@ -48,9 +39,7 @@ jobs:
       - name: Download dev-tools via GitHub API
         shell: bash
         run: |
-          REPO="TiJ-code/ChangelogTool"
-          TAG="releases/0.1.0"
-          API="https://api.github.com/repos/$REPO/releases/tags/$TAG"
+          API="https://api.github.com/repos/TiJ-code/ChangelogTool/releases/latest"
           
           AUTH_HEADER=()
           if [ -n "${GITHUB_TOKEN:-}" ]; then
@@ -91,7 +80,7 @@ jobs:
         id: release_version
         if: github.event.inputs.bump_type != 'test'
         run: |
-            ./ChangelogVersioning.tool ${{ github.event.inputs.bump_type }}
+            ./ChangelogVersioning.tool config_registermaschine.xml --release
             
             NEW_VER=$(mvn help:evaluate \
               -Dexpression=project.version \
@@ -125,31 +114,34 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.no-reply.github.com"
             
-          git add .
+          git add pom.xml
+          git add */pom.xml
             
           git commit -m "release v${{ steps.release_version.outputs.NEW_VER }}"
             
           git tag "release-v${{ steps.release_version.outputs.NEW_VER }}"
 
       - name: Apply Snapshot Suffix
-        if: github.event.inputs.bump_type != 'test'
+        if: github.event.inputs.bump_type != 'skip'
         run: |
-          ./ChangelogVersioning.tool do_suffix
+          ./ChangelogVersioning.tool config_registermaschine.xml --stage ${{ github.event.inputs.bump_type }}
+          ./ChangelogVersioning.tool config_registermaschine.xml --suffix
 
       - name: Commit Next Dev Version
-        if: github.event.inputs.bump_type != 'test'
+        if: github.event.inputs.bump_type != 'skip'
         run: |
           NEXT_DEV_VER=$(mvn help:evaluate \
             -Dexpression=project.version \
             -q \
             -DforceStdout)
 
-          git add .
+          git add pom.xml
+          git add */pom.xml
 
-          git commit -m "prepare next development version ${NEXT_DEV_VER}"
+          git commit -m "prepare next development version"
 
       - name: Push Commits + Tags
-        if: github.event.inputs.bump_type != 'test'
+        if: github.event.inputs.bump_type != 'skip'
         run: |
           git push origin main
           git push origin --tags
