@@ -1,6 +1,6 @@
 package dk.tij.registermaschine.api.plugin;
 
-import dk.tij.registermaschine.api.instructions.IInstructionRegistry;
+import dk.tij.registermaschine.api.instructions.IStepHandlerRegistry;
 
 /**
  * Represents the runtime context provided to plugins during enablement.
@@ -20,4 +20,4 @@ import dk.tij.registermaschine.api.instructions.IInstructionRegistry;
  * @since 1.1.0
  * @author TiJ
  */
-public record PluginContext(IInstructionRegistry instructionRegistry) {}
+public record PluginContext(IStepHandlerRegistry stepHandlerRegistry) {}

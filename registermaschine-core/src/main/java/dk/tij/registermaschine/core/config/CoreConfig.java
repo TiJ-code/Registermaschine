@@ -1,10 +1,13 @@
 package dk.tij.registermaschine.core.config;
 
 import dk.tij.registermaschine.api.compilation.lexing.TokenType;
-import dk.tij.registermaschine.api.config.ConfigInstruction;
+import dk.tij.registermaschine.api.compilation.pre.IPrecompilerStage;
+import dk.tij.registermaschine.api.config.model.ConfigInstruction;
+import dk.tij.registermaschine.api.instructions.ChainedInstruction;
+import dk.tij.registermaschine.api.instructions.IStepHandlerRegistry;
 import dk.tij.registermaschine.api.log.LogConfig;
-import dk.tij.registermaschine.api.instructions.IInstructionRegistry;
-import dk.tij.registermaschine.core.instructions.ConcreteInstructionRegistry;
+import dk.tij.registermaschine.core.compilation.internal.pre.InstructionPrecompilerStage;
+import dk.tij.registermaschine.core.instructions.ConcreteStepHandlerRegistry;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -66,5 +69,14 @@ public final class CoreConfig {
      */
     public static final List<ConfigInstruction> INSTRUCTIONS = new LinkedList<>();
 
-    public static volatile IInstructionRegistry INSTRUCTION_REGISTRY = ConcreteInstructionRegistry.instance();
+    /**
+     * Precompiler stage responsible for converting {@link ConfigInstruction}
+     * instances into {@link ChainedInstruction} objects.
+     *
+     * <p>This stage is used as part of a precompilation pipeline, to directly
+     * generate the executable representation of an instruction from its configuration.</p>
+     */
+    public static final IPrecompilerStage<ConfigInstruction, ChainedInstruction> INSTRUCTION_PRECOMPILER = InstructionPrecompilerStage.instance();
+
+    public static volatile IStepHandlerRegistry STEP_HANDLER_REGISTRY = ConcreteStepHandlerRegistry.instance();
 }
