@@ -6,6 +6,7 @@ import dk.tij.registermaschine.api.runtime.ExecutionSnapshot;
 import dk.tij.registermaschine.api.runtime.IExecutionContext;
 import dk.tij.registermaschine.api.runtime.IExecutionContextListener;
 import dk.tij.registermaschine.core.config.CoreConfig;
+import dk.tij.registermaschine.core.memory.MemoryBus;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,6 +58,8 @@ public final class ConcreteExecutionContext implements IExecutionContext {
 
     private final BlockingQueue<Integer> inputQueue = new LinkedBlockingQueue<>();
     private Runnable inputRequestCallback;
+
+    private final MemoryBus memoryBus = MemoryBus.instance();
 
     private final int[] registers;
     private int programmeCounter;
@@ -417,5 +420,64 @@ public final class ConcreteExecutionContext implements IExecutionContext {
         dirtyOutput = false;
 
         return snapshot;
+    }
+
+    /**
+     * Reads a single byte from the specified memory address via the memory bus.
+     *
+     * @param address the memory address to read from
+     * @return the byte value stored at the given address
+     */
+    @Override
+    public byte readByte(long address) {
+        return memoryBus.getByte(address);
+    }
+
+    /**
+     * Reads a 32-bit integer (4 bytes) starting at the specified memory address.
+     *
+     * <p>The integer is assembled from 4 consecutive bytes in little-endian order.</p>
+     *
+     * @param address the starting memory address
+     * @return the reconstructed 32-bit integer value
+     */
+    @Override
+    public int readInt(long address) {
+        return memoryBus.getInt(address);
+    }
+
+    /**
+     * Writes a single byte to the specified memory address.
+     *
+     * <p>This operation is forwarded to the memory bus and may trigger
+     * memory-mapped device notifications.</p>
+     *
+     * @param address the memory address to write to
+     * @param value the byte value to store
+     */
+    @Override
+    public void writeByte(long address, byte value) {
+        memoryBus.setByte(address, value);
+        listeners.forEach(l -> l.onMemoryWrite(address, value));
+    }
+
+    /**
+     * Writes a 32-bit integer (4 bytes) starting at the specified memory address.
+     *
+     * <p>The value is stored in little-endian byte order and each byte write
+     * will trigger {@code onAddressUpdated} events for registered listeners.</p>
+     *
+     * @param address the starting memory address
+     * @param value the integer value to store
+     */
+    @Override
+    public void writeInt(long address, int value) {
+        memoryBus.setInt(address, value);
+        listeners.forEach(l -> {
+            l.onMemoryWrite(address, (byte) ((value) & 0xFF));
+            l.onMemoryWrite(address + 1, (byte) ((value >>  8) & 0xFF));
+            l.onMemoryWrite(address + 2, (byte) ((value >> 16) & 0xFF));
+            l.onMemoryWrite(address + 3, (byte) ((value >> 24) & 0xFF));
+        });
     }
 }
