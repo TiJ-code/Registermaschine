@@ -8,6 +8,7 @@ import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.conditions.AndCondition;
 import dk.tij.registermaschine.core.conditions.NotCondition;
 import dk.tij.registermaschine.core.conditions.OrCondition;
+import dk.tij.registermaschine.core.conditions.XorCondition;
 import dk.tij.registermaschine.core.config.CoreConfig;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.AndNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.ConditionToken;
@@ -15,6 +16,7 @@ import dk.tij.registermaschine.core.config.internal.conditions.nodes.LeafNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.MacroNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.NotNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.OrNode;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.XorNode;
 
 import java.util.HashSet;
 import java.util.List;
@@ -146,6 +148,14 @@ public final class ConditionBuilder {
         if (node instanceof OrNode(ConditionNode left, ConditionNode right)) {
             LOGGER.debug("Building binary OR condition tree");
             return new OrCondition(
+                    buildCondition(left),
+                    buildCondition(right)
+            );
+        }
+
+        if (node instanceof XorNode(ConditionNode left, ConditionNode right)) {
+            LOGGER.debug("Building binary XOR condition tree");
+            return new XorCondition(
                     buildCondition(left),
                     buildCondition(right)
             );

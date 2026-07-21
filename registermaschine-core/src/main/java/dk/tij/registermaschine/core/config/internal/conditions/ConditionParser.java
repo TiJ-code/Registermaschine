@@ -8,6 +8,7 @@ import dk.tij.registermaschine.core.config.internal.conditions.nodes.LeafNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.MacroNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.NotNode;
 import dk.tij.registermaschine.core.config.internal.conditions.nodes.OrNode;
+import dk.tij.registermaschine.core.config.internal.conditions.nodes.XorNode;
 
 import java.util.List;
 
@@ -63,11 +64,29 @@ public final class ConditionParser {
     private static ConditionNode parseOr(ParseContext context) {
         LOGGER.trace("Entering parseOr at position {}", context.pos);
 
-        ConditionNode node = parseAnd(context);
+        ConditionNode node = parseXor(context);
         while (match(context, ConditionToken.Type.OR)) {
             LOGGER.trace("Matched OR at position {}", context.pos - 1);
-            node = new OrNode(node, parseAnd(context));
+            node = new OrNode(node, parseXor(context));
             LOGGER.debug("Built OR node: {}", node);
+        }
+        return node;
+    }
+
+    /**
+     * Parses logical XOR expressions (left-associative)
+     *
+     * @param context the current parse context
+     * @return the parsed {@link XorNode}
+     */
+    private static ConditionNode parseXor(ParseContext context) {
+        LOGGER.trace("Entering parseXor at position {}", context.pos);
+
+        ConditionNode node = parseAnd(context);
+        while (match(context, ConditionToken.Type.XOR)) {
+            LOGGER.trace("Matched XOR at position {}", context.pos - 1);
+            node = new XorNode(node, parseAnd(context));
+            LOGGER.trace("Built XOR node: {}", node);
         }
         return node;
     }

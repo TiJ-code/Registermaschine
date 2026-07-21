@@ -68,6 +68,11 @@ public final class ConditionLexer {
                     tokens.add(new ConditionToken(ConditionToken.Type.OR, "+"));
                     i.incrementAndGet();
                 }
+                case '^' -> {
+                    LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.XOR, i);
+                    tokens.add(new ConditionToken(ConditionToken.Type.XOR, "^"));
+                    i.incrementAndGet();
+                }
                 case '(' -> {
                     LOGGER.trace("Recognised {} operator at index {}", ConditionToken.Type.LEFT_PAREN, i);
                     tokens.add(new ConditionToken(ConditionToken.Type.LEFT_PAREN, "("));

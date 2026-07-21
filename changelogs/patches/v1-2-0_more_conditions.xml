@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<patch>
+    <topic name="core">
+        <category name="additions">
+            <entry>logical XOR condition for instructions and conditional macros</entry>
+            <entry>parsing for left-associative logical XOR condition char `^`</entry>
+        </category>
+    </topic>
+</patch>
