@@ -35,6 +35,11 @@ public record ConditionToken(Type type, String text) {
         OR,
 
         /**
+         * The logical 'XOR' operator
+         */
+        XOR,
+
+        /**
          * An opening parenthesis for grouping
          */
         LEFT_PAREN,
