@@ -142,11 +142,12 @@ jobs:
 
           git commit -m "prepare next development version"
 
-      - name: Push Commits + Tags
+      - name: Push Tags
+        run: git push origin --tags
+
+      - name: Push Commits
         if: github.event.inputs.bump_type != 'skip'
-        run: |
-          git push origin main
-          git push origin --tags
+        run: git push origin main
 
   build_and_release:
     needs: prepare_release
