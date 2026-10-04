@@ -8,10 +8,10 @@ import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
 import dk.tij.registermaschine.api.compilation.compiling.OperandType;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import dk.tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
-import dk.tij.registermaschine.api.config.ConfigInstruction;
-import dk.tij.registermaschine.api.config.ConfigOperand;
+import dk.tij.registermaschine.api.config.model.ConfigInstruction;
+import dk.tij.registermaschine.api.config.model.ConfigOperand;
 import dk.tij.registermaschine.api.error.SyntaxErrorException;
-import dk.tij.registermaschine.api.instructions.AbstractInstruction;
+import dk.tij.registermaschine.api.instructions.ChainedInstruction;
 import dk.tij.registermaschine.api.instructions.IInstructionSet;
 import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
@@ -92,7 +92,7 @@ public final class ConcreteCompiler implements ICompiler {
             if (node instanceof ConcreteInstructionNode instr) {
                 LOGGER.debug("Compiling instruction '{}' at line {}", instr.instruction(), instr.line);
 
-                ConfigInstruction config = instructionSet.getInstructions().stream()
+                ConfigInstruction config = instructionSet.getConfigInstructions().stream()
                         .filter(c -> c.mnemonic().equalsIgnoreCase(instr.instruction()))
                         .findFirst().orElseThrow(() -> {
                             LOGGER.error("Unknown instruction '{}'", instr.instruction());
@@ -103,10 +103,8 @@ public final class ConcreteCompiler implements ICompiler {
 
                 ICompiledOperand[] finalOperands = mergeOperands(config.operands(), instr.operands, symbolTable);
 
-                AbstractInstruction handler = instructionSet.getHandler(instr.instruction());
-
-                LOGGER.trace("Validating operands {}", Arrays.toString(finalOperands));
-                handler.validate(finalOperands);
+                ChainedInstruction handler = instructionSet.get(config.opcode());
+                handler.validateOperands(finalOperands);
 
                 LOGGER.trace("Instruction compiled -> opcode={}, operands={}",
                         config.opcode(), Arrays.toString(finalOperands));

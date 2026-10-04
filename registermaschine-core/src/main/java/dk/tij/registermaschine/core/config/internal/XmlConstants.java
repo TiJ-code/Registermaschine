@@ -10,11 +10,15 @@ package dk.tij.registermaschine.core.config.internal;
  * @since 1.0.0
  * @author TiJ
  */
+import java.util.Set;
+
 public final class XmlConstants {
     /**
      * Private constructor to prevent instantiation of constant holder
      */
     private XmlConstants() {}
+
+    public static final int VERSION_INSTRUCTION_SET = 2;
 
     /**
      * Tag for the number of registers (e.g., {@code <registers>8</registers>}
@@ -40,7 +44,33 @@ public final class XmlConstants {
     /**
      * Tag for global configuration toggles
      */
-                                TAG_OPTION = "option";
+                                TAG_OPTION = "option",
+                                TAG_CHAIN = "chain",
+                                TAG_STEP = "step",
+                                TAG_IN = "in",
+                                TAG_OUT = "out",
+    /**
+     * Tag for external devices. Acts as a wrapper.
+     */
+                                TAG_EXTERNAL_DEVICES = "externalDevices",
+    /**
+     * Tag for the size of devices or mappings.
+     */
+                                TAG_SIZE = "size",
+    /**
+     * Tag for the external device.
+     */
+                                TAG_EXTERNAL_DEVICE = "device",
+    /**
+     * Tag for the memory mappings. Acts as a wrapper.
+     */
+                                TAG_MEMORY_MAPPINGS = "memoryMappings",
+    /**
+     * Tag for a single memory mapping.
+     */
+                                TAG_MEMORY_MAPPING = "memoryMapping";
+
+    public static final String  ATTRIBUTE_INSTRUCTION_SET_VERSION = "version";
 
     /**
      * Attribute for the name of a condition macro
@@ -68,10 +98,11 @@ public final class XmlConstants {
      */
                                 ATTRIBUTE_INSTRUCTION_CONDITION = "condition";
 
+    public static final String  ATTRIBUTE_OPERAND_NAME = "name",
     /**
      * The data type of the operand
      */
-    public static final String  ATTRIBUTE_OPERAND_TYPE = "type",
+                                ATTRIBUTE_OPERAND_TYPE = "type",
     /**
      * The semantic role of the operand
      */
@@ -80,6 +111,13 @@ public final class XmlConstants {
      * An optional hardcoded value for the operand
      */
                                 ATTRIBUTE_OPERAND_IMPLICIT_VALUE = "implicitValue";
+
+    public static final String  ATTRIBUTE_STEP_HANDLER = "handler",
+                                ATTRIBUTE_STEP_CONDITION = "condition";
+
+    public static final String  ATTRIBUTE_IN_REF = "ref";
+
+    public static final String  ATTRIBUTE_OUT_TO = "to";
 
     /**
      * The identifier for a specific configuration option
@@ -90,8 +128,45 @@ public final class XmlConstants {
      */
                                 ATTRIBUTE_OPTION_VALUE = "value";
 
+    public static final String  VALUE_CONCEPT_RESULT = "result",
+                                VALUE_CONCEPT_TARGET = "target",
+                                VALUE_CONCEPT_OPERAND = "operand";
+
+    /**
+     * Attribute for the unit of a size tag.
+     */
+    public static final String  ATTRIBUTE_SIZE_UNIT = "unit",
+    /**
+     * Attribute for the configured handler of a device
+     */
+                                ATTRIBUTE_DEVICE_HANDLER = "handler",
+    /**
+     * Attribute for the configured handler of a memory mapping
+     */
+                                ATTRIBUTE_MEMORY_MAPPING_HANDLER = "handler";
+
     /**
      * Option ID toggle for enabling / disabling label support in assembly
      */
     public static final String INSTR_OPTION_ALLOW_LABELS = "allowLabels";
+
+    /**
+     * Attribute value for {@code ATTRIBUTE_SIZE_UNIT}
+     */
+    public static final String  VALUE_SIZE_UNIT_BYTE = "B",
+    /**
+     * Attribute value for {@code ATTRIBUTE_SIZE_UNIT}
+     */
+                                VALUE_SIZE_UNIT_KILO_BYTE = "KB",
+    /**
+     * Attribute value for {@code ATTRIBUTE_SIZE_UNIT}
+     */
+                                VALUE_SIZE_UNIT_MEGA_BYTE = "MB";
+
+    /**
+     * Allowed size units for external device memory configuration.
+     */
+    public static final Set<String> SIZE_UNIT_VALUES = Set.of(
+            VALUE_SIZE_UNIT_BYTE, VALUE_SIZE_UNIT_KILO_BYTE, VALUE_SIZE_UNIT_MEGA_BYTE
+    );
 }
