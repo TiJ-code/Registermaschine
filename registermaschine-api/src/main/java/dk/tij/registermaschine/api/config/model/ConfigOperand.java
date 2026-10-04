@@ -1,4 +1,4 @@
-package dk.tij.registermaschine.api.config;
+package dk.tij.registermaschine.api.config.model;
 
 import dk.tij.registermaschine.api.compilation.compiling.OperandConcept;
 import dk.tij.registermaschine.api.compilation.compiling.OperandType;
@@ -19,7 +19,7 @@ import dk.tij.registermaschine.api.compilation.compiling.OperandType;
  * @since 1.0.0
  * @author TiJ
  */
-public record ConfigOperand(OperandType type, OperandConcept concept, String value) {
+public record ConfigOperand(String name, OperandType type, OperandConcept concept, String value) {
     /**
      * Returns whether this operand has an implicit value.
      *
