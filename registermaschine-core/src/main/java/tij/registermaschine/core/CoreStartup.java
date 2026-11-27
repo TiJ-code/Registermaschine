@@ -31,8 +31,7 @@ public final class CoreStartup {
      * Subsequent calls return without repeating the startup after it has completed.
      *
      * <p>The default lexer and compiler factories use options captured during startup.
-     * Registering factories does not by itself change the components used by the compilation
-     * pipeline.</p>
+     * Custom factories must be selected by ID when using the compilation pipeline.</p>
      *
      * @param postConfigParsers parsers to execute after internal configuration parsing
      */

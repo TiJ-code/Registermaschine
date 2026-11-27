@@ -11,6 +11,11 @@ import tij.registermaschine.core.registry.FactoryRegistry;
  */
 public final class Components {
     /**
+     * Default component ID.
+     */
+    public static final String DEFAULT = "core:default";
+
+    /**
      * Private constructor to prevent initialisation.
      */
     private Components() {

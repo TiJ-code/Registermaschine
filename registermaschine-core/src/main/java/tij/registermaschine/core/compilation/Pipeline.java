@@ -5,230 +5,219 @@ import tij.registermaschine.api.compilation.ILexer;
 import tij.registermaschine.api.compilation.IParser;
 import tij.registermaschine.api.compilation.compiling.ICompiledProgram;
 import tij.registermaschine.api.compilation.lexing.IToken;
-import tij.registermaschine.api.compilation.lexing.TokenType;
 import tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import tij.registermaschine.api.error.DefectPipelineException;
 import tij.registermaschine.api.error.SyntaxErrorException;
 import tij.registermaschine.api.instructions.IInstructionSet;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
-import tij.registermaschine.compiler.CompilerOptions;
-import tij.registermaschine.compiler.ConcreteCompiler;
-import tij.registermaschine.compiler.ConcreteLexer;
-import tij.registermaschine.compiler.ConcreteParser;
-import tij.registermaschine.core.config.CoreConfig;
+import tij.registermaschine.api.registry.IFactoryRegistry;
+import tij.registermaschine.core.Components;
 
 import java.util.List;
 import java.util.Objects;
 
 /**
- * Central compilation pipeline for the Registermaschine.
- *
- * <p>This class provides a configurable pipeline to transform source code into
- * a compiled program via three stages: tokenisation, parsing, and compilation.
- * Custom {@link ILexer lexer}, {@link IParser parser}, and {@link ICompiler compiler}
- * implementations can be used globally.</p>
- *
- * <p>The pipeline supports a global {@link IInstructionSet} or a per-invoke
- * instruction set for compilation.</p>
+ * Compiles source code through lexer, parser and compiler factories in the component registries.
+ * Initialise core with {@link tij.registermaschine.core.CoreStartup#init} before using the
+ * default selection. Custom factories can be selected by ID for each compilation.
  *
  * @since 1.0.0
  * @author TiJ
  */
 public final class Pipeline {
+    /** Logger for pipeline stage execution and component creation. */
     private static final ILogger LOGGER = LoggerFactory.getLogger(Pipeline.class);
 
+    /** Instruction set used by the global convenience methods, or null until configured. */
+    private static volatile IInstructionSet globalInstructionSet;
+
+    /** Prevents instantiation of this utility class. */
     private Pipeline() {}
 
-    private static Class<? extends ILexer> pipelineLexer = ConcreteLexer.class;
-    private static Class<? extends IParser> pipelineParser = ConcreteParser.class;
-    private static Class<? extends ICompiler> pipelineCompiler = ConcreteCompiler.class;
-    private static IInstructionSet globalInstructionSet;
-
     /**
-     * Sets a custom lexer for the pipeline.
+     * Registry IDs for the stages of a compilation.
      *
-     * @param customLexer the lexer class to use
+     * @param lexer lexer factory ID
+     * @param parser parser factory ID
+     * @param compiler compiler factory ID
+     *
+     * @since 2.0.0
+     * @author TiJ
      */
-    public static void useLexer(Class<? extends ILexer> customLexer) {
-        Objects.requireNonNull(customLexer, "Custom Lexer cannot be null");
-        LOGGER.info("Using custom lexer: {}", customLexer.getName());
-        pipelineLexer = customLexer;
+    public record Selection(String lexer, String parser, String compiler) {
+        /** Selection using the core default factory for each stage. */
+        public static final Selection DEFAULT = new Selection(Components.DEFAULT, Components.DEFAULT, Components.DEFAULT);
+
+        /**
+         * @throws NullPointerException if any ID is null
+         */
+        public Selection {
+            Objects.requireNonNull(lexer, "lexer");
+            Objects.requireNonNull(parser, "parser");
+            Objects.requireNonNull(compiler, "compiler");
+        }
     }
 
     /**
-     * Sets a custom parser for the pipeline
+     * Sets the instruction set used by the global convenience methods.
      *
-     * @param customParser the parser class to use
-     */
-    public static void useParser(Class<? extends IParser> customParser) {
-        Objects.requireNonNull(customParser, "Custom Parser cannot be null");
-        LOGGER.info("Using custom parser: {}", customParser.getName());
-        pipelineParser = customParser;
-    }
-
-    /**
-     * Sets custom compiler for the pipeline
-     *
-     * @param customCompiler the compiler class to use
-     */
-    public static void useCompiler(Class<? extends ICompiler> customCompiler) {
-        Objects.requireNonNull(customCompiler, "Custom Compiler cannot be null");
-        LOGGER.info("Using custom compiler: {}", customCompiler.getName());
-        pipelineCompiler = customCompiler;
-    }
-
-    /**
-     * Sets the global {@link IInstructionSet} used by pipeline methods ending in `WithGlobal`.
-     *
-     * @param set the global instruction set
+     * @param set instruction set to use
+     * @throws NullPointerException if the set is null
      */
     public static void setGlobalInstructionSet(IInstructionSet set) {
-        Objects.requireNonNull(set, "Custom global InstructionSet cannot be null");
-        LOGGER.info("Global instruction set configured: {}", set);
-        globalInstructionSet = set;
+        globalInstructionSet = Objects.requireNonNull(set, "InstructionSet cannot be null");
     }
 
     /**
-     * Compiles source code using the global instruction set.
+     * Compiles with the global instruction set and default selection.
      *
-     * @param sourceCode the source code to compile
+     * @param sourceCode source to compile
      * @return the compiled program
-     * @throws SyntaxErrorException if a syntax error occurs during parsing
-     * @throws DefectPipelineException if a pipeline stage cannot be instantiated
+     * @throws NullPointerException if no global instruction set has been set
+     * @throws SyntaxErrorException if parsing fails
+     * @throws DefectPipelineException if a stage cannot be created
      */
-    public static ICompiledProgram compileWithGlobal(String sourceCode) throws SyntaxErrorException, DefectPipelineException {
-        LOGGER.info("Starting compilation with global instruction set");
+    public static ICompiledProgram compileWithGlobal(String sourceCode) {
         return compile(sourceCode, globalInstructionSet);
     }
 
     /**
-     * Compiles source code using the provided instruction set.
+     * Compiles with the default selection.
      *
-     * @param sourceCode the source code to compile
-     * @param set the instruction set to use
+     * @param sourceCode source to compile
+     * @param set instruction set to use
      * @return the compiled program
-     * @throws SyntaxErrorException if a syntax error occurs during parsing
-     * @throws DefectPipelineException if a pipeline stage cannot be instantiated
+     * @throws NullPointerException if the instruction set is null
+     * @throws SyntaxErrorException if parsing fails
+     * @throws DefectPipelineException if a stage cannot be created
      */
-    public static ICompiledProgram compile(String sourceCode, IInstructionSet set) throws SyntaxErrorException, DefectPipelineException {
-        Objects.requireNonNull(set, "InstructionSet cannot be null");
-
-        LOGGER.info("Starting compilation pipeline");
-        LOGGER.debug("Using Lexer={}, Parser={}, Compiler={}",
-                pipelineLexer.getSimpleName(), pipelineParser.getSimpleName(), pipelineCompiler.getSimpleName());
-
-        var program = tokenize(sourceCode, set).parse().compile();
-
-        LOGGER.info("Compilation finished successfully");
-
-        return program;
+    public static ICompiledProgram compile(String sourceCode, IInstructionSet set)
+            throws SyntaxErrorException, DefectPipelineException {
+        return compile(sourceCode, set, Selection.DEFAULT);
     }
 
     /**
-     * Tokenises source code using the global instruction set.
+     * Compiles with the selected registry factories.
      *
-     * @param sourceCode the source code to tokenise
-     * @return a {@link TokenStage} representing the tokenisation stage
-     * @throws DefectPipelineException if a pipeline stage cannot be instantiated
+     * @param sourceCode source to compile
+     * @param set instruction set to use
+     * @param selection factory IDs for the stages
+     * @return the compiled program
+     * @throws NullPointerException if the instruction set or selection is null
+     * @throws SyntaxErrorException if parsing fails
+     * @throws DefectPipelineException if a stage cannot be created
      */
-    public static TokenStage tokenizeWithGlobal(String sourceCode) throws DefectPipelineException {
+    public static ICompiledProgram compile(String sourceCode, IInstructionSet set,
+                                           Selection selection)
+            throws SyntaxErrorException, DefectPipelineException {
+        return tokenize(sourceCode, set, selection).parse().compile();
+    }
+
+    /**
+     * Tokenizes with the global instruction set and default selection.
+     *
+     * @param sourceCode source to tokenize
+     * @return the token stage
+     * @throws NullPointerException if no global instruction set has been set
+     * @throws DefectPipelineException if the lexer cannot be created
+     */
+    public static TokenStage tokenizeWithGlobal(String sourceCode) {
         return tokenize(sourceCode, globalInstructionSet);
     }
 
     /**
-     * Tokenises source code using a specific instruction set.
+     * Tokenizes with the default selection.
      *
-     * @param sourceCode the source code to tokenise
-     * @param instructionSet the instruction set to use
-     * @return a {@link TokenStage} representing the tokenisation stage
-     * @throws DefectPipelineException if a pipeline stage cannot be instantiated
+     * @param sourceCode source to tokenize
+     * @param set instruction set to use
+     * @return the token stage
+     * @throws NullPointerException if the instruction set is null
+     * @throws DefectPipelineException if the lexer cannot be created
      */
-    public static TokenStage tokenize(String sourceCode, IInstructionSet instructionSet) throws DefectPipelineException {
-        Objects.requireNonNull(instructionSet, "InstructionSet cannot be null");
-
-        LOGGER.debug("Tokenizing source (length={})", sourceCode != null ? sourceCode.length() : 0);
-
-        ILexer lexer = pipelineLexer == ConcreteLexer.class
-                ? new ConcreteLexer(compilerOptions()) : newInstance(pipelineLexer);
-        var tokens = lexer.tokenize(sourceCode, instructionSet);
-
-        LOGGER.trace("Tokenization produced {} tokens", tokens.size());
-
-        return new TokenStage(tokens, instructionSet);
+    public static TokenStage tokenize(String sourceCode, IInstructionSet set) {
+        return tokenize(sourceCode, set, Selection.DEFAULT);
     }
 
     /**
-     * Represents the tokenisation stage in the pipeline.
+     * Tokenizes with the selected lexer and retains the selection for subsequent stages.
      *
-     * <p>Allows chaining to the parse stage via {@link #parse()}.</p>
+     * @param sourceCode source to tokenize
+     * @param set instruction set to use
+     * @param selection factory IDs for the stages
+     * @return the token stage
+     * @throws NullPointerException if the instruction set or selection is null
+     * @throws DefectPipelineException if the lexer cannot be created
      */
-    public record TokenStage(List<IToken> tokens, IInstructionSet set) {
+    public static TokenStage tokenize(String sourceCode, IInstructionSet set,
+                                      Selection selection) {
+        Objects.requireNonNull(set, "InstructionSet cannot be null");
+        Objects.requireNonNull(selection, "Selection cannot be null");
+
+        LOGGER.debug("Tokenizing source with lexer: {}", selection.lexer());
+        ILexer lexer = create(Components.REGISTRIES.lexers(), selection.lexer());
+        return new TokenStage(lexer.tokenize(sourceCode, set), set, selection);
+    }
+
+    /**
+     * Tokenization result and context for parsing.
+     *
+     * @param tokens tokens produced by the lexer
+     * @param set instruction set used for compilation
+     * @param selection factory IDs for the stages
+     */
+    public record TokenStage(List<IToken> tokens, IInstructionSet set, Selection selection) {
         /**
-         * Parses the tokens into a syntax tree.
+         * Parses the tokens with the selected parser.
          *
-         * @return a {@link ParseStage} representing the parsing stage
-         * @throws SyntaxErrorException if the source contains syntax errors
-         * @throws DefectPipelineException if the parser cannot be instantiated
+         * @return the parse stage
+         * @throws SyntaxErrorException if parsing fails
+         * @throws DefectPipelineException if the parser cannot be created
          */
-        public ParseStage parse() throws SyntaxErrorException, DefectPipelineException {
-            LOGGER.debug("Parsing {} tokens", tokens.size());
-
-            IParser parser = newInstance(pipelineParser);
-            var tree = parser.parse(tokens);
-
-            LOGGER.trace("Parsing completed. SyntaxTree: {}", tree);
-
-            return new ParseStage(tree, set);
+        public ParseStage parse() throws SyntaxErrorException {
+            LOGGER.debug("Parsing tokens with parser: {}", selection.parser());
+            IParser parser = create(Components.REGISTRIES.parsers(), selection.parser());
+            return new ParseStage(parser.parse(tokens), set, selection);
         }
     }
 
     /**
-     * Represents the parsing stage in the pipeline.
+     * Parsing result and context for compilation.
      *
-     * <p>Allows chaining to the compile stage via {@link #compile()}.</p>
+     * @param syntaxTree syntax tree produced by the parser
+     * @param set instruction set used for compilation
+     * @param selection factory IDs for the stages
      */
-    public record ParseStage(ISyntaxTree syntaxTree, IInstructionSet set) {
+    public record ParseStage(ISyntaxTree syntaxTree, IInstructionSet set, Selection selection) {
         /**
-         * Compiles the syntax tree into a {@link ICompiledProgram}.
+         * Compiles the syntax tree with the selected compiler.
          *
          * @return the compiled program
-         * @throws DefectPipelineException if the compiler cannot be instantiated
+         * @throws DefectPipelineException if the compiler cannot be created
          */
-        public ICompiledProgram compile() throws DefectPipelineException {
-            LOGGER.debug("Compiling syntax tree");
-
-            ICompiler compiler = pipelineCompiler == ConcreteCompiler.class
-                    ? new ConcreteCompiler(compilerOptions()) : newInstance(pipelineCompiler);
-            var program = compiler.compile(syntaxTree, set);
-
-            LOGGER.trace("Compilation produced program of size {}", program.size());
-
-            return program;
+        public ICompiledProgram compile() {
+            LOGGER.debug("Compiling syntax tree with compiler: {}", selection.compiler());
+            ICompiler compiler = create(Components.REGISTRIES.compilers(), selection.compiler());
+            return compiler.compile(syntaxTree, set);
         }
     }
 
-    private static CompilerOptions compilerOptions() {
-        return new CompilerOptions(CoreConfig.REGISTERS, CoreConfig.ALLOW_LABELS,
-                CoreConfig.TOKEN_REGEX.get(TokenType.REGISTER));
-    }
-
     /**
-     * Instantiates a pipeline stage class using reflection.
+     * Creates a pipeline component from its registry, wrapping factory failures.
      *
-     * @param cls the class to instantiate
-     * @param <T> the stage type
-     * @return an instance of the pipeline stage
-     * @throws DefectPipelineException if instantiation fails
+     * @param registry registry containing the component factory
+     * @param id factory ID
+     * @param <T> component type
+     * @return the component created by the factory
+     * @throws DefectPipelineException if the registry or factory fails to create the component
      */
-
-    private static <T> T newInstance(Class<? extends T> cls) throws DefectPipelineException {
+    private static <T> T create(IFactoryRegistry<T> registry, String id) {
         try {
-            LOGGER.trace("Instantiating pipeline component: {}", cls.getName());
-            return cls.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            LOGGER.error("Failed to instantiate pipeline stage: {}", cls.getName(), e);
-            throw new DefectPipelineException("Failed to instantiate pipeline stage: " + cls.getName(), e);
+            LOGGER.trace("Creating pipeline component: {}", id);
+            return registry.create(id);
+        } catch (RuntimeException e) {
+            LOGGER.error("Failed to create pipeline component: {}", id, e);
+            throw new DefectPipelineException("Failed to create pipeline component: " + id, e);
         }
     }
 }
