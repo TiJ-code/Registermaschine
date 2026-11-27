@@ -16,6 +16,12 @@
     <description>Java library that can run and compile customised instructions</description>
     <url>https://github.com/TiJ-code/Registermaschine</url>
 
+    <scm>
+        <connection>scm:git:https://github.com/TiJ-code/Registermaschine.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/TiJ-code/Registermaschine.git</developerConnection>
+        <url>https://github.com/TiJ-code/Registermaschine</url>
+    </scm>
+
     <licenses>
         <license>
             <name>MIT License</name>
@@ -44,5 +50,40 @@
             <artifactId>api</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>central-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>flatten-maven-plugin</artifactId>
+                        <version>1.9.0</version>
+                        <configuration>
+                            <flattenMode>ossrh</flattenMode>
+                            <updatePomFile>true</updatePomFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>flatten-pom</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>flatten</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>flatten-clean</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
 
