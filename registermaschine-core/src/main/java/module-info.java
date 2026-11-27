@@ -1,3 +1,7 @@
+import tij.registermaschine.api.conditions.ICondition;
+import tij.registermaschine.api.config.IConfigParser;
+import tij.registermaschine.api.instructions.IStepHandler;
+
 /**
  * The core engine of the Registermaschine system.
  * <p>
@@ -23,11 +27,11 @@
  * <h2>Extending the Instruction Set</h2>
  * To implement custom hardware operations, follow these steps:
  * <ol>
- *     <li>Implement {@link dk.tij.registermaschine.api.instructions.IStepHandler}
+ *     <li>Implement {@link IStepHandler}
  *     to define the execution logic.</li>
  *     <li>Register the new instruction in the {@code .jxml} configuration file
  *     mapping it to a unique opcode.</li>
- *     <li>(Optional) Implement {@link dk.tij.registermaschine.api.conditions.ICondition}
+ *     <li>(Optional) Implement {@link ICondition}
  *     to create specialised execution guards.</li>
  * </ol>
  *
@@ -35,15 +39,15 @@
  * The configuration system is designed for modularity. Use the {@code .api} packages
  * to implement custom logic that integrates with the central {@code CoreConfigParser}
  *
- * @uses dk.tij.registermaschine.api.config.IConfigParser
+ * @uses IConfigParser
  * @author TiJ
  */
 module dk.tij.registermaschine.core {
-    exports dk.tij.registermaschine.core.compilation;
-    exports dk.tij.registermaschine.core.conditions;
-    exports dk.tij.registermaschine.core.config;
-    exports dk.tij.registermaschine.core.runtime;
-    exports dk.tij.registermaschine.core.instructions;
+    exports tij.registermaschine.core.compilation;
+    exports tij.registermaschine.core.conditions;
+    exports tij.registermaschine.core.config;
+    exports tij.registermaschine.core.runtime;
+    exports tij.registermaschine.core.instructions;
 
     requires dk.tij.registermaschine.api;
     requires java.xml;

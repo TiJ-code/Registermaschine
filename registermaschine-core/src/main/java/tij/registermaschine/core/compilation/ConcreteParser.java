@@ -1,0 +1,240 @@
+package tij.registermaschine.core.compilation;
+
+import tij.registermaschine.api.compilation.IParser;
+import tij.registermaschine.api.compilation.lexing.IToken;
+import tij.registermaschine.api.compilation.lexing.TokenType;
+import tij.registermaschine.api.compilation.parsing.ISyntaxTree;
+import tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
+import tij.registermaschine.api.error.SyntaxErrorException;
+import tij.registermaschine.api.log.ILogger;
+import tij.registermaschine.api.log.LoggerFactory;
+import tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
+import tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
+import tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
+import tij.registermaschine.core.compilation.internal.parsing.ConcreteSyntaxTree;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Concrete parser implementation for the Registermaschine.
+ *
+ * <p>This parser transforms a flat list of {@link IToken tokens} produced by
+ * a lexer into a structured {@link ISyntaxTree syntax tree}. Each instruction
+ * or label in the source code becomes a node within the syntax tree, with operands
+ * attached to their respective instructions.</p>
+ *
+ * <p>Features:</p>
+ * <ul>
+ *     <li>Handles instructions, labels, and operands</li>
+ *     <li>Skips comments and empty lines</li>
+ *     <li>Throws {@link SyntaxErrorException} for invalid tokens or missing operands</li>
+ *     <li>Supports comma-separated operands</li>
+ * </ul>
+ *
+ * @since 1.0.0
+ * @author TiJ
+ */
+public final class ConcreteParser implements IParser {
+    private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteParser.class);
+
+    /**
+     * List of tokens to parse
+     */
+    private List<IToken> tokens;
+    /**
+     * Current index within the token list
+     */
+    private int currentIndex;
+
+    /**
+     * Parses a list of {@link IToken tokens} into a {@link ISyntaxTree}.
+     *
+     * @param tokenList the tokens produced by the lexer
+     * @return a syntax tree representing the source code
+     * @throws SyntaxErrorException if the source code contains errors
+     */
+    @Override
+    public ISyntaxTree parse(List<IToken> tokenList) throws SyntaxErrorException {
+        LOGGER.debug("Starting parsing of {} tokens", tokenList.size());
+
+        currentIndex = 0;
+        tokens = tokenList;
+
+        List<ISyntaxTreeNode> nodes = new ArrayList<>();
+
+        while (isNotAtEnd()) {
+            ISyntaxTreeNode node = parseInstruction();
+            if (node != null) {
+                LOGGER.trace("Parsed node: {}", node);
+                nodes.add(node);
+            }
+        }
+
+        LOGGER.debug("Finished parsing. Generated {} syntax nodes", nodes.size());
+        return new ConcreteSyntaxTree(nodes);
+    }
+
+    /**
+     * Parses a single instruction or label from the token stream.
+     *
+     * @return a {@link ISyntaxTreeNode} representing an instruction or label, or null if EOF
+     * @throws SyntaxErrorException if the instruction or operands are invalid
+     */
+    private ISyntaxTreeNode parseInstruction() {
+        while (match(TokenType.EOL) || match(TokenType.COMMENT)) {
+            LOGGER.trace("Skipping {} / {}", TokenType.EOL, TokenType.COMMENT);
+        }
+
+        if (peek().type() == TokenType.EOF) {
+            LOGGER.trace("Reached {}", TokenType.EOF);
+            return null;
+        }
+
+        if (peek().type() == TokenType.ERROR) {
+            LOGGER.error("Lexer {} token encountered: {}", TokenType.ERROR, peek());
+            throw error(peek(), peek().value());
+        }
+
+        if (match(TokenType.LABEL_DEF)) {
+            IToken label = previous();
+            LOGGER.debug("Parsed {} definition: {}", TokenType.LABEL_DEF, label.value());
+            return new ConcreteLabelNode(label.value(), label.line());
+        }
+
+        IToken instr = consume(TokenType.INSTRUCTION, "Expected instruction");
+        LOGGER.debug("Parsing instruction '{}' at line {}", instr.value(), instr.line());
+
+        List<ConcreteOperandNode> operands = new ArrayList<>();
+
+        while (!check(TokenType.EOL) && !check(TokenType.EOF) && !check(TokenType.COMMENT)) {
+            var operand = parseOperand();
+            LOGGER.trace("Parsed operand: {}", operand);
+            operands.add(operand);
+            match(TokenType.COMMA);
+        }
+
+        match(TokenType.COMMENT);
+        match(TokenType.EOL);
+
+        var node = new ConcreteInstructionNode(instr.value(), operands, instr.line());
+
+        LOGGER.debug("Built instruction node: {}", node);
+        return node;
+    }
+
+    /**
+     * Parses a single operand from the token stream.
+     *
+     * <p>An operand may be a register, immediate value, or label reference.</p>
+     *
+     * @return a {@link ConcreteOperandNode} representing the operand
+     * @throws SyntaxErrorException if the token is not a valid operand
+     */
+    private ConcreteOperandNode parseOperand() {
+        while (match(TokenType.COMMENT)) {
+            LOGGER.trace("Skipping {} inside operand", TokenType.COMMENT);
+        }
+
+        if (match(TokenType.REGISTER)) {
+            IToken t = previous();
+            LOGGER.trace("Matched {} '{}'", TokenType.REGISTER, t.value());
+            return new ConcreteOperandNode(t.value(), true, false, t.line());
+        }
+
+        if (match(TokenType.NUMBER)) {
+            IToken t = previous();
+            LOGGER.trace("Matched {} '{}'", TokenType.NUMBER, t.value());
+            return new ConcreteOperandNode(t.value(), false, false, t.line());
+        }
+
+        if (match(TokenType.LABEL)) {
+            IToken t = previous();
+            LOGGER.trace("Matched {} '{}'", TokenType.LABEL, t.value());
+            return new ConcreteOperandNode(t.value(), false, true, t.line());
+        }
+
+        if (match(TokenType.ADDRESS)) {
+            IToken t = previous();
+            return new ConcreteOperandNode(t.value(), false, true, t.line());
+        }
+        
+        if (match(TokenType.ERROR)) {
+            IToken t = previous();
+            LOGGER.error("{} token in operand: {}", TokenType.ERROR, t.value());
+            throw error(t, t.value());
+        }
+
+        LOGGER.error("Unexpected token while parsing operand: {}", peek());
+        throw error(peek(), "Expected operand");
+    }
+
+    /**
+     * Returns true if the next token matches the given type and advances the index.
+     */
+    private boolean match(TokenType type) {
+        if (check(type)) {
+            LOGGER.trace("Matched token {} at index {}", type, currentIndex);
+            advance();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Consumes the next token if it matches the expected type, or throws an error. #
+     */
+    private IToken consume(TokenType type, String msg) {
+        if (check(type)) return advance();
+        LOGGER.error("Expected token {} but found {}", type, peek());
+        throw error(peek(), msg);
+    }
+
+    /**
+     * Checks if the next token matches the given type without consuming it.
+     */
+    private boolean check(TokenType type) {
+        return isNotAtEnd() && peek().type() == type;
+    }
+
+    /**
+     * Advances the current index and returns the previous token.
+     */
+    private IToken advance() {
+        if (isNotAtEnd()) currentIndex++;
+        return previous();
+    }
+
+    /**
+     * Returns true if we have not reached the end of the token list.
+     */
+    private boolean isNotAtEnd() {
+        return peek().type() != TokenType.EOF;
+    }
+
+    /**
+     *  Peeks at the current token without advancing.
+     */
+    private IToken peek() {
+        return tokens.get(currentIndex);
+    }
+
+    /**
+     * Returns the previously consumed token.
+     */
+    private IToken previous() {
+        return tokens.get(currentIndex - 1);
+    }
+
+    /**
+     * Constructs a {@link SyntaxErrorException} with token location info.
+     */
+    private SyntaxErrorException error(IToken token, String msg) {
+        LOGGER.error("Syntax error at line {}, col {}: {} (token={})",
+                token.line(), token.column(), msg, token);
+
+        return new SyntaxErrorException(
+                "at line " + token.line() + ", col " + token.column() + ": " + msg
+        );
+    }
+}
