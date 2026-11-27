@@ -1,4 +1,4 @@
-package tij.registermaschine.core.memory;
+package tij.registermaschine.engine.memory;
 
 import tij.registermaschine.api.devices.IDevice;
 

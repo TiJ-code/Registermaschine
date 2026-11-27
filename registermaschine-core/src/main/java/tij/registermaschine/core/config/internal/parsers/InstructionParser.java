@@ -15,7 +15,7 @@ import tij.registermaschine.api.log.LoggerFactory;
 import tij.registermaschine.core.config.CoreConfig;
 import tij.registermaschine.core.config.internal.XmlConstants;
 import tij.registermaschine.core.config.internal.conditions.ConditionBuilder;
-import tij.registermaschine.core.instructions.ConcreteStepHandlerRegistry;
+import tij.registermaschine.engine.instructions.ConcreteStepHandlerRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

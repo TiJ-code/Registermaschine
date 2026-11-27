@@ -7,7 +7,7 @@ import tij.registermaschine.api.error.ConfigurationParseException;
 import tij.registermaschine.api.error.OutOfMemoryException;
 import tij.registermaschine.core.config.CoreConfig;
 import tij.registermaschine.core.config.internal.XmlConstants;
-import tij.registermaschine.core.devices.DeviceFactory;
+import tij.registermaschine.engine.devices.DeviceFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

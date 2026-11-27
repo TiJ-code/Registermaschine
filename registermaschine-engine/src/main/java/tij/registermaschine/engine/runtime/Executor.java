@@ -1,4 +1,4 @@
-package tij.registermaschine.core.runtime;
+package tij.registermaschine.engine.runtime;
 
 import tij.registermaschine.api.compilation.compiling.ICompiledInstruction;
 import tij.registermaschine.api.compilation.compiling.ICompiledProgram;

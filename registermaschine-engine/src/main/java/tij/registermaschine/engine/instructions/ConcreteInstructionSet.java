@@ -1,4 +1,4 @@
-package tij.registermaschine.core.instructions;
+package tij.registermaschine.engine.instructions;
 
 import tij.registermaschine.api.config.model.ConfigInstruction;
 import tij.registermaschine.api.instructions.ChainedInstruction;
