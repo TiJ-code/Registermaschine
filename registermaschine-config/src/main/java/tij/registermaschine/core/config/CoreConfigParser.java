@@ -7,15 +7,12 @@ import tij.registermaschine.api.instructions.IInstructionSet;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LogLevel;
 import tij.registermaschine.api.log.LoggerFactory;
-import tij.registermaschine.api.plugin.PluginContext;
 import tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import tij.registermaschine.core.config.internal.parsers.ExternalDeviceParser;
 import tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import tij.registermaschine.core.config.internal.parsers.SettingsParser;
-import tij.registermaschine.pluginloader.PluginConfigParser;
-import tij.registermaschine.pluginloader.PluginLoader;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -62,7 +59,8 @@ import java.util.Objects;
  *     <li>Optional custom root path for user-editable files</li>
  * </ul>
  *
- * <p>All XML parsing is validated against internal DTDs. Missing files are either copied
+ * <p>XML documents with a DOCTYPE are validated against internal DTDs; instruction sets
+ * are validated against the current DTD after migration. Missing files are either copied
  * from resources or a {@link ConfigurationParseException} is thrown for critical failures.</p>
  *
  * @since 1.0.0
@@ -137,7 +135,8 @@ public final class CoreConfigParser {
      * Initialises the core configuration.
      *
      * <p>This method parses the main configuration file, applies internal parses and
-     * optionally applies post-configuration parsers provided by the caller.</p>
+     * optionally applies post-configuration parsers provided by the caller. Plugin startup
+     * is the responsibility of the core assembly.</p>
      *
      * @param postConfigParsers optional parsers to execute after internal configuration parsing
      * @throws ConfigurationParseException if any parsing or I/O errors occur
@@ -193,23 +192,13 @@ public final class CoreConfigParser {
                             });
                 }
 
-                coreConfigParsed = true;
             } catch (Exception e) {
                 throw new ConfigurationParseException("Failed to initialise core configuration", e);
             }
 
             loadDefaultMacros();
+            coreConfigParsed = true;
 
-            PluginLoader.instance().init(new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY));
-            try {
-                LOGGER.info("loading plugins");
-                PluginLoader.instance().loadPlugins(PluginConfigParser.PLUGIN_PATH);
-            } catch (Exception e) {
-                LOGGER.error("Error loading plugins", e);
-                PluginLoader.instance().disablePlugins();
-            }
-
-            PluginLoader.instance().enablePlugins();
         }
     }
 
@@ -442,6 +431,7 @@ public final class CoreConfigParser {
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(true);
+        factory.setFeature("http://apache.org/xml/features/validation/dynamic", true);
         factory.setIgnoringElementContentWhitespace(true);
 
         DocumentBuilder builder = factory.newDocumentBuilder();

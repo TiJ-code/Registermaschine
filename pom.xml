@@ -72,6 +72,11 @@
             </dependency>
             <dependency>
                 <groupId>io.github.tij-code.registermaschine</groupId>
+                <artifactId>config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.tij-code.registermaschine</groupId>
                 <artifactId>engine</artifactId>
                 <version>${project.version}</version>
             </dependency>

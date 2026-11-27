@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.pre;
+package tij.registermaschine.core.config.internal.compilation;
 
 import tij.registermaschine.api.compilation.compiling.ICompiledStep;
 import tij.registermaschine.api.compilation.pre.IPrecompilerStage;
@@ -6,7 +6,7 @@ import tij.registermaschine.api.config.model.ConfigInstruction;
 import tij.registermaschine.api.config.model.ConfigOperand;
 import tij.registermaschine.api.instructions.ChainedInstruction;
 import tij.registermaschine.api.instructions.IStepHandler;
-import tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledStep;
+import tij.registermaschine.core.config.internal.compilation.ConcreteCompiledStep;
 
 import java.util.ArrayList;
 import java.util.HashMap;

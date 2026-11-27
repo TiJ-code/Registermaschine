@@ -43,11 +43,11 @@ import tij.registermaschine.api.instructions.IStepHandler;
  */
 module tij.registermaschine.core {
     exports tij.registermaschine.core.compilation;
-    exports tij.registermaschine.core.config;
+    exports tij.registermaschine.core;
 
     requires tij.registermaschine.api;
     requires tij.registermaschine.compiler;
     requires tij.registermaschine.pluginloader;
+    requires transitive tij.registermaschine.config;
     requires transitive tij.registermaschine.engine;
-    requires java.xml;
 }
