@@ -16,6 +16,12 @@
     <description>Java library for custom assembly compiler, parser and lexers</description>
     <url>https://github.com/TiJ-code/Registermaschine</url>
 
+    <scm>
+        <connection>scm:git:https://github.com/TiJ-code/Registermaschine.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/TiJ-code/Registermaschine.git</developerConnection>
+        <url>https://github.com/TiJ-code/Registermaschine</url>
+    </scm>
+
     <licenses>
         <license>
             <name>MIT License</name>
@@ -27,7 +33,11 @@
         <developer>
             <id>tij</id>
             <name>TiJ</name>
-            <email>no@mail.org</email>
+            <url>https://github.com/TiJ-code</url>
+            <roles>
+                <role>MAINTAINER</role>
+                <role>CONTRIBUTOR</role>
+            </roles>
         </developer>
     </developers>
 
@@ -37,4 +47,39 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>central-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>flatten-maven-plugin</artifactId>
+                        <version>1.9.0</version>
+                        <configuration>
+                            <flattenMode>ossrh</flattenMode>
+                            <updatePomFile>true</updatePomFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>flatten-pom</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>flatten</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>flatten-clean</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

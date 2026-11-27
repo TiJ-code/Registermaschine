@@ -175,11 +175,14 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Publish to Maven Central
-        run: mvn -B -Pcentral-release clean deploy
+        run: mvn -B -Pcentral-release -f registermaschine-api/pom.xml clean deploy
         env:
           CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: Build Core Release Artifacts
+        run: mvn -B -pl registermaschine-core -am package
 
       - name: Package Artifacts
         run: |
@@ -188,7 +191,6 @@ jobs:
           
           cp registermaschine-api/target/*.jar dist/
           cp registermaschine-core/target/*.jar dist/
-          cp registermaschine-default-instructions/target/*.jar dist/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
