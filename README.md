@@ -33,6 +33,12 @@ The project is split into three main Maven modules:
 - `registermaschine-core`
 - `registermaschine-default-instructions`
 
+### Publishing a release
+
+The release workflow publishes the parent and all modules to Maven Central and creates a GitHub release.
+
+The workflow tags and pushes the release before publishing. If publishing fails, inspect the Central Portal deployment and rerun publication from the existing release tag rather than creating the same release again; published versions cannot be overwritten.
+
 ---
 
 # registermaschine-api

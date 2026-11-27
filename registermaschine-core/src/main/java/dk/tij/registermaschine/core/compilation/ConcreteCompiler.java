@@ -43,7 +43,7 @@ import java.util.Map;
  * <ol>
  *     <li>First pass: scan for labels to build a symbol table</li>
  *     <li>Second pass: compile each instruction node, resolving operands and labels</li>
- *     <li>Validate each instruction using its {@link AbstractInstruction} handler</li>
+ *     <li>Validate each instruction using its {@link ChainedInstruction} handler</li>
  * </ol>
  *
  * <p>Features:</p>

@@ -14,8 +14,8 @@ import dk.tij.registermaschine.api.instructions.IStepHandlerRegistry;
  * <p>Additional runtime services and registries may be added in future
  * API versions</p>
  *
- * @param instructionRegistry the global instruction registry used for
- *                            registering and managing instructions
+ * @param stepHandlerRegistry the global registry used for registering
+ *                            and managing step handlers
  *
  * @since 1.1.0
  * @author TiJ
