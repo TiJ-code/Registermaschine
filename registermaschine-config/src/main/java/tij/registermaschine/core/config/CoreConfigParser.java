@@ -142,17 +142,6 @@ public final class CoreConfigParser {
      * @throws ConfigurationParseException if any parsing or I/O errors occur
      */
     public static void init(IConfigParser... postConfigParsers) throws ConfigurationParseException {
-        init(false, postConfigParsers);
-    }
-
-    /**
-     * Initialises the core configuration with an option to skip external files
-     *
-     * @param onlyInternal if {@code true}, only internal resources are loaded; no user-editable files are copied
-     * @param postConfigParsers optional parses to execute after internal configuration parsing
-     * @throws ConfigurationParseException if any parsing or I/O errors occurs
-     */
-    public static void init(boolean onlyInternal, IConfigParser... postConfigParsers) {
         if (coreConfigParsed) {
             LOGGER.trace("Core configuration already parsed. Skipping init");
             return;
@@ -168,12 +157,10 @@ public final class CoreConfigParser {
             LOGGER.setPath(ROOT_PATH);
             LOGGER.flog("Setting up logger");
 
-            if (!onlyInternal) {
-                LOGGER.info("Copying default configuration files to root path {}", ROOT_PATH);
-                copyDefaultFiles();
-            }
+            LOGGER.info("Copying default configuration files to root path {}", ROOT_PATH);
+            copyDefaultFiles();
 
-            try (InputStream is = getSmartStream(CONFIGURATION_FILE, onlyInternal)) {
+            try (InputStream is = getSmartStream(CONFIGURATION_FILE)) {
                 LOGGER.debug("Parsing core configuration file {}", CONFIGURATION_FILE);
                 Document doc = parseWithDtd(is);
 
@@ -340,24 +327,21 @@ public final class CoreConfigParser {
     }
 
     /**
-     * Returns an input stream for a configuration file, optionally from internal resources.
+     * Returns an input stream for a configuration file, falling back to bundled resources.
      *
      * @param fileName the filename
-     * @param onlyInternal  if {@code true}, only internal resources are considered
      * @return an input stream
      * @throws FileNotFoundException if the file cannot be found
      */
-    private static InputStream getSmartStream(String fileName, boolean onlyInternal) throws FileNotFoundException {
-        if (!onlyInternal) {
-            File localFile;
-            if (ROOT_PATH != null)
-                localFile = new File(Path.of(ROOT_PATH.toString(), fileName).toUri());
-            else
-                localFile = new File(fileName);
+    private static InputStream getSmartStream(String fileName) throws FileNotFoundException {
+        File localFile;
+        if (ROOT_PATH != null)
+            localFile = new File(Path.of(ROOT_PATH.toString(), fileName).toUri());
+        else
+            localFile = new File(fileName);
 
-            if (localFile.exists()) {
-                return new FileInputStream(localFile);
-            }
+        if (localFile.exists()) {
+            return new FileInputStream(localFile);
         }
 
         InputStream is = getResourceStream(fileName);

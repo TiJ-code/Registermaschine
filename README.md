@@ -145,7 +145,8 @@ XML-based system (`.jxml`)
 Configuration lives in the `config` module; its public package remains
 `tij.registermaschine.core.config`. Use `CoreStartup.init()` from core to initialize
 configuration and load plugins. `CoreConfigParser.init()` now initializes configuration
-only and no longer starts plugins.
+only and no longer starts plugins. The `onlyInternal` initialization option has been
+removed; initialization uses the user-editable configuration with bundled defaults.
 
 - `CoreConfigParser`
 - instruction definitions
