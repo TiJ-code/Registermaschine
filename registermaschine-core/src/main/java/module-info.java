@@ -42,13 +42,13 @@ import tij.registermaschine.api.instructions.IStepHandler;
  * @uses IConfigParser
  * @author TiJ
  */
-module dk.tij.registermaschine.core {
+module tij.registermaschine.core {
     exports tij.registermaschine.core.compilation;
     exports tij.registermaschine.core.conditions;
     exports tij.registermaschine.core.config;
     exports tij.registermaschine.core.runtime;
     exports tij.registermaschine.core.instructions;
 
-    requires dk.tij.registermaschine.api;
+    requires tij.registermaschine.api;
     requires java.xml;
 }
