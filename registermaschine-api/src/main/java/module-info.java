@@ -13,6 +13,7 @@ module tij.registermaschine.api {
     exports tij.registermaschine.api.log;
     exports tij.registermaschine.api.config.model;
     exports tij.registermaschine.api.devices;
+    exports tij.registermaschine.api.registry;
 
     requires java.xml;
     requires java.logging;

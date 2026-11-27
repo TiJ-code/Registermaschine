@@ -1,11 +1,18 @@
 package tij.registermaschine.core;
 
+import tij.registermaschine.api.compilation.lexing.TokenType;
 import tij.registermaschine.api.config.IConfigParser;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
 import tij.registermaschine.api.plugin.PluginContext;
+import tij.registermaschine.api.registry.ComponentRegistries;
+import tij.registermaschine.compiler.CompilerOptions;
+import tij.registermaschine.compiler.ConcreteCompiler;
+import tij.registermaschine.compiler.ConcreteLexer;
+import tij.registermaschine.compiler.ConcreteParser;
 import tij.registermaschine.core.config.CoreConfig;
 import tij.registermaschine.core.config.CoreConfigParser;
+import tij.registermaschine.engine.instructions.ConcreteInstructionSet;
 import tij.registermaschine.pluginloader.PluginConfigParser;
 import tij.registermaschine.pluginloader.PluginLoader;
 
@@ -23,7 +30,21 @@ public final class CoreStartup {
         if (started) return;
 
         CoreConfigParser.init(postConfigParsers);
-        PluginLoader.instance().init(new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY));
+
+        ComponentRegistries components = Components.REGISTRIES;
+
+        CompilerOptions options = new CompilerOptions(CoreConfig.REGISTERS, CoreConfig.ALLOW_LABELS, CoreConfig.TOKEN_REGEX.get(TokenType.REGISTER));
+
+        components.lexers().register("core:default", () -> new ConcreteLexer(
+                options
+        ));
+        components.parsers().register("core:default", ConcreteParser::new);
+        components.compilers().register("core:default", () -> new ConcreteCompiler(
+                options
+        ));
+        components.instructionSets().register("core:default", ConcreteInstructionSet::new);
+
+        PluginLoader.instance().init(new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY, components));
         try {
             LOGGER.info("loading plugins");
             PluginLoader.instance().loadPlugins(PluginConfigParser.PLUGIN_PATH);
