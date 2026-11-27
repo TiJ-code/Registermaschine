@@ -7,14 +7,15 @@ import tij.registermaschine.api.instructions.IInstructionSet;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LogLevel;
 import tij.registermaschine.api.log.LoggerFactory;
+import tij.registermaschine.api.plugin.PluginContext;
 import tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
 import tij.registermaschine.core.config.internal.parsers.ExternalDeviceParser;
 import tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
 import tij.registermaschine.core.config.internal.parsers.SettingsParser;
-import tij.registermaschine.core.plugin.PluginConfigParser;
-import tij.registermaschine.core.plugin.PluginLoader;
+import tij.registermaschine.pluginloader.PluginConfigParser;
+import tij.registermaschine.pluginloader.PluginLoader;
 import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -199,7 +200,7 @@ public final class CoreConfigParser {
 
             loadDefaultMacros();
 
-            PluginLoader.instance().init();
+            PluginLoader.instance().init(new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY));
             try {
                 LOGGER.info("loading plugins");
                 PluginLoader.instance().loadPlugins(PluginConfigParser.PLUGIN_PATH);

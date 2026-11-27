@@ -1,4 +1,4 @@
-package tij.registermaschine.core.plugin;
+package tij.registermaschine.pluginloader;
 
 /**
  * Immutable data container representing the contents

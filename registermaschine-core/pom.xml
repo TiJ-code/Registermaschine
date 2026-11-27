@@ -57,6 +57,10 @@
             <groupId>io.github.tij-code.registermaschine</groupId>
             <artifactId>engine</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.tij-code.registermaschine</groupId>
+            <artifactId>plugin-loader</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

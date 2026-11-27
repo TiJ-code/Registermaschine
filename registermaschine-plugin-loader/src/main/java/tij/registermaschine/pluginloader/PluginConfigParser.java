@@ -1,9 +1,8 @@
-package tij.registermaschine.core.plugin;
+package tij.registermaschine.pluginloader;
 
 import tij.registermaschine.api.error.ConfigurationParseException;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
-import tij.registermaschine.core.config.CoreConfigParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
@@ -114,7 +113,10 @@ public final class PluginConfigParser {
 
         builder.setEntityResolver((_, systemId) -> {
             if (systemId != null) {
-                return new InputSource(CoreConfigParser.class.getResourceAsStream("/" + fileVersion.getDtdPath()));
+                InputStream dtd = PluginConfigParser.class.getResourceAsStream("/" + fileVersion.getDtdPath());
+                if (dtd == null)
+                    throw new SAXException("Plugin DTD not found: " + fileVersion.getDtdPath());
+                return new InputSource(dtd);
             }
             return new InputSource(new StringReader(""));
         });

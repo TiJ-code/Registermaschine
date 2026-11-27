@@ -1,11 +1,10 @@
-package tij.registermaschine.core.plugin;
+package tij.registermaschine.pluginloader;
 
 import tij.registermaschine.api.error.ClassInstantiationException;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
 import tij.registermaschine.api.plugin.IPlugin;
 import tij.registermaschine.api.plugin.PluginContext;
-import tij.registermaschine.core.config.CoreConfig;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,6 +16,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -31,7 +31,7 @@ import java.util.jar.JarFile;
  *
  * <p>The loader follows a simple lifecycle:</p>
  * <ol>
- *     <li>{@link #init()}</li>
+ *     <li>{@link #init(PluginContext)}</li>
  *     <li>{@link #loadPlugins(Path)}</li>
  *     <li>{@link #enablePlugins()}</li>
  * </ol>
@@ -68,14 +68,15 @@ public final class PluginLoader {
     private PluginLoader() {}
 
     /**
-     * Initialises the plugin loader and creates the shared plugin context.
+     * Initialises the plugin loader with the shared plugin context.
      *
      * <p>This method must be called before any plugins can be loaded
      * or enabled.</p>
+     * @param pluginContext context passed to plugins during enabling
      */
-    public void init() {
+    public void init(PluginContext pluginContext) {
         LOGGER.debug("Initializing PluginLoader");
-        this.pluginContext = new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY);
+        this.pluginContext = Objects.requireNonNull(pluginContext, "pluginContext");
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOGGER.info("JVM shutdown detected");

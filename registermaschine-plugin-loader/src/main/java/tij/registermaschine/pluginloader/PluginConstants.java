@@ -1,4 +1,4 @@
-package tij.registermaschine.core.plugin;
+package tij.registermaschine.pluginloader;
 
 /**
  * Contains constants and version definitions used by the plugin system.

@@ -75,6 +75,11 @@
                 <artifactId>engine</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.github.tij-code.registermaschine</groupId>
+                <artifactId>plugin-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
