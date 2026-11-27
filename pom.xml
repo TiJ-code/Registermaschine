@@ -21,6 +21,10 @@
     <modules>
         <module>registermaschine-api</module>
         <module>registermaschine-core</module>
+        <module>registermaschine-engine</module>
+        <module>registermaschine-compiler</module>
+        <module>registermaschine-config</module>
+        <module>registermaschine-plugin-loader</module>
     </modules>
 
     <licenses>
