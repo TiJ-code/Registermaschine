@@ -32,12 +32,13 @@ The project contains these Maven modules:
 - `registermaschine-api`
 - `registermaschine-compiler`
 - `registermaschine-engine`
+- `registermaschine-plugin-loader`
 - `registermaschine-core`
-- `registermaschine-config` and `registermaschine-plugin-loader` (currently placeholders)
+- `registermaschine-config` (currently a placeholder)
 
 ### Publishing a release
 
-The release workflow publishes the API, compiler, engine, and core to Maven Central with self-contained POMs. It also creates a GitHub release with their JARs.
+The release workflow publishes the API, compiler, engine, plugin loader, and core to Maven Central with self-contained POMs. It also creates a GitHub release with their JARs.
 
 The workflow tags and pushes the release before publishing. If publishing fails, inspect the Central Portal deployments and publish only any missing artifacts from the existing release tag rather than creating the same release again; published versions cannot be overwritten.
 
@@ -118,6 +119,11 @@ Provides:
 Core does not bundle a default instruction set. Applications must supply an instruction-set file and register its step handlers, for example through a plugin, before compiling and executing programs.
 
 Plugin descriptors (`plugin.xml`) and instruction-set files are validated against the bundled DTDs. Their `DOCTYPE` declarations are optional.
+
+Plugin discovery and lifecycle management live in `tij.registermaschine.pluginloader`.
+Core initializes the loader with its configured handler registry; standalone users must
+initialize `PluginLoader` with a `PluginContext` before loading and enabling plugins.
+Direct users of the former `core.plugin` classes must update their imports.
 
 ---
 
