@@ -7,7 +7,7 @@ import tij.registermaschine.api.config.model.ConfigInstruction;
 import tij.registermaschine.api.instructions.ChainedInstruction;
 import tij.registermaschine.api.instructions.IStepHandlerRegistry;
 import tij.registermaschine.api.log.LogConfig;
-import tij.registermaschine.core.compilation.internal.pre.InstructionPrecompilerStage;
+import tij.registermaschine.core.config.internal.compilation.InstructionPrecompilerStage;
 import tij.registermaschine.engine.instructions.ConcreteStepHandlerRegistry;
 import tij.registermaschine.engine.runtime.ConcreteExecutionContext;
 

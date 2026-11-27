@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.compiling;
+package tij.registermaschine.core.config.internal.compilation;
 
 import tij.registermaschine.api.compilation.compiling.ICompiledStep;
 import tij.registermaschine.api.conditions.ICondition;

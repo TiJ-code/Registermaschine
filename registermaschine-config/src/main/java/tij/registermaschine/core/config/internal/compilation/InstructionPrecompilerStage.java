@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.pre;
+package tij.registermaschine.core.config.internal.compilation;
 
 import tij.registermaschine.api.compilation.compiling.ICompiledStep;
 import tij.registermaschine.api.compilation.pre.IPrecompilerStage;
