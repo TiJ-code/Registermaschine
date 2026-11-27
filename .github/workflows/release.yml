@@ -175,7 +175,7 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Publish to Maven Central
-        run: mvn -B -Pcentral-release -pl registermaschine-api,registermaschine-compiler,registermaschine-engine,registermaschine-plugin-loader,registermaschine-core clean deploy
+        run: mvn -B -Pcentral-release -pl registermaschine-api,registermaschine-compiler,registermaschine-engine,registermaschine-plugin-loader,registermaschine-config,registermaschine-core clean deploy
         env:
           CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
@@ -190,6 +190,7 @@ jobs:
           cp registermaschine-compiler/target/*.jar dist/
           cp registermaschine-engine/target/*.jar dist/
           cp registermaschine-plugin-loader/target/*.jar dist/
+          cp registermaschine-config/target/*.jar dist/
           cp registermaschine-core/target/*.jar dist/
 
       - name: Create GitHub Release
