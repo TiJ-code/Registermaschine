@@ -21,7 +21,6 @@
     <modules>
         <module>registermaschine-api</module>
         <module>registermaschine-core</module>
-        <module>registermaschine-default-instructions</module>
     </modules>
 
     <licenses>
@@ -35,7 +34,11 @@
         <developer>
             <id>tij</id>
             <name>TiJ</name>
-            <email>no@mail.org</email>
+            <url>https://github.com/TiJ-code</url>
+            <roles>
+                <role>MAINTAINER</role>
+                <role>CONTRIBUTOR</role>
+            </roles>
         </developer>
     </developers>
 
@@ -56,11 +59,6 @@
             <dependency>
                 <groupId>io.github.tij-code.registermaschine</groupId>
                 <artifactId>core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.tij-code.registermaschine</groupId>
-                <artifactId>instructions</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

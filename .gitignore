@@ -5,6 +5,7 @@
 /default.instructions.jxml
 
 target/
+.flattened-pom.xml
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

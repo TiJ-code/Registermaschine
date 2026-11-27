@@ -54,7 +54,7 @@ import java.util.Objects;
  * <p>It provides:</p>
  * <ul>
  *     <li>Loading of the main configuration file</li>
- *     <li>Parsing of default and custom instruction sets</li>
+ *     <li>Parsing of instruction sets</li>
  *     <li>Loading and parsing of core condition macros</li>
  *     <li>Support for post-configuration parsers</li>
  *     <li>Optional custom root path for user-editable files</li>
@@ -87,8 +87,7 @@ public final class CoreConfigParser {
      * Default core configuration files
      */
     private static final String CONFIGURATION_FILE = "configuration.jxml",
-                                DEFAULT_CONDITION_MACROS_FILE = "core_condition_macros.jxml",
-                                DEFAULT_INSTRUCTION_SET_FILE = "default.instructions.jxml";
+                                DEFAULT_CONDITION_MACROS_FILE = "core_condition_macros.jxml";
 
     /**
      * Optional custom root path for user-editable configuration files
@@ -212,15 +211,6 @@ public final class CoreConfigParser {
         }
     }
 
-    /**
-     * Parses the default instruction set into the provided {@link IInstructionSet}.
-     *
-     * @param set the instruction set to populate
-     * @throws ConfigurationParseException if parsing fails
-     */
-    public static void parseDefaultInstructionSet(IInstructionSet set) throws ConfigurationParseException {
-        parseInstructionSet(DEFAULT_INSTRUCTION_SET_FILE, set);
-    }
 
     /**
      * Parses a specific instruction set XML file into the provided {@link IInstructionSet}
@@ -319,7 +309,7 @@ public final class CoreConfigParser {
      */
     private static void copyDefaultFiles() {
         List<String> userEditableFiles = List.of(
-                CONFIGURATION_FILE, DEFAULT_INSTRUCTION_SET_FILE
+                CONFIGURATION_FILE
         );
 
         for (String fileName : userEditableFiles) {
