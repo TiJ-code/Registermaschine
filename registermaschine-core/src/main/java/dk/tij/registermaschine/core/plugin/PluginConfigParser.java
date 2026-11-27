@@ -5,6 +5,7 @@ import dk.tij.registermaschine.api.log.ILogger;
 import dk.tij.registermaschine.api.log.LoggerFactory;
 import dk.tij.registermaschine.core.config.CoreConfigParser;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -13,10 +14,18 @@ import org.xml.sax.SAXParseException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -170,13 +179,21 @@ public final class PluginConfigParser {
 
         Document doc = parseWithoutDtd(new ByteArrayInputStream(data));
 
-        PluginConstants.FileVersion fv = null;
+        PluginConstants.FileVersion fv = PluginConstants.FileVersion.latest();
 
         String versionPlugin = doc.getDocumentElement().getAttribute(PluginConstants.ATTRIBUTE_PLUGIN_VERSION);
         if (!versionPlugin.isEmpty())
             fv = PluginConstants.FileVersion.match(versionPlugin);
 
-        doc = parseWithDtd(new ByteArrayInputStream(data), fv);
+        try {
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, fv.getDtdPath());
+            StringWriter writer = new StringWriter();
+            transformer.transform(new DOMSource(doc), new StreamResult(writer));
+            doc = parseWithDtd(new ByteArrayInputStream(writer.toString().getBytes(StandardCharsets.UTF_8)), fv);
+        } catch (TransformerException e) {
+            throw new SAXException("Failed to prepare plugin configuration for validation", e);
+        }
 
         PluginConfig config;
         switch (fv) {
@@ -198,12 +215,12 @@ public final class PluginConfigParser {
         LOGGER.trace("Parsing plugin configuration of version 1");
         String nameStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_NAME)
                 .item(0).getTextContent();
-        String descriptionStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_DESCRIPTION)
-                .item(0).getTextContent();
+        Node description = xmlDocument.getElementsByTagName(PluginConstants.TAG_DESCRIPTION).item(0);
+        String descriptionStr = description == null ? "" : description.getTextContent();
         String versionStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_VERSION)
                 .item(0).getTextContent();
-        String authorStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_AUTHOR)
-                .item(0).getTextContent();
+        Node author = xmlDocument.getElementsByTagName(PluginConstants.TAG_AUTHOR).item(0);
+        String authorStr = author == null ? "" : author.getTextContent();
         String mainStr = xmlDocument.getElementsByTagName(PluginConstants.TAG_MAIN)
                 .item(0).getTextContent();
 

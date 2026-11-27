@@ -110,6 +110,8 @@ Provides:
 
 Core does not bundle a default instruction set. Applications must supply an instruction-set file and register its step handlers, for example through a plugin, before compiling and executing programs.
 
+Plugin descriptors (`plugin.xml`) and instruction-set files are validated against the bundled DTDs. Their `DOCTYPE` declarations are optional.
+
 ---
 
 ### 4. Condition System (`core.conditions`)
