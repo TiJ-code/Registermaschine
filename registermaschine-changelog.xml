@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config version="1">
+    <versioning>
+        <rule name="maven">
+            <filename regex=".*/?pom\.xml"/>
+            <version regex="&lt;version&gt;([^&lt;]+)&lt;/version&gt;"/>
+        </rule>
+        <phases initial="release" release="release">
+            <phase name="release">
+                <next>release</next>
+                <formatter>{#numeric_version}{#snapshot}</formatter>
+            </phase>
+        </phases>
+    </versioning>
+    <archive hierarchy="major"/>
+    <categories>
+        <category name="additions">added</category>
+        <category name="refactorings">refactored</category>
+        <category name="fixes">fixed</category>
+        <category name="removals">removed</category>
+    </categories>
+    <components>
+        <component id="api" name="API"/>
+        <component id="core" name="Core"/>
+        <component id="instructions" name="Instructions"/>
+    </components>
+    <topics>
+        <topic name="default">
+            <component-ref ref="api"/>
+            <component-ref ref="core"/>
+            <component-ref ref="instructions"/>
+        </topic>
+    </topics>
+    <breaking.changes>
+        <entry>major</entry>
+        <entry>minor</entry>
+        <entry>trivial</entry>
+    </breaking.changes>
+</config>
