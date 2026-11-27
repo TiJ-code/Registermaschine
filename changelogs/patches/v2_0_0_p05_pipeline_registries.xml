@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<patch version="1">
+    <topic name="default">
+        <component ref="core">
+            <category name="refactorings">
+                <breaking severity="major">
+                    <entry>Pipeline stages are selected per compilation using registry IDs instead of class-based stage setters; stage records now include the selection</entry>
+                </breaking>
+            </category>
+        </component>
+    </topic>
+</patch>
