@@ -5,12 +5,18 @@ import tij.registermaschine.api.compilation.ILexer;
 import tij.registermaschine.api.compilation.IParser;
 import tij.registermaschine.api.compilation.compiling.ICompiledProgram;
 import tij.registermaschine.api.compilation.lexing.IToken;
+import tij.registermaschine.api.compilation.lexing.TokenType;
 import tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import tij.registermaschine.api.error.DefectPipelineException;
 import tij.registermaschine.api.error.SyntaxErrorException;
 import tij.registermaschine.api.instructions.IInstructionSet;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
+import tij.registermaschine.compiler.CompilerOptions;
+import tij.registermaschine.compiler.ConcreteCompiler;
+import tij.registermaschine.compiler.ConcreteLexer;
+import tij.registermaschine.compiler.ConcreteParser;
+import tij.registermaschine.core.config.CoreConfig;
 
 import java.util.List;
 import java.util.Objects;
@@ -143,7 +149,8 @@ public final class Pipeline {
 
         LOGGER.debug("Tokenizing source (length={})", sourceCode != null ? sourceCode.length() : 0);
 
-        ILexer lexer = newInstance(pipelineLexer);
+        ILexer lexer = pipelineLexer == ConcreteLexer.class
+                ? new ConcreteLexer(compilerOptions()) : newInstance(pipelineLexer);
         var tokens = lexer.tokenize(sourceCode, instructionSet);
 
         LOGGER.trace("Tokenization produced {} tokens", tokens.size());
@@ -191,13 +198,19 @@ public final class Pipeline {
         public ICompiledProgram compile() throws DefectPipelineException {
             LOGGER.debug("Compiling syntax tree");
 
-            ICompiler compiler = newInstance(pipelineCompiler);
+            ICompiler compiler = pipelineCompiler == ConcreteCompiler.class
+                    ? new ConcreteCompiler(compilerOptions()) : newInstance(pipelineCompiler);
             var program = compiler.compile(syntaxTree, set);
 
             LOGGER.trace("Compilation produced program of size {}", program.size());
 
             return program;
         }
+    }
+
+    private static CompilerOptions compilerOptions() {
+        return new CompilerOptions(CoreConfig.REGISTERS, CoreConfig.ALLOW_LABELS,
+                CoreConfig.TOKEN_REGEX.get(TokenType.REGISTER));
     }
 
     /**
@@ -208,6 +221,7 @@ public final class Pipeline {
      * @return an instance of the pipeline stage
      * @throws DefectPipelineException if instantiation fails
      */
+
     private static <T> T newInstance(Class<? extends T> cls) throws DefectPipelineException {
         try {
             LOGGER.trace("Instantiating pipeline component: {}", cls.getName());

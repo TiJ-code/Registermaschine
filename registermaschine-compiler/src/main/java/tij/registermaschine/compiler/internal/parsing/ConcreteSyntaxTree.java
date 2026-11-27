@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.parsing;
+package tij.registermaschine.compiler.internal.parsing;
 
 import tij.registermaschine.api.compilation.parsing.ISyntaxTree;
 import tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;

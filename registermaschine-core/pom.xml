@@ -49,6 +49,10 @@
             <groupId>io.github.tij-code.registermaschine</groupId>
             <artifactId>api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.github.tij-code.registermaschine</groupId>
+            <artifactId>compiler</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

@@ -11,11 +11,82 @@
 
     <groupId>io.github.tij-code.registermaschine</groupId>
     <artifactId>compiler</artifactId>
+    <packaging>jar</packaging>
+    <name>Registermaschine Compiler</name>
+    <description>Compiler, lexer and parser for the Registermaschine</description>
+    <url>https://github.com/TiJ-code/Registermaschine</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/TiJ-code/Registermaschine.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/TiJ-code/Registermaschine.git</developerConnection>
+        <url>https://github.com/TiJ-code/Registermaschine</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>tij</id>
+            <name>TiJ</name>
+            <url>https://github.com/TiJ-code</url>
+            <roles>
+                <role>MAINTAINER</role>
+                <role>CONTRIBUTOR</role>
+            </roles>
+        </developer>
+    </developers>
 
     <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.github.tij-code.registermaschine</groupId>
+            <artifactId>api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>central-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>flatten-maven-plugin</artifactId>
+                        <version>1.9.0</version>
+                        <configuration>
+                            <flattenMode>ossrh</flattenMode>
+                            <updatePomFile>true</updatePomFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>flatten-pom</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>flatten</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>flatten-clean</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

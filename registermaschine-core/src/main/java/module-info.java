@@ -50,5 +50,6 @@ module tij.registermaschine.core {
     exports tij.registermaschine.core.instructions;
 
     requires tij.registermaschine.api;
+    requires tij.registermaschine.compiler;
     requires java.xml;
 }

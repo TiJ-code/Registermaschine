@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.lexing;
+package tij.registermaschine.compiler.internal.lexing;
 
 import tij.registermaschine.api.compilation.lexing.IToken;
 import tij.registermaschine.api.compilation.lexing.TokenType;
