@@ -29,6 +29,8 @@ public final class Components {
             new FactoryRegistry<>(),
             new FactoryRegistry<>(),
             new FactoryRegistry<>(),
+            new FactoryRegistry<>(),
+            new FactoryRegistry<>(),
             new FactoryRegistry<>()
     );
 }

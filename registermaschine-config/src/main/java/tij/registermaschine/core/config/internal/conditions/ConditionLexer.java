@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>The lexer scans the input string character by character and groups them into
  * {@link ConditionToken}s based on defined syntax rules (e.g., operators, identifiers, macros)</p>
  *
- * @since 1.0.0
  * @author TiJ
+ * @since 1.0.0
  */
 public final class ConditionLexer {
     private static final ILogger LOGGER = LoggerFactory.getLogger(ConditionLexer.class);
@@ -23,7 +23,8 @@ public final class ConditionLexer {
     /**
      * Private constructor to prevent instantiation of this utility class
      */
-    private ConditionLexer() {}
+    private ConditionLexer() {
+    }
 
     /**
      * Converts a raw condition string into an ordered list of tokens.
@@ -112,7 +113,7 @@ public final class ConditionLexer {
     /**
      * Consumes characters to form a standard identifier (e.g., a class name).
      *
-     * @param source The raw source string
+     * @param source       The raw source string
      * @param currentIndex The current character index
      * @return the parsed {@link ConditionToken}
      */
@@ -131,7 +132,7 @@ public final class ConditionLexer {
     /**
      * Consumes characters to form a macro identified following an '@' symbol.
      *
-     * @param source The raw source string
+     * @param source       The raw source string
      * @param currentIndex The current character index
      * @return the parsed {@link ConditionToken}
      */

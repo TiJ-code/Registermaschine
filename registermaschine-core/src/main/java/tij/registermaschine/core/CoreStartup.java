@@ -44,14 +44,12 @@ public final class CoreStartup {
 
         CompilerOptions options = new CompilerOptions(CoreConfig.REGISTERS, CoreConfig.ALLOW_LABELS, CoreConfig.TOKEN_REGEX.get(TokenType.REGISTER));
 
-        components.lexers().register("core:default", () -> new ConcreteLexer(
-                options
-        ));
+        components.lexers().register("core:default", () -> new ConcreteLexer(options));
         components.parsers().register("core:default", ConcreteParser::new);
-        components.compilers().register("core:default", () -> new ConcreteCompiler(
-                options
-        ));
+        components.compilers().register("core:default", () -> new ConcreteCompiler(options));
         components.instructionSets().register("core:default", ConcreteInstructionSet::new);
+        components.tokens().register(Components.DEFAULT, ConcreteLexer::defaultTokenFactory);
+        components.compiledInstructions().register(Components.DEFAULT, ConcreteCompiler::defaultInstructionFactory);
 
         PluginLoader.instance().init(new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY, components));
         try {
