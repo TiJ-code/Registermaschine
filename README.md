@@ -27,14 +27,16 @@ It combines a compilation pipeline, a virtual runtime, and a plugin-based extens
 
 ## Project Structure
 
-The project is split into two main Maven modules:
+The project contains these Maven modules:
 
 - `registermaschine-api`
+- `registermaschine-compiler`
 - `registermaschine-core`
+- `registermaschine-engine`, `registermaschine-config`, and `registermaschine-plugin-loader` (currently placeholders)
 
 ### Publishing a release
 
-The release workflow publishes the API and core to Maven Central with self-contained POMs. It also creates a GitHub release with the API and core JARs.
+The release workflow publishes the API, compiler, and core to Maven Central with self-contained POMs. It also creates a GitHub release with their JARs.
 
 The workflow tags and pushes the release before publishing. If publishing fails, inspect the Central Portal deployments and publish only any missing artifacts from the existing release tag rather than creating the same release again; published versions cannot be overwritten.
 
@@ -78,11 +80,13 @@ It provides compilation, execution, configuration parsing, and plugin loading.
 
 ## Core Components
 
-### 1. Compilation Pipeline (`core.compilation`)
-- `ConcreteLexer`
-- `ConcreteParser`
-- `ConcreteCompiler`
-- `Pipeline`
+### 1. Compilation Pipeline
+
+The `compiler` module provides `ConcreteLexer`, `ConcreteParser`, and `ConcreteCompiler`.
+Core assembles the compilation stages through `Pipeline` (`core.compilation`).
+When using the compiler directly, construct the lexer and compiler with a `CompilerOptions`
+containing the register count, label policy, and register regex. Direct users of the old
+`core.compilation` implementations must update their imports to `tij.registermaschine.compiler`.
 
 Flow:
 ```
