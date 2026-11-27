@@ -34,9 +34,9 @@ The project is split into two main Maven modules:
 
 ### Publishing a release
 
-The release workflow publishes only the API to Maven Central, using a self-contained POM. It also creates a GitHub release with the API and core JARs.
+The release workflow publishes the API and core to Maven Central with self-contained POMs. It also creates a GitHub release with the API and core JARs.
 
-The workflow tags and pushes the release before publishing. If publishing fails, inspect the Central Portal deployment and rerun publication from the existing release tag rather than creating the same release again; published versions cannot be overwritten.
+The workflow tags and pushes the release before publishing. If publishing fails, inspect the Central Portal deployments and publish only any missing artifacts from the existing release tag rather than creating the same release again; published versions cannot be overwritten.
 
 ---
 
