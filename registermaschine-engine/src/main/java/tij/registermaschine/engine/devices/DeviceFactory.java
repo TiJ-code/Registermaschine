@@ -1,11 +1,11 @@
-package tij.registermaschine.core.devices;
+package tij.registermaschine.engine.devices;
 
 import tij.registermaschine.api.config.model.ConfigDevice;
 import tij.registermaschine.api.config.model.ConfigMemoryMapping;
 import tij.registermaschine.api.devices.IDevice;
 import tij.registermaschine.api.devices.IMemoryMapping;
 import tij.registermaschine.api.error.OutOfMemoryException;
-import tij.registermaschine.core.memory.MemoryBus;
+import tij.registermaschine.engine.memory.MemoryBus;
 
 import java.util.List;
 

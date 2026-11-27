@@ -8,7 +8,8 @@ import tij.registermaschine.api.instructions.ChainedInstruction;
 import tij.registermaschine.api.instructions.IStepHandlerRegistry;
 import tij.registermaschine.api.log.LogConfig;
 import tij.registermaschine.core.compilation.internal.pre.InstructionPrecompilerStage;
-import tij.registermaschine.core.instructions.ConcreteStepHandlerRegistry;
+import tij.registermaschine.engine.instructions.ConcreteStepHandlerRegistry;
+import tij.registermaschine.engine.runtime.ConcreteExecutionContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,4 +84,13 @@ public final class CoreConfig {
     public static final IPrecompilerStage<ConfigInstruction, ChainedInstruction> INSTRUCTION_PRECOMPILER = InstructionPrecompilerStage.instance();
 
     public static volatile IStepHandlerRegistry STEP_HANDLER_REGISTRY = ConcreteStepHandlerRegistry.instance();
+
+    /**
+     * Creates a context using the configured register count and current jump limit.
+     *
+     * @return the configured execution context
+     */
+    public static ConcreteExecutionContext createExecutionContext() {
+        return new ConcreteExecutionContext(REGISTERS, () -> MAX_JUMPS);
+    }
 }

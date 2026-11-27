@@ -1,4 +1,4 @@
-package tij.registermaschine.core.conditions;
+package tij.registermaschine.engine.conditions;
 
 import tij.registermaschine.api.conditions.ICondition;
 import tij.registermaschine.api.runtime.IExecutionContext;

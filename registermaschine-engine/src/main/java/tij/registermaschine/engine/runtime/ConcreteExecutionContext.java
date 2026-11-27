@@ -1,18 +1,19 @@
-package tij.registermaschine.core.runtime;
+package tij.registermaschine.engine.runtime;
 
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
 import tij.registermaschine.api.runtime.ExecutionSnapshot;
 import tij.registermaschine.api.runtime.IExecutionContext;
 import tij.registermaschine.api.runtime.IExecutionContextListener;
-import tij.registermaschine.core.config.CoreConfig;
-import tij.registermaschine.core.memory.MemoryBus;
+import tij.registermaschine.engine.memory.MemoryBus;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.IntSupplier;
 
 /**
  * Default implementation of {@link IExecutionContext} used by the runtime
@@ -62,6 +63,7 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     private final MemoryBus memoryBus = MemoryBus.instance();
 
     private final int[] registers;
+    private final IntSupplier maxJumps;
     private int programmeCounter;
 
     private int jumpCounter;
@@ -73,19 +75,23 @@ public final class ConcreteExecutionContext implements IExecutionContext {
     private volatile Integer lastOutput;
 
     /**
-     * Creates a new execution context with a register array sized according
-     * to {@link CoreConfig#REGISTERS}.
+     * Creates a new execution context with the specified register count and
+     * a dynamically supplied jump limit.
      *
      * <p>All registers, flags, and counters are initialised to zero.</p>
+     *
+     * @param registers the number of registers
+     * @param maxJumps supplies the current maximum jump count
      */
-    public ConcreteExecutionContext() {
-        this.registers = new int[CoreConfig.REGISTERS];
-        this.dirtyRegisters = new boolean[CoreConfig.REGISTERS];
+    public ConcreteExecutionContext(int registers, IntSupplier maxJumps) {
+        this.registers = new int[registers];
+        this.dirtyRegisters = new boolean[registers];
+        this.maxJumps = Objects.requireNonNull(maxJumps, "maxJumps");
         this.programmeCounter = 0;
         this.exitCode = 0;
         this.flags = 0;
 
-        LOGGER.trace("{} initialized with {} registers", getClass().getSimpleName(), CoreConfig.REGISTERS);
+        LOGGER.trace("{} initialized with {} registers", getClass().getSimpleName(), registers);
     }
 
     /**
@@ -286,7 +292,7 @@ public final class ConcreteExecutionContext implements IExecutionContext {
 
     @Override
     public int maxJumpCounter() {
-        return CoreConfig.MAX_JUMPS;
+        return maxJumps.getAsInt();
     }
 
     /**

@@ -5,10 +5,6 @@ import tij.registermaschine.api.error.ClassInstantiationException;
 import tij.registermaschine.api.error.ConditionParseException;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
-import tij.registermaschine.core.conditions.AndCondition;
-import tij.registermaschine.core.conditions.NotCondition;
-import tij.registermaschine.core.conditions.OrCondition;
-import tij.registermaschine.core.conditions.XorCondition;
 import tij.registermaschine.core.config.CoreConfig;
 import tij.registermaschine.core.config.internal.conditions.nodes.AndNode;
 import tij.registermaschine.core.config.internal.conditions.nodes.ConditionToken;
@@ -17,6 +13,10 @@ import tij.registermaschine.core.config.internal.conditions.nodes.MacroNode;
 import tij.registermaschine.core.config.internal.conditions.nodes.NotNode;
 import tij.registermaschine.core.config.internal.conditions.nodes.OrNode;
 import tij.registermaschine.core.config.internal.conditions.nodes.XorNode;
+import tij.registermaschine.engine.conditions.AndCondition;
+import tij.registermaschine.engine.conditions.NotCondition;
+import tij.registermaschine.engine.conditions.OrCondition;
+import tij.registermaschine.engine.conditions.XorCondition;
 
 import java.util.HashSet;
 import java.util.List;
@@ -129,10 +129,17 @@ public final class ConditionBuilder {
         if (node instanceof LeafNode(String className)) {
             try {
                 Class<?> clazz;
-                if (className.startsWith(CoreConfig.CORE_IMPLEMENTATION_PREFIX))
-                    clazz = Class.forName(CoreConfig.CORE_CLASS_PATH_PREFIX + className);
-                else
-                    clazz = Class.forName(className);
+                String resolvedName = className.startsWith(CoreConfig.CORE_IMPLEMENTATION_PREFIX)
+                        ? CoreConfig.CORE_CLASS_PATH_PREFIX + className : className;
+                String legacyPrefix = resolvedName.startsWith("dk.tij.registermaschine.core.conditions.")
+                        ? "dk.tij.registermaschine.core.conditions." : "tij.registermaschine.core.conditions.";
+                if (resolvedName.startsWith(legacyPrefix)) {
+                    String name = resolvedName.substring(legacyPrefix.length());
+                    if (Set.of("AndCondition", "EqualsZeroCondition", "LessThanZeroCondition",
+                            "NotCondition", "OrCondition", "XorCondition").contains(name))
+                        resolvedName = "tij.registermaschine.engine.conditions." + name;
+                }
+                clazz = Class.forName(resolvedName);
                 LOGGER.debug("Loading conditional class {}", clazz);
                 return (ICondition) clazz.getDeclaredConstructor().newInstance();
             } catch (Exception e) {

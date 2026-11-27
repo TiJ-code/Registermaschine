@@ -3,14 +3,13 @@ import tij.registermaschine.api.config.IConfigParser;
 import tij.registermaschine.api.instructions.IStepHandler;
 
 /**
- * The core engine of the Registermaschine system.
+ * Core orchestration for the Registermaschine system.
  * <p>
- *     This module provides a complete virtualised execution environment, including
- *     a compilation pipeline, a configurable instruction set, and a runtime executor.
+ *     This module coordinates configuration and compilation with the engine.
  * </p>
  *
  * <h2>Module Structure</h2>
- * The module is organised into five functional pillars:
+ * The system is organised into five functional pillars:
  * <ul>
  *     <li><b>Compilation:</b> Lexing, parsing, and binary code generation.</li>
  *     <li><b>Configuration:</b> XML-based initialisation and hardware constraints.</li>
@@ -44,12 +43,10 @@ import tij.registermaschine.api.instructions.IStepHandler;
  */
 module tij.registermaschine.core {
     exports tij.registermaschine.core.compilation;
-    exports tij.registermaschine.core.conditions;
     exports tij.registermaschine.core.config;
-    exports tij.registermaschine.core.runtime;
-    exports tij.registermaschine.core.instructions;
 
     requires tij.registermaschine.api;
     requires tij.registermaschine.compiler;
+    requires transitive tij.registermaschine.engine;
     requires java.xml;
 }
