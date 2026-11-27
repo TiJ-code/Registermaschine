@@ -23,7 +23,7 @@
  * <h2>Extending the Instruction Set</h2>
  * To implement custom hardware operations, follow these steps:
  * <ol>
- *     <li>Extend {@link dk.tij.registermaschine.api.instructions.AbstractInstruction}
+ *     <li>Implement {@link dk.tij.registermaschine.api.instructions.IStepHandler}
  *     to define the execution logic.</li>
  *     <li>Register the new instruction in the {@code .jxml} configuration file
  *     mapping it to a unique opcode.</li>

@@ -13,7 +13,7 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  *
  * <p>It implements the classic <em>fetch-execute cycle</em> by repeatedly fetching
  * instructions from a compiled program and delegating their execution to the
- * corresponding {@link AbstractInstruction} handler obtained from the
+ * corresponding instruction handler obtained from the
  * {@link IInstructionSet}.</p>
  *
  * <p>The executor operates on a separate thread and continues execution until one
@@ -32,8 +32,7 @@ import dk.tij.registermaschine.api.runtime.IExecutionContext;
  *     <li>Retrieve the current instruction using the program counter.</li>
  *     <li>Advance the execution context using {@link IExecutionContext#step()}</li>
  *     <li>Resolve the instruction handler from the {@link IInstructionSet}</li>
- *     <li>Check whether the instruction should execute using
- *     {@link AbstractInstruction#shouldExecute(IExecutionContext)}.</li>
+ *     <li>Check whether the instruction's condition allows execution.</li>
  *     <li>Execute the instruction if permitted.</li>
  * </ol>
  *

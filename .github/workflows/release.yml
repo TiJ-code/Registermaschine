@@ -157,7 +157,6 @@ jobs:
 
     permissions:
       contents: write
-      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -169,15 +168,18 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
-      - name: Build Maven Project
-        run: mvn -B clean package -DskipTests
-
-      - name: Deploy
-        run: mvn clean deploy
+      - name: Publish to Maven Central
+        run: mvn -B -Pcentral-release clean deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PAT_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+          CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
       - name: Package Artifacts
         run: |

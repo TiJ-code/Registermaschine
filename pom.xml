@@ -4,11 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dk.tij</groupId>
+    <groupId>io.github.tij-code</groupId>
     <artifactId>registermaschine</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Registermaschine</name>
+    <description>A modular, extensible virtual machine framework for custom instruction sets.</description>
+    <url>https://github.com/TiJ-code/Registermaschine</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/TiJ-code/Registermaschine.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/TiJ-code/Registermaschine.git</developerConnection>
+        <url>https://github.com/TiJ-code/Registermaschine</url>
+    </scm>
 
     <modules>
         <module>registermaschine-api</module>
@@ -37,28 +45,21 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub TiJ-code Registermaschine Packages</name>
-            <url>https://maven.pkg.github.com/TiJ-code/Registermaschine</url>
-        </repository>
-    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>dk.tij.registermaschine</groupId>
+                <groupId>io.github.tij-code.registermaschine</groupId>
                 <artifactId>api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>dk.tij.registermaschine</groupId>
+                <groupId>io.github.tij-code.registermaschine</groupId>
                 <artifactId>core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>dk.tij.registermaschine</groupId>
+                <groupId>io.github.tij-code.registermaschine</groupId>
                 <artifactId>instructions</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -108,6 +109,44 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>central-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.12.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>javadoc</id>
 
