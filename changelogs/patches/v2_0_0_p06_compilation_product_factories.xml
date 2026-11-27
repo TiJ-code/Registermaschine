@@ -15,6 +15,8 @@
             <category name="additions">
                 <entry>Default token and compiled-instruction factories registered during core startup</entry>
                 <entry>Pipeline selections can specify token and compiled-instruction factory IDs for compatible stages</entry>
+                <entry>XML configuration for selecting the default compilation factories</entry>
+                <entry>CompilationSettingsParser for loading default compilation factory IDs</entry>
             </category>
             <category name="refactorings">
                 <breaking severity="major">
