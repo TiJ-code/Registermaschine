@@ -1,4 +1,4 @@
-module dk.tij.registermaschine.api {
+module tij.registermaschine.api {
     exports tij.registermaschine.api.compilation;
     exports tij.registermaschine.api.compilation.parsing;
     exports tij.registermaschine.api.compilation.lexing;
