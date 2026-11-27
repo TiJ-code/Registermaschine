@@ -19,14 +19,10 @@ public final class CoreStartup {
 
     private CoreStartup() {}
 
-    public static void init(IConfigParser... postConfigParsers) {
-        init(false, postConfigParsers);
-    }
-
-    public static synchronized void init(boolean onlyInternal, IConfigParser... postConfigParsers) {
+    public static synchronized void init(IConfigParser... postConfigParsers) {
         if (started) return;
 
-        CoreConfigParser.init(onlyInternal, postConfigParsers);
+        CoreConfigParser.init(postConfigParsers);
         PluginLoader.instance().init(new PluginContext(CoreConfig.STEP_HANDLER_REGISTRY));
         try {
             LOGGER.info("loading plugins");
