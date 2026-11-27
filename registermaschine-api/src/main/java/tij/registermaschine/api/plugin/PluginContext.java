@@ -17,6 +17,7 @@ import tij.registermaschine.api.registry.ComponentRegistries;
  *
  * @param stepHandlerRegistry the global registry used for registering
  *                            and managing step handlers
+ * @param componentRegistries the registries used to register component factories
  *
  * @since 1.1.0
  * @author TiJ

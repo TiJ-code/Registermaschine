@@ -7,9 +7,27 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+/**
+ * Thread-safe factory registry backed by a concurrent map.
+ *
+ * <p>Each ID can be registered only once. Each call to {@link #create(String)}
+ * invokes the registered factory. The factory decides whether to return a new
+ * instance or an existing one.</p>
+ *
+ * @param <T> the component type
+ *
+ * @since 2.0.0
+ * @author TiJ
+ */
 public final class FactoryRegistry<T> implements IFactoryRegistry<T> {
     private final Map<String, Supplier<? extends T>> factories = new ConcurrentHashMap<>();
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws NullPointerException if {@code id} or {@code factory} is {@code null}
+     * @throws IllegalArgumentException if {@code id} is blank or already registered
+     */
     @Override
     public void register(String id, Supplier<? extends T> factory) {
         Objects.requireNonNull(id, "id");
@@ -24,6 +42,12 @@ public final class FactoryRegistry<T> implements IFactoryRegistry<T> {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @throws NullPointerException if {@code id} is null
+     * @throws IllegalArgumentException if the ID is unknown or its factory returns null
+     */
     @Override
     public T create(String id) {
         Objects.requireNonNull(id, "id");

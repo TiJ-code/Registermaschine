@@ -26,6 +26,16 @@ public final class CoreStartup {
 
     private CoreStartup() {}
 
+    /**
+     * Initialises configuration, registers default component factories and starts plugins.
+     * Subsequent calls return without repeating the startup after it has completed.
+     *
+     * <p>The default lexer and compiler factories use options captured during startup.
+     * Registering factories does not by itself change the components used by the compilation
+     * pipeline.</p>
+     *
+     * @param postConfigParsers parsers to execute after internal configuration parsing
+     */
     public static synchronized void init(IConfigParser... postConfigParsers) {
         if (started) return;
 

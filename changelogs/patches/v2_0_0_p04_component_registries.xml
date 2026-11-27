@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<patch version="1">
+    <topic name="default">
+        <component ref="api">
+            <category name="additions">
+                <entry>Factory registries for lexers, parsers, compilers and instruction sets</entry>
+            </category>
+            <category name="refactorings">
+                <breaking severity="major">
+                    <entry>PluginContext now includes component registries, changing its constructor</entry>
+                </breaking>
+            </category>
+        </component>
+        <component ref="core">
+            <category name="additions">
+                <entry>Default component factories registered during core startup</entry>
+            </category>
+        </component>
+    </topic>
+</patch>
