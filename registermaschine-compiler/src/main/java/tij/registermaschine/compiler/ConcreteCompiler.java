@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation;
+package tij.registermaschine.compiler;
 
 import tij.registermaschine.api.compilation.ICompiler;
 import tij.registermaschine.api.compilation.compiling.ICompiledInstruction;
@@ -15,20 +15,20 @@ import tij.registermaschine.api.instructions.ChainedInstruction;
 import tij.registermaschine.api.instructions.IInstructionSet;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
-import tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledInstruction;
-import tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledOperand;
-import tij.registermaschine.core.compilation.internal.compiling.ConcreteCompiledProgram;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteAbstractSyntaxTreeNode;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
-import tij.registermaschine.core.config.CoreConfig;
+import tij.registermaschine.compiler.internal.compiling.ConcreteCompiledInstruction;
+import tij.registermaschine.compiler.internal.compiling.ConcreteCompiledOperand;
+import tij.registermaschine.compiler.internal.compiling.ConcreteCompiledProgram;
+import tij.registermaschine.compiler.internal.parsing.ConcreteAbstractSyntaxTreeNode;
+import tij.registermaschine.compiler.internal.parsing.ConcreteInstructionNode;
+import tij.registermaschine.compiler.internal.parsing.ConcreteLabelNode;
+import tij.registermaschine.compiler.internal.parsing.ConcreteOperandNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Concrete implementation of {@link ICompiler} for the Registermaschine.
@@ -60,6 +60,12 @@ import java.util.Map;
  */
 public final class ConcreteCompiler implements ICompiler {
     private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteCompiler.class);
+
+    private final CompilerOptions options;
+
+    public ConcreteCompiler(CompilerOptions options) {
+        this.options = Objects.requireNonNull(options, "options");
+    }
 
     /**
      * Compiles the given {@link ISyntaxTree} into a {@link ICompiledProgram}.
@@ -203,10 +209,10 @@ public final class ConcreteCompiler implements ICompiler {
         if (node.isRegister) {
             int regIndex = Integer.parseInt(node.value().substring(1));
 
-            if (regIndex >= CoreConfig.REGISTERS) {
+            if (regIndex >= options.registers()) {
                 LOGGER.error("Invalid register index {}", regIndex);
                 throw error(node, "Invalid register 'r%d'. The machine is configured with only %d registers (r0 - r%d).",
-                        regIndex, CoreConfig.REGISTERS, CoreConfig.REGISTERS-1);
+                        regIndex, options.registers(), options.registers()-1);
             }
 
             result = new ConcreteCompiledOperand(OperandType.REGISTER, concept, regIndex);

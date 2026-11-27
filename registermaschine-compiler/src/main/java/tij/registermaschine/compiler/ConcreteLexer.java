@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation;
+package tij.registermaschine.compiler;
 
 import tij.registermaschine.api.compilation.ILexer;
 import tij.registermaschine.api.compilation.lexing.IToken;
@@ -6,11 +6,11 @@ import tij.registermaschine.api.compilation.lexing.TokenType;
 import tij.registermaschine.api.instructions.IInstructionSet;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
-import tij.registermaschine.core.compilation.internal.lexing.ConcreteToken;
-import tij.registermaschine.core.config.CoreConfig;
+import tij.registermaschine.compiler.internal.lexing.ConcreteToken;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static tij.registermaschine.api.compilation.lexing.TokenType.ADDRESS;
 import static tij.registermaschine.api.compilation.lexing.TokenType.COMMA;
@@ -64,8 +64,8 @@ import static tij.registermaschine.api.compilation.lexing.TokenType.UNKNOWN;
  *     <li>Normalizes line endings to '\n'</li>
  *     <li>Tracks line and column positions for error reporting</li>
  *     <li>Supports hexadecimal addresses and immediates</li>
- *     <li>Handles symbolic labels based on {@link CoreConfig#ALLOW_LABELS}</li>
- *     <li>Validates register names using {@link CoreConfig#TOKEN_REGEX}</li>
+ *     <li>Handles symbolic labels according to {@link CompilerOptions#allowLabels()}</li>
+ *     <li>Validates register names using {@link CompilerOptions#registerRegex()}</li>
  * </ul>
  *
  * @since 1.0.0
@@ -73,6 +73,12 @@ import static tij.registermaschine.api.compilation.lexing.TokenType.UNKNOWN;
  */
 public final class ConcreteLexer implements ILexer {
     private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteLexer.class);
+
+    private final CompilerOptions options;
+
+    public ConcreteLexer(CompilerOptions options) {
+        this.options = Objects.requireNonNull(options, "options");
+    }
 
     private IInstructionSet instructionSet;
     private List<IToken> tokens;
@@ -285,7 +291,7 @@ public final class ConcreteLexer implements ILexer {
         // label definition
         if (isNotAtEnd() && peek() == ':') {
             advance();
-            if (CoreConfig.ALLOW_LABELS) {
+            if (options.allowLabels()) {
                 LOGGER.debug("Parsed label definition: {}", text);
                 tokens.add(new ConcreteToken(LABEL_DEF, text, line, startCol));
             } else {
@@ -309,7 +315,7 @@ public final class ConcreteLexer implements ILexer {
             return;
         }
 
-        if (CoreConfig.ALLOW_LABELS) {
+        if (options.allowLabels()) {
             LOGGER.debug("Treating '{}' as label reference", text);
             tokens.add(new ConcreteToken(LABEL, text, line, startCol));
         } else {
@@ -325,7 +331,7 @@ public final class ConcreteLexer implements ILexer {
         if (text.length() < 2) return false;
         if (text.charAt(0) != 'r') return false;
 
-        return text.matches(CoreConfig.TOKEN_REGEX.get(REGISTER));
+        return text.matches(options.registerRegex());
     }
 
     /**

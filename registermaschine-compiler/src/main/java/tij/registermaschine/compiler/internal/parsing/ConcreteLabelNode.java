@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.parsing;
+package tij.registermaschine.compiler.internal.parsing;
 
 /**
  * Represents a jump target or anchor within the source code.

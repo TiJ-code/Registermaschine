@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.parsing;
+package tij.registermaschine.compiler.internal.parsing;
 
 /**
  * Represents a parameter passed to an instruction.

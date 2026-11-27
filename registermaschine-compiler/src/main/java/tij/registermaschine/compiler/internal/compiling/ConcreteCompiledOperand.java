@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation.internal.compiling;
+package tij.registermaschine.compiler.internal.compiling;
 
 import tij.registermaschine.api.compilation.compiling.ICompiledOperand;
 import tij.registermaschine.api.compilation.compiling.OperandConcept;

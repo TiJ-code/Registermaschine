@@ -1,4 +1,4 @@
-package tij.registermaschine.core.compilation;
+package tij.registermaschine.compiler;
 
 import tij.registermaschine.api.compilation.IParser;
 import tij.registermaschine.api.compilation.lexing.IToken;
@@ -8,10 +8,10 @@ import tij.registermaschine.api.compilation.parsing.ISyntaxTreeNode;
 import tij.registermaschine.api.error.SyntaxErrorException;
 import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteInstructionNode;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteLabelNode;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteOperandNode;
-import tij.registermaschine.core.compilation.internal.parsing.ConcreteSyntaxTree;
+import tij.registermaschine.compiler.internal.parsing.ConcreteInstructionNode;
+import tij.registermaschine.compiler.internal.parsing.ConcreteLabelNode;
+import tij.registermaschine.compiler.internal.parsing.ConcreteOperandNode;
+import tij.registermaschine.compiler.internal.parsing.ConcreteSyntaxTree;
 
 import java.util.ArrayList;
 import java.util.List;
