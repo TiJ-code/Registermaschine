@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<patch version="1">
+    <topic name="default">
+        <component ref="api">
+            <category name="refactorings">
+                <breaking severity="major">
+                    <entry>Maven group ID from `dk.tij.registermaschine` to `io.github.tij-code.registermaschine`</entry>
+                </breaking>
+            </category>
+        </component>
+        <component ref="core">
+            <category name="refactorings">
+                <breaking severity="major">
+                    <entry>Maven group ID from `dk.tij.registermaschine` to `io.github.tij-code.registermaschine`</entry>
+                </breaking>
+                <entry>release publishing from GitHub Packages to Maven Central</entry>
+            </category>
+        </component>
+        <component ref="instructions">
+            <category name="refactorings">
+                <breaking severity="major">
+                    <entry>Maven group ID from `dk.tij.registermaschine` to `io.github.tij-code.registermaschine`</entry>
+                </breaking>
+            </category>
+        </component>
+    </topic>
+</patch>
