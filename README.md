@@ -31,12 +31,13 @@ The project contains these Maven modules:
 
 - `registermaschine-api`
 - `registermaschine-compiler`
+- `registermaschine-engine`
 - `registermaschine-core`
-- `registermaschine-engine`, `registermaschine-config`, and `registermaschine-plugin-loader` (currently placeholders)
+- `registermaschine-config` and `registermaschine-plugin-loader` (currently placeholders)
 
 ### Publishing a release
 
-The release workflow publishes the API, compiler, and core to Maven Central with self-contained POMs. It also creates a GitHub release with their JARs.
+The release workflow publishes the API, compiler, engine, and core to Maven Central with self-contained POMs. It also creates a GitHub release with their JARs.
 
 The workflow tags and pushes the release before publishing. If publishing fails, inspect the Central Portal deployments and publish only any missing artifacts from the existing release tag rather than creating the same release again; published versions cannot be overwritten.
 
@@ -96,9 +97,11 @@ Source → Tokens → AST → Compiled Program
 
 ---
 
-### 2. Runtime (`core.runtime`)
+### 2. Runtime (`engine.runtime`)
 - `ConcreteExecutionContext`
 - `Executor`
+
+Create a context with `CoreConfig.createExecutionContext()` to use core's configured register count and jump limit, or construct it directly with a register count and jump-limit supplier. Direct users of the old `core.runtime` classes must update their imports to `tij.registermaschine.engine.runtime`. Conditions, devices, instruction implementations, and memory implementations also moved from `core` to corresponding `tij.registermaschine.engine` packages.
 
 Provides:
 - register-based execution
@@ -118,7 +121,7 @@ Plugin descriptors (`plugin.xml`) and instruction-set files are validated agains
 
 ---
 
-### 4. Condition System (`core.conditions`)
+### 4. Condition System (`engine.conditions`)
 Boolean and numeric logic system:
 - AND / OR / NOT
 - comparisons (zero, negative, etc.)
@@ -218,9 +221,9 @@ A plugin has to open all necessary to the core package or be declared as an open
 ```java
 module myPlugin {
     exports my.packages;
-    opens my.packages to dk.tij.registermaschine.core;
+    opens my.packages to tij.registermaschine.core;
     
-    requires dk.tij.registermaschine.api;
+    requires tij.registermaschine.api;
 }
 ```
 
@@ -229,7 +232,7 @@ module myPlugin {
 open module myPlugin {
     exports my.packages;
 
-    requires dk.tij.registermaschine.api;
+    requires tij.registermaschine.api;
 }
 ```
 
