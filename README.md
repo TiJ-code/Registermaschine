@@ -33,12 +33,12 @@ The project contains these Maven modules:
 - `registermaschine-compiler`
 - `registermaschine-engine`
 - `registermaschine-plugin-loader`
+- `registermaschine-config`
 - `registermaschine-core`
-- `registermaschine-config` (currently a placeholder)
 
 ### Publishing a release
 
-The release workflow publishes the API, compiler, engine, plugin loader, and core to Maven Central with self-contained POMs. It also creates a GitHub release with their JARs.
+The release workflow publishes the API, compiler, engine, plugin loader, config, and core to Maven Central with self-contained POMs. It also creates a GitHub release with their JARs.
 
 The workflow tags and pushes the release before publishing. If publishing fails, inspect the Central Portal deployments and publish only any missing artifacts from the existing release tag rather than creating the same release again; published versions cannot be overwritten.
 
@@ -141,6 +141,11 @@ Used for:
 
 ### 5. Configuration System (`core.config`)
 XML-based system (`.jxml`)
+
+Configuration lives in the `config` module; its public package remains
+`tij.registermaschine.core.config`. Use `CoreStartup.init()` from core to initialize
+configuration and load plugins. `CoreConfigParser.init()` now initializes configuration
+only and no longer starts plugins.
 
 - `CoreConfigParser`
 - instruction definitions
