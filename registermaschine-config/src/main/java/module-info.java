@@ -4,4 +4,5 @@ module tij.registermaschine.config {
     requires transitive tij.registermaschine.api;
     requires transitive tij.registermaschine.engine;
     requires java.xml;
+    requires java.logging;
 }

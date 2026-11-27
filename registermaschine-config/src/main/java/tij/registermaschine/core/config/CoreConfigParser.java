@@ -9,6 +9,7 @@ import tij.registermaschine.api.log.LogLevel;
 import tij.registermaschine.api.log.LoggerFactory;
 import tij.registermaschine.core.config.internal.migration.InstructionSetMigrator;
 import tij.registermaschine.core.config.internal.parsers.ConditionMacroParser;
+import tij.registermaschine.core.config.internal.parsers.CompilationSettingsParser;
 import tij.registermaschine.core.config.internal.parsers.ExternalDeviceParser;
 import tij.registermaschine.core.config.internal.parsers.InstructionParser;
 import tij.registermaschine.core.config.internal.parsers.InstructionSetOptionParser;
@@ -107,7 +108,8 @@ public final class CoreConfigParser {
      * Internal parsers executed during core configuration initialisation
      */
     private static final List<IConfigParser> INTERNAL_CONFIG_PARSERS = List.of(
-            new SettingsParser()
+            new SettingsParser(),
+            new CompilationSettingsParser()
     );
     /**
      * Parser for condition macros
