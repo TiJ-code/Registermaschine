@@ -1,6 +1,8 @@
 package tij.registermaschine.compiler;
 
 import tij.registermaschine.api.compilation.ICompiler;
+import tij.registermaschine.api.compilation.compiling.ICompiledInstructionFactory;
+import tij.registermaschine.api.compilation.compiling.ICompiledInstructionFactoryAware;
 import tij.registermaschine.api.compilation.compiling.ICompiledInstruction;
 import tij.registermaschine.api.compilation.compiling.ICompiledOperand;
 import tij.registermaschine.api.compilation.compiling.ICompiledProgram;
@@ -58,13 +60,18 @@ import java.util.Objects;
  * @since 1.0.0
  * @author TiJ
  */
-public final class ConcreteCompiler implements ICompiler {
+public final class ConcreteCompiler implements ICompiler, ICompiledInstructionFactoryAware {
     private static final ILogger LOGGER = LoggerFactory.getLogger(ConcreteCompiler.class);
 
     private final CompilerOptions options;
+    private ICompiledInstructionFactory instructionFactory = defaultInstructionFactory();
 
     public ConcreteCompiler(CompilerOptions options) {
         this.options = Objects.requireNonNull(options, "options");
+    }
+    
+    public static ICompiledInstructionFactory defaultInstructionFactory() {
+        return ConcreteCompiledInstruction::new;
     }
 
     /**
@@ -115,7 +122,7 @@ public final class ConcreteCompiler implements ICompiler {
                 LOGGER.trace("Instruction compiled -> opcode={}, operands={}",
                         config.opcode(), Arrays.toString(finalOperands));
 
-                program.add(new ConcreteCompiledInstruction(config.opcode(), finalOperands));
+                program.add(instructionFactory.create(config.opcode(), finalOperands));
             }
         }
 
@@ -267,5 +274,10 @@ public final class ConcreteCompiler implements ICompiler {
         LOGGER.error("Compilation error at line {}: {}", node.line, formatted);
 
         return new SyntaxErrorException(String.format("at line %d: %s", node.line, formatted));
+    }
+
+    @Override
+    public void setCompiledInstructionFactory(ICompiledInstructionFactory factory) {
+        this.instructionFactory = Objects.requireNonNull(factory, "factory");
     }
 }

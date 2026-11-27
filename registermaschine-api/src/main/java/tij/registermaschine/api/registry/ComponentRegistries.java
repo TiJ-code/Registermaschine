@@ -3,6 +3,8 @@ package tij.registermaschine.api.registry;
 import tij.registermaschine.api.compilation.ICompiler;
 import tij.registermaschine.api.compilation.ILexer;
 import tij.registermaschine.api.compilation.IParser;
+import tij.registermaschine.api.compilation.compiling.ICompiledInstructionFactory;
+import tij.registermaschine.api.compilation.lexing.ITokenFactory;
 import tij.registermaschine.api.instructions.IInstructionSet;
 
 /**
@@ -20,6 +22,8 @@ public record ComponentRegistries(
         IFactoryRegistry<ILexer> lexers,
         IFactoryRegistry<IParser> parsers,
         IFactoryRegistry<ICompiler> compilers,
-        IFactoryRegistry<IInstructionSet> instructionSets
+        IFactoryRegistry<IInstructionSet> instructionSets,
+        IFactoryRegistry<ITokenFactory> tokens,
+        IFactoryRegistry<ICompiledInstructionFactory> compiledInstructions
 ) {
 }
