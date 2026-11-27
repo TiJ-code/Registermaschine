@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<patch>
-    <topic name="api">
-        <category name="additions">
-            <breaking severity="trivial">
+<patch version="1">
+    <topic name="default">
+        <component ref="api">
+            <category name="additions">
+                <breaking severity="trivial">
+                    <entry>Entry</entry>
+                </breaking>
                 <entry>Entry</entry>
-            </breaking>
-            <entry>Entry</entry>
-        </category>
+            </category>
+        </component>
     </topic>
 </patch>

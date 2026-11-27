@@ -40,7 +40,7 @@ jobs:
         shell: bash
         run: |
           REPO="TiJ-code/ChangelogTool"
-          TAG="releases/0.3.2"
+          TAG="releases/1.1.3"
           API="https://api.github.com/repos/$REPO/releases/tags/$TAG"
           
           AUTH_HEADER=()
@@ -82,7 +82,7 @@ jobs:
         id: release_version
         if: github.event.inputs.bump_type != 'test'
         run: |
-            ./ChangelogVersioning.tool config_registermaschine.xml --release
+            ./ChangelogVersioning.tool registermaschine-changelog.xml --release
             
             NEW_VER=$(mvn help:evaluate \
               -Dexpression=project.version \
@@ -95,9 +95,9 @@ jobs:
 
       - name: Build Changelog
         run: |
-          ./ChangelogPatchParser.tool config_registermaschine.xml
-          ./ChangelogMarkdownBuilder.tool config_registermaschine.xml
-          ./ChangelogArchiver.tool
+          ./ChangelogPatchParser.tool registermaschine-changelog.xml
+          ./ChangelogMarkdownBuilder.tool registermaschine-changelog.xml
+          ./ChangelogArchiver.tool registermaschine-changelog.xml
 
       - name: Read Changelog
         id: changelog
@@ -118,6 +118,7 @@ jobs:
             
           git add pom.xml
           git add */pom.xml
+          git add changelogs
             
           git commit -m "release v${{ steps.release_version.outputs.NEW_VER }}"
             
@@ -126,8 +127,10 @@ jobs:
       - name: Apply Snapshot Suffix
         if: github.event.inputs.bump_type != 'skip'
         run: |
-          ./ChangelogVersioning.tool config_registermaschine.xml --stage ${{ github.event.inputs.bump_type }}
-          ./ChangelogVersioning.tool config_registermaschine.xml --suffix
+          ./ChangelogVersioning.tool registermaschine-changelog.xml --increment ${{ github.event.inputs.bump_type }}
+          # Increment preserves the release's non-snapshot state.
+          NEXT_VER=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          mvn -B versions:set -DnewVersion="${NEXT_VER}-SNAPSHOT" -DgenerateBackupPoms=false
 
       - name: Commit Next Dev Version
         if: github.event.inputs.bump_type != 'skip'
@@ -146,7 +149,6 @@ jobs:
         run: git push origin --tags
 
       - name: Push Commits
-        if: github.event.inputs.bump_type != 'skip'
         run: git push origin main
 
   build_and_release:
