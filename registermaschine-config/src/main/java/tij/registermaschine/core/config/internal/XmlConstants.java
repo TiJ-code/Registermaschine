@@ -70,7 +70,37 @@ public final class XmlConstants {
      */
                                 TAG_MEMORY_MAPPING = "memoryMapping";
 
+    /**
+     * Tag for compilation pipeline settings.
+     */
+    public static final String TAG_CONFIG_COMPILATION = "compilation",
+    /**
+     * Tag for the configured lexer factory.
+     */
+                                TAG_CONFIG_LEXER = "lexer",
+    /**
+     * Tag for the configured parser factory.
+     */
+                                TAG_CONFIG_PARSER = "parser",
+    /**
+     * Tag for the configured compiler factory.
+     */
+                                TAG_CONFIG_COMPILER = "compiler",
+    /**
+     * Tag for the configured token factory.
+     */
+                                TAG_CONFIG_TOKEN_FACTORY = "tokenFactory",
+    /**
+     * Tag for the configured compiled-instruction factory.
+     */
+                                TAG_CONFIG_COMPILED_INSTRUCTION_FACTORY = "compiledInstructionFactory";
+
     public static final String  ATTRIBUTE_INSTRUCTION_SET_VERSION = "version";
+
+    /**
+     * Attribute containing a component factory identifier.
+     */
+    public static final String ATTRIBUTE_FACTORY_VALUE = "value";
 
     /**
      * Attribute for the name of a condition macro

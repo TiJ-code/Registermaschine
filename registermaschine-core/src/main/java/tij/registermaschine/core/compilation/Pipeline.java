@@ -15,6 +15,7 @@ import tij.registermaschine.api.log.ILogger;
 import tij.registermaschine.api.log.LoggerFactory;
 import tij.registermaschine.api.registry.IFactoryRegistry;
 import tij.registermaschine.core.Components;
+import tij.registermaschine.core.config.CoreConfig;
 
 import java.util.List;
 import java.util.Objects;
@@ -81,7 +82,7 @@ public final class Pipeline {
      */
     public static ICompiledProgram compile(String sourceCode, IInstructionSet set)
             throws SyntaxErrorException, DefectPipelineException {
-        return compile(sourceCode, set, Selection.DEFAULT);
+        return compile(sourceCode, set, defaultSelection());
     }
 
     /**
@@ -123,7 +124,7 @@ public final class Pipeline {
      * @throws DefectPipelineException if the lexer cannot be created
      */
     public static TokenStage tokenize(String sourceCode, IInstructionSet set) {
-        return tokenize(sourceCode, set, Selection.DEFAULT);
+        return tokenize(sourceCode, set, defaultSelection());
     }
 
     /**
@@ -191,11 +192,6 @@ public final class Pipeline {
             String compiledInstructionFactory
     ) {
         /**
-         * Selection using the core default factory for each stage.
-         */
-        public static final Selection DEFAULT = new Selection(Components.DEFAULT);
-
-        /**
          * @throws NullPointerException if any ID is null
          */
         public Selection {
@@ -225,6 +221,24 @@ public final class Pipeline {
         public Selection(String lexer, String parser, String compiler) {
             this(lexer, parser, compiler, Components.DEFAULT, Components.DEFAULT);
         }
+    }
+
+    /**
+     * Creates the default selection configured by the core XML configuration.
+     *
+     * <p>The values are read when this method is called so configuration parsed
+     * during startup is reflected without requiring static initialisation order.</p>
+     *
+     * @return the configured default factory selection
+     */
+    public static Selection defaultSelection() {
+        return new Selection(
+                CoreConfig.LEXER_FACTORY,
+                CoreConfig.PARSER_FACTORY,
+                CoreConfig.COMPILER_FACTORY,
+                CoreConfig.TOKEN_FACTORY,
+                CoreConfig.COMPILED_INSTRUCTION_FACTORY
+        );
     }
 
     /**

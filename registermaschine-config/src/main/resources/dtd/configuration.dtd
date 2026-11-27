@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!ELEMENT configuration (registers, maxJumps, custom*)>
+<!ELEMENT configuration (registers, maxJumps, compilation?, custom*)>
 
 <!ELEMENT registers (#PCDATA)>
 <!ELEMENT maxJumps (#PCDATA)>
+
+<!ELEMENT compilation (lexer?, parser?, compiler?, tokenFactory?, compiledInstructionFactory?)>
+
+<!ELEMENT lexer EMPTY>
+<!ATTLIST lexer
+    value CDATA "core:default">
+
+<!ELEMENT parser EMPTY>
+<!ATTLIST parser
+    value CDATA "core:default">
+
+<!ELEMENT compiler EMPTY>
+<!ATTLIST compiler
+    value CDATA "core:default">
+
+<!ELEMENT tokenFactory EMPTY>
+<!ATTLIST tokenFactory
+    value CDATA "core:default">
+
+<!ELEMENT compiledInstructionFactory EMPTY>
+<!ATTLIST compiledInstructionFactory
+    value CDATA "core:default">
 
 <!ELEMENT custom (#PCDATA)>
 <!ATTLIST custom

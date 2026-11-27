@@ -3,4 +3,12 @@
 <configuration>
     <registers>8</registers>
     <maxJumps>255</maxJumps>
+
+    <compilation>
+        <lexer value="core:default"/>
+        <parser value="core:default"/>
+        <compiler value="core:default"/>
+        <tokenFactory value="core:default"/>
+        <compiledInstructionFactory value="core:default"/>
+    </compilation>
 </configuration>

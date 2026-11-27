@@ -31,6 +31,11 @@ import java.util.Map;
 public final class CoreConfig {
     private CoreConfig() {}
 
+    /**
+     * Default component factory identifier used by the core configuration.
+     */
+    public static final String DEFAULT_COMPONENT_ID = "core:default";
+
     public static final LogConfig LOG = LogConfig.instance();
 
     /**
@@ -84,6 +89,31 @@ public final class CoreConfig {
     public static final IPrecompilerStage<ConfigInstruction, ChainedInstruction> INSTRUCTION_PRECOMPILER = InstructionPrecompilerStage.instance();
 
     public static volatile IStepHandlerRegistry STEP_HANDLER_REGISTRY = ConcreteStepHandlerRegistry.instance();
+
+    /**
+     * Factory identifier for the default lexer used by the compilation pipeline.
+     */
+    public static volatile String LEXER_FACTORY = DEFAULT_COMPONENT_ID;
+
+    /**
+     * Factory identifier for the default parser used by the compilation pipeline.
+     */
+    public static volatile String PARSER_FACTORY = DEFAULT_COMPONENT_ID;
+
+    /**
+     * Factory identifier for the default compiler used by the compilation pipeline.
+     */
+    public static volatile String COMPILER_FACTORY = DEFAULT_COMPONENT_ID;
+
+    /**
+     * Factory identifier for the default token factory used by the compilation pipeline.
+     */
+    public static volatile String TOKEN_FACTORY = DEFAULT_COMPONENT_ID;
+
+    /**
+     * Factory identifier for the default compiled-instruction factory used by the compilation pipeline.
+     */
+    public static volatile String COMPILED_INSTRUCTION_FACTORY = DEFAULT_COMPONENT_ID;
 
     /**
      * Creates a context using the configured register count and current jump limit.
