@@ -121,7 +121,7 @@ public final class PluginConstants {
     /**
      * XML tag name for the plugin author.
      */
-                                TAG_AUTHOR = "version",
+                                TAG_AUTHOR = "author",
     /**
      * XML tag name for the plugin main class.
      */

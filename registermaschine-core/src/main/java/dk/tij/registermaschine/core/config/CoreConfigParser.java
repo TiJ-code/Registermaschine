@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -425,7 +426,7 @@ public final class CoreConfigParser {
 
         String xml = writer.toString();
 
-        parseWithDtd(new ByteArrayInputStream(xml.getBytes()));
+        parseWithDtd(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**
